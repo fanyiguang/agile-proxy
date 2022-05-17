@@ -1,0 +1,74 @@
+{
+  "client": [
+    {
+      "ip": "127.0.0.1",
+      "port": "7890",
+      "username": "admin",
+      "password": "123",
+      "type": "socks5",
+      "auth": 0,
+      "transport_name": "normal"
+    },
+    {
+      "ip": "127.0.0.1",
+      "port": "7891",
+      "username": "admin",
+      "password": "123",
+      "type": "ssl",
+      "auth": 0,
+      "transport_name": "normal"
+    }
+  ],
+  "server": [
+    {
+      "ip": "127.0.0.1",
+      "port": "7890",
+      "username": "admin",
+      "password": "123",
+      "type": "socks5",
+      "name": "socks5",
+      "auth": 0,
+      "mode": 0,
+      "dialer_name": "ssh"
+    },
+    {
+      "ip": "127.0.0.1",
+      "port": "7891",
+      "username": "admin",
+      "password": "123",
+      "type": "ssl",
+      "name": "ssl",
+      "auth": 0,
+      "cert_file": "D:\\study\\go-objects\\my\\src\\nimble-proxy\\_example\\config.json",
+      "mode": 1,
+      "dialer_name": "direct"
+    }
+  ],
+  "dialer": [
+    {
+      "type": "direct",
+      "name": "direct",
+      "interface": "127.0.0.1"
+    },
+    {
+      "ip": "127.0.0.1",
+      "port": "7891",
+      "username": "admin",
+      "password": "123",
+      "type": "ssh",
+      "name": "ssh",
+      "public_key_auth": "",
+      "interface": "127.0.0.1"
+    }
+  ],
+  "transport": [
+    {
+      "type": "normal",
+      "name": "normal",
+      "server_name": "ssl",
+      "mode": 1
+    }
+  ],
+  "log_path": "",
+  "log_level": "debug"
+}
