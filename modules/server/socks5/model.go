@@ -1,10 +1,12 @@
 package socks5
 
 type Config struct {
-	Ip       string
-	Port     string
-	Username string
-	Password string
-	Type     string
-	Auth     int
+	Ip         string `json:"ip"`
+	Port       string `json:"port"`
+	Username   string `json:"username"`
+	Password   string `json:"password"`
+	Type       string `json:"type"`
+	DialerName string `json:"dialer_name"`
+	Auth       int    `json:"auth"`
+	Mode       int    `json:"mode"`
 }

@@ -1,5 +1,7 @@
 package transport
 
+import "net"
+
 type Transport interface {
-	Transport(ip, port string) (err error)
+	Transport(conn net.Conn, ip, port string) (err error)
 }
