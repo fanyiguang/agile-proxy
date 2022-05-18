@@ -3,26 +3,33 @@ package server
 import (
 	jsoniter "github.com/json-iterator/go"
 	"github.com/pkg/errors"
+	"net"
 	pConfig "nimble-proxy/config"
 	"nimble-proxy/helper/log"
 	"nimble-proxy/modules/server/socks5"
+	"nimble-proxy/modules/transport"
 	"strings"
 )
 
 var json = jsoniter.ConfigCompatibleWithStandardLibrary
 
 type Server interface {
-	Start() (err error)
+	Run() (err error)
 	Accept()
-	Connect()
+	Transport()
 	Close()
 }
 
 type BaseServer struct {
-	Ip       string
-	Port     string
-	Username string
-	Password string
+	Name        string
+	Type        string
+	Ip          string
+	Port        string
+	Username    string
+	Password    string
+	DoneCh      chan struct{}
+	Listen      net.Listener
+	Transmitter transport.Transport
 }
 
 func Factory(configs []string) (servers []Server) {

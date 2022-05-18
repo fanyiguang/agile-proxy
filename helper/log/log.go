@@ -60,7 +60,11 @@ func InfoF(format string, args ...interface{}) {
 }
 
 func DebugF(format string, args ...interface{}) {
-	log.Info(format, args...)
+	log.Debug(format, args...)
+}
+
+func ErrorF(format string, args ...interface{}) {
+	log.Error(format, args...)
 }
 
 func Info(msg interface{}) {
