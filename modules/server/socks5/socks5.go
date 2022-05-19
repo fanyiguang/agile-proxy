@@ -1,12 +1,12 @@
 package socks5
 
 import (
-	"bufio"
 	"encoding/json"
 	"github.com/pkg/errors"
 	"net"
 	"nimble-proxy/helper/Go"
 	"nimble-proxy/helper/log"
+	"nimble-proxy/modules/ipc"
 	"nimble-proxy/modules/server"
 	"nimble-proxy/modules/transport"
 	"nimble-proxy/pkg/socks5"
@@ -14,7 +14,7 @@ import (
 
 type Socks5 struct {
 	server.BaseServer
-	Auth int
+	AuthMode int
 }
 
 func (s *Socks5) Run() (err error) {
@@ -81,12 +81,7 @@ func (s *Socks5) handler(conn net.Conn) (err error) {
 		_ = conn.Close()
 	}()
 
-	reader := bufio.NewReader(conn)
-	_type, _err := reader.ReadByte()
-	if _err != nil {
-		err = errors.Wrap(_err, "reader.ReadByte")
-	}
-	socks5.IsSocks5(_type)
+	socks5.NewServer(conn, socks5.SetAuth(s.AuthMode), socks5.SetUsername(s.Username), socks5.SetPassword(s.Password)).Run()
 	return
 	//io.ReadFull(reader)
 }
@@ -101,12 +96,13 @@ func New(strConfig string) (obj *Socks5, err error) {
 
 	obj = &Socks5{
 		BaseServer: server.BaseServer{
-			Ip:       config.Ip,
-			Port:     config.Port,
-			Username: config.Username,
-			Password: config.Password,
+			Ip:          config.Ip,
+			Port:        config.Port,
+			Username:    config.Username,
+			Password:    config.Password,
+			OutputMsgCh: ipc.OutputCh,
 		},
-		Auth: config.Auth,
+		AuthMode: config.AuthMode,
 	}
 
 	if len(config.TransportName) > 0 {

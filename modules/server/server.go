@@ -6,6 +6,7 @@ import (
 	"net"
 	pConfig "nimble-proxy/config"
 	"nimble-proxy/helper/log"
+	"nimble-proxy/modules/ipc"
 	"nimble-proxy/modules/server/socks5"
 	"nimble-proxy/modules/transport"
 	"strings"
@@ -30,6 +31,7 @@ type BaseServer struct {
 	DoneCh      chan struct{}
 	Listen      net.Listener
 	Transmitter transport.Transport
+	OutputMsgCh chan<- ipc.Msg
 }
 
 func Factory(configs []string) (servers []Server) {

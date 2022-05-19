@@ -7,6 +7,6 @@ type Config struct {
 	Password      string `json:"password"`
 	Type          string `json:"type"`
 	TransportName string `json:"transport_name"`
-	Auth          int    `json:"auth"`
-	Mode          int    `json:"mode"`
+	AuthMode      int    `json:"auth_mode"`      // 认证模式 0-允许匿名模式 1-不允许匿名模式
+	TransportMode int    `json:"transport_mode"` // 转发模式 0-降级模式 1-严格模式
 }
