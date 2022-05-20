@@ -5,7 +5,14 @@ import "net"
 var transports = make(map[string]Transport)
 
 type Transport interface {
-	Transport(conn net.Conn, ip, port string) (err error)
+	Transport(conn net.Conn, ip, port []byte) (err error)
+}
+
+type BaseTransport struct {
+	Type       string
+	Name       string
+	ClientName string
+	Mode       int
 }
 
 func GetTransport(name string) (t Transport) {

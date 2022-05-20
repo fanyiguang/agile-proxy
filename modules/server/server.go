@@ -16,8 +16,6 @@ var json = jsoniter.ConfigCompatibleWithStandardLibrary
 
 type Server interface {
 	Run() (err error)
-	Accept()
-	Transport()
 	Close()
 }
 

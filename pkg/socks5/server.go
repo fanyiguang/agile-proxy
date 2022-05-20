@@ -10,6 +10,8 @@ type Server struct {
 	conn         net.Conn
 	username     string
 	password     string
+	desHost      []byte
+	desPort      []byte
 	authMode     int
 	usedAuthMode uint8
 }
@@ -46,25 +48,29 @@ func NewServer(conn net.Conn, operates ...Operation) *Server {
 	return server
 }
 
-func (s *Server) Run() (err error) {
+func (s *Server) HandShake() (err error) {
 	err = s.handShake()
 	if err != nil {
 		return
 	}
 
-	if s.usedAuthMode == Pass {
+	if s.usedAuthMode == pass {
 		err = s.authentication()
 		if err != nil {
 			return
 		}
 	}
 
-	s.readReqInfo()
-	return
+	return s.readReqInfo()
+
+}
+
+func (s *Server) GetDesInfo() ([]byte, []byte) {
+	return s.desHost, s.desPort
 }
 
 func (s *Server) verCheck(t byte) bool {
-	if t == VER {
+	if t == ver {
 		return true
 	} else {
 		return false
@@ -97,20 +103,20 @@ func (s *Server) handShake() (err error) {
 
 	authModes := buffer[2 : buffer[1]+2]
 	for _, authMode := range authModes {
-		if authMode == NoAuth && s.authMode == 1 {
+		if authMode == noAuth && s.authMode == 1 {
 			_, err = s.conn.Write(noAuthResponse)
-			s.usedAuthMode = NoAuth
+			s.usedAuthMode = noAuth
 			return
 		}
-		if authMode == Pass {
+		if authMode == pass {
 			_, err = s.conn.Write(passAuthResponse)
-			s.usedAuthMode = Pass
+			s.usedAuthMode = pass
 			return
 		}
 	}
 
 	_, _ = s.conn.Write(errorAuthResponse)
-	err = authProtocolError
+	err = nMETHODSError
 	return
 }
 
@@ -128,8 +134,8 @@ func (s *Server) authentication() (err error) {
 	}
 
 	usernameLen := buffer[1]
-	if n < int(usernameLen)+1 {
-		err = errors.Wrap(errors.New("slice out of range"), "")
+	if n < int(usernameLen)+2 {
+		err = errors.Wrap(outOfRangeError, "")
 		return
 	}
 
@@ -139,9 +145,9 @@ func (s *Server) authentication() (err error) {
 	}
 
 	passwordLen := buffer[2+usernameLen]
-	if n < int(usernameLen)+1+1+int(passwordLen) {
+	if n < int(usernameLen)+2+1+int(passwordLen) {
 		_, err = s.conn.Write([]byte{buffer[0], 0x01})
-		err = errors.Wrap(errors.New("slice out of range"), "")
+		err = errors.Wrap(outOfRangeError, "")
 		return
 	}
 
@@ -169,12 +175,55 @@ func (s *Server) readReqInfo() (err error) {
 	}
 	switch buffer[1] {
 	case tcp:
-
-		//s.conn.Write([]byte{successfulFirst, 0x00})
+		err = s.handlerTcp(buffer)
 	case udp:
-
+		err = s.handlerUdp(buffer)
 	default:
 		err = errors.New("unsupported transport layer protocol")
 	}
+	responseMsg := successfulFirst
+	responseMsg[3] = buffer[1] // 对应协议
+	if err != nil {
+		responseMsg[1] = 0x00 // 失败
+		_, err = s.conn.Write(responseMsg)
+	} else {
+		_, err = s.conn.Write(responseMsg)
+	}
+	return
+}
+
+func (s *Server) handlerTcp(buffer []byte) (err error) {
+	n := len(buffer)
+	switch buffer[3] {
+	case ipv4:
+		hostEndPos := 4 + net.IPv4len
+		if n < hostEndPos+2 {
+			err = errors.Wrap(outOfRangeError, "ipv4")
+			return
+		}
+		s.desHost, s.desPort = buffer[4:hostEndPos], buffer[hostEndPos:hostEndPos+2]
+	case domain:
+		domainEndPos := 5 + buffer[4]
+		if n < int(domainEndPos)+2 {
+			err = errors.Wrap(outOfRangeError, "domain")
+			return
+		}
+		s.desHost, s.desPort = buffer[5:domainEndPos], buffer[domainEndPos:domainEndPos+2]
+	case ipv6:
+		hostEndPos := 4 + net.IPv6len
+		if n < hostEndPos+2 {
+			err = errors.Wrap(outOfRangeError, "ipv6")
+			return
+		}
+		s.desHost, s.desPort = buffer[4:hostEndPos], buffer[hostEndPos:hostEndPos+2]
+	default:
+		err = aTYPError
+	}
+	return
+}
+
+func (s *Server) handlerUdp(buffer []byte) (err error) {
+	// TODO UDP流量实现
+	err = errors.New("UDP is not supported temporarily")
 	return
 }

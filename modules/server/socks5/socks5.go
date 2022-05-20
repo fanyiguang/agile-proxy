@@ -24,13 +24,13 @@ func (s *Socks5) Run() (err error) {
 	}
 
 	Go.Go(func() {
-		s.Accept()
+		s.accept()
 	})
 
 	return
 }
 
-func (s *Socks5) Accept() {
+func (s *Socks5) accept() {
 	for {
 		select {
 		case <-s.DoneCh:
@@ -38,7 +38,7 @@ func (s *Socks5) Accept() {
 		default:
 			conn, err := s.Listen.Accept()
 			if err != nil {
-				log.WarnF("s.Listen.Accept failed: %v", err)
+				log.WarnF("s.Listen.accept failed: %v", err)
 				continue
 			}
 			err = s.handler(conn)
@@ -49,9 +49,13 @@ func (s *Socks5) Accept() {
 	}
 }
 
-func (s *Socks5) Transport() {
-	//TODO implement me
-	panic("implement me")
+func (s *Socks5) transport(conn net.Conn, desHost, desPort []byte) (err error) {
+	if s.Transmitter != nil {
+		err = s.Transmitter.Transport(conn, desHost, desPort)
+	} else {
+		err = errors.New("Transmitter is nil")
+	}
+	return
 }
 
 func (s *Socks5) Close() {
@@ -81,9 +85,14 @@ func (s *Socks5) handler(conn net.Conn) (err error) {
 		_ = conn.Close()
 	}()
 
-	socks5.NewServer(conn, socks5.SetAuth(s.AuthMode), socks5.SetUsername(s.Username), socks5.SetPassword(s.Password)).Run()
-	return
-	//io.ReadFull(reader)
+	socks5Server := socks5.NewServer(conn, socks5.SetAuth(s.AuthMode), socks5.SetUsername(s.Username), socks5.SetPassword(s.Password))
+	err = socks5Server.HandShake()
+	if err != nil {
+		return
+	}
+
+	host, port := socks5Server.GetDesInfo()
+	return s.transport(conn, host, port)
 }
 
 func New(strConfig string) (obj *Socks5, err error) {
@@ -101,6 +110,7 @@ func New(strConfig string) (obj *Socks5, err error) {
 			Username:    config.Username,
 			Password:    config.Password,
 			OutputMsgCh: ipc.OutputCh,
+			DoneCh:      make(chan struct{}),
 		},
 		AuthMode: config.AuthMode,
 	}

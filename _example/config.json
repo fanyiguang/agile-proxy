@@ -7,7 +7,8 @@
       "password": "123",
       "type": "socks5",
       "auth": 0,
-      "transport_name": "normal"
+      "transport_name": "normal",
+      "mode": 1
     },
     {
       "ip": "127.0.0.1",
@@ -16,7 +17,8 @@
       "password": "123",
       "type": "ssl",
       "auth": 0,
-      "transport_name": "normal"
+      "transport_name": "normal",
+      "mode": 1
     }
   ],
   "server": [
@@ -65,8 +67,7 @@
     {
       "type": "normal",
       "name": "normal",
-      "server_name": "ssl",
-      "mode": 1
+      "client_name": "ssl"
     }
   ],
   "log_path": "",
