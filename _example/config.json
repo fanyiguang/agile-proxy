@@ -29,8 +29,7 @@
       "password": "123",
       "type": "socks5",
       "name": "socks5",
-      "auth": 0,
-      "mode": 0,
+      "auth_mode": 0,
       "dialer_name": "ssh"
     },
     {
@@ -40,9 +39,8 @@
       "password": "123",
       "type": "ssl",
       "name": "ssl",
-      "auth": 0,
+      "auth_mode": 0,
       "cert_file": "D:\\study\\go-objects\\my\\src\\nimble-proxy\\_example\\config.json",
-      "mode": 1,
       "dialer_name": "direct"
     }
   ],

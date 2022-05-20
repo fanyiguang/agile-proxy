@@ -16,27 +16,27 @@ type Server struct {
 	usedAuthMode uint8
 }
 
-type Operation func(server *Server)
+type ServerOperation func(server *Server)
 
-func SetUsername(username string) Operation {
+func SetUsername(username string) ServerOperation {
 	return func(server *Server) {
 		server.username = username
 	}
 }
 
-func SetPassword(password string) Operation {
+func SetPassword(password string) ServerOperation {
 	return func(server *Server) {
 		server.password = password
 	}
 }
 
-func SetAuth(authMode int) Operation {
+func SetAuth(authMode int) ServerOperation {
 	return func(server *Server) {
 		server.authMode = authMode
 	}
 }
 
-func NewServer(conn net.Conn, operates ...Operation) *Server {
+func NewServer(conn net.Conn, operates ...ServerOperation) *Server {
 	server := &Server{
 		conn: conn,
 	}
