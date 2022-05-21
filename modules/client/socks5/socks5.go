@@ -3,6 +3,7 @@ package socks5
 import (
 	"encoding/json"
 	"github.com/pkg/errors"
+	"net"
 	"nimble-proxy/modules/client"
 )
 
@@ -11,7 +12,7 @@ type Socks5 struct {
 	Auth int
 }
 
-func (s *Socks5) Dial() {
+func (s *Socks5) Dial(host, port []byte) (conn net.Conn, err error) {
 	//TODO implement me
 	panic("implement me")
 }
