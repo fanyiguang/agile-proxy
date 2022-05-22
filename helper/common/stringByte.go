@@ -21,3 +21,7 @@ func BytesToStr(b []byte) string {
 func StrToBytes(str string) []byte {
 	return *(*[]byte)(unsafe.Pointer(&str))
 }
+
+func GetBytesLen(b []byte) int {
+	return (*reflect.SliceHeader)(unsafe.Pointer(&b)).Len
+}

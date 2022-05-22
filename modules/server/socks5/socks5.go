@@ -85,7 +85,7 @@ func (s *Socks5) handler(conn net.Conn) (err error) {
 		_ = conn.Close()
 	}()
 
-	socks5Server := socks5.NewServer(conn, socks5.SetAuth(s.AuthMode), socks5.SetUsername(s.Username), socks5.SetPassword(s.Password))
+	socks5Server := socks5.NewServer(conn, socks5.SetServerAuth(s.AuthMode), socks5.SetServerUsername(s.Username), socks5.SetServerPassword(s.Password))
 	err = socks5Server.HandShake()
 	if err != nil {
 		return

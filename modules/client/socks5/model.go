@@ -8,4 +8,5 @@ type Config struct {
 	Type       string `json:"type"`
 	DialerName string `json:"dialer_name"`
 	Auth       int    `json:"auth"`
+	Mode       int    `json:"mode"`
 }

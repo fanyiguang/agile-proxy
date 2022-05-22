@@ -18,19 +18,19 @@ type Server struct {
 
 type ServerOperation func(server *Server)
 
-func SetUsername(username string) ServerOperation {
+func SetServerUsername(username string) ServerOperation {
 	return func(server *Server) {
 		server.username = username
 	}
 }
 
-func SetPassword(password string) ServerOperation {
+func SetServerPassword(password string) ServerOperation {
 	return func(server *Server) {
 		server.password = password
 	}
 }
 
-func SetAuth(authMode int) ServerOperation {
+func SetServerAuth(authMode int) ServerOperation {
 	return func(server *Server) {
 		server.authMode = authMode
 	}
@@ -62,7 +62,6 @@ func (s *Server) HandShake() (err error) {
 	}
 
 	return s.readReqInfo()
-
 }
 
 func (s *Server) GetDesInfo() ([]byte, []byte) {
@@ -86,7 +85,7 @@ func (s *Server) handShake() (err error) {
 	}
 
 	if n < 2 {
-		err = errors.New(fmt.Sprintf("read len < 2, buffer: %x", buffer))
+		err = errors.New(fmt.Sprintf("read len < 2, buffer: %#v", buffer))
 		return
 	}
 
@@ -97,7 +96,7 @@ func (s *Server) handShake() (err error) {
 	}
 
 	if n < int(buffer[1])+2 {
-		err = errors.New(fmt.Sprintf("buffer out of range, buffer: %x", buffer))
+		err = errors.New(fmt.Sprintf("buffer out of range, buffer: %#v", buffer))
 		return
 	}
 
@@ -129,7 +128,7 @@ func (s *Server) authentication() (err error) {
 	}
 
 	if n < 2 {
-		err = errors.New(fmt.Sprintf("read len < 2, buffer: %x", buffer))
+		err = errors.New(fmt.Sprintf("read len < 2, buffer: %#v", buffer))
 		return
 	}
 
@@ -170,7 +169,7 @@ func (s *Server) readReqInfo() (err error) {
 	}
 
 	if n < 4 {
-		err = errors.New(fmt.Sprintf("read len < 4, buffer: %x", buffer))
+		err = errors.New(fmt.Sprintf("read len < 4, buffer: %#v", buffer))
 		return
 	}
 	switch buffer[1] {
@@ -181,6 +180,8 @@ func (s *Server) readReqInfo() (err error) {
 	default:
 		err = errors.New("unsupported transport layer protocol")
 	}
+
+	// 本来应该返回连接远程对应的ip类型+ip+port，偷懒了，直接固定参数返回了
 	responseMsg := successfulFirst
 	responseMsg[3] = buffer[1] // 对应协议
 	if err != nil {
@@ -222,8 +223,8 @@ func (s *Server) handlerTcp(buffer []byte) (err error) {
 	return
 }
 
+//TODO UDP流量实现
 func (s *Server) handlerUdp(buffer []byte) (err error) {
-	// TODO UDP流量实现
 	err = errors.New("UDP is not supported temporarily")
 	return
 }

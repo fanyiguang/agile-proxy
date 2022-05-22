@@ -67,8 +67,8 @@
       "name": "normal",
       "client_name": "ssl",
       "dns": {
-        "server": "114.114.114.114",
-        "local_dns": true
+        "local_dns": true,
+        "server": "114.114.114.114"
       }
     }
   ],

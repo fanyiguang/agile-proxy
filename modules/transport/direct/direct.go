@@ -28,7 +28,7 @@ func (d *Direct) Transport(conn net.Conn, host, port []byte) (err error) {
 			return
 		}
 
-		conn, err = d.Client.Dial(host, port)
+		conn, err = d.Client.Dial("tcp", host, port)
 	} else {
 		err = errors.New("Client is nil")
 	}
