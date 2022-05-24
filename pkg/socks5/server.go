@@ -181,13 +181,16 @@ func (s *Server) readReqInfo() (err error) {
 		err = errors.New("unsupported transport layer protocol")
 	}
 
-	// 本来应该返回连接远程对应的ip类型+ip+port，偷懒了，直接固定参数返回了
+	// 正常应该返回连接远程对应的ip类型+ip+port，偷懒了，直接固定参数返回了
 	responseMsg := successfulFirst
 	responseMsg[3] = buffer[1] // 对应协议
 	if err != nil {
 		responseMsg[1] = 0x00 // 失败
 		_, err = s.conn.Write(responseMsg)
 	} else {
+		// 正常应该成功与目标ip和端口建立连接后再回复
+		// 此条消息，但是为了项目结构的清晰就提前回复
+		// 客服端了
 		_, err = s.conn.Write(responseMsg)
 	}
 	return

@@ -31,6 +31,8 @@ func App(configPath string) (err error) {
 	// init log
 	log.New(proxyConfig.LogPath, proxyConfig.LogLevel)
 
+	// 固定初始化顺序无法改变
+	// 依赖关系：server -> transport -> client-> dialer
 	dialer.Factory(proxyConfig.DialerConfig)
 	client.Factory(proxyConfig.ClientConfig)
 	transport.Factory(proxyConfig.TransportConfig)
