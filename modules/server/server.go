@@ -16,6 +16,8 @@ var json = jsoniter.ConfigCompatibleWithStandardLibrary
 
 type Server interface {
 	Run() (err error)
+	GetName() string
+	GetType() string
 	Close()
 }
 
@@ -30,6 +32,14 @@ type BaseServer struct {
 	Listen      net.Listener
 	Transmitter transport.Transport
 	OutputMsgCh chan<- ipc.Msg
+}
+
+func (b *BaseServer) GetName() string {
+	return b.Name
+}
+
+func (b *BaseServer) GetType() string {
+	return b.Type
 }
 
 func Factory(configs []string) (servers []Server) {

@@ -21,14 +21,20 @@ func (d *Direct) Close() (err error) {
 	return nil
 }
 
-func (d *Direct) Transport(conn net.Conn, host, port []byte) (err error) {
+func (d *Direct) Transport(cConn net.Conn, host, port []byte) (err error) {
 	if d.Client != nil {
 		host, err = d.getHost(host)
 		if err != nil {
 			return
 		}
 
-		conn, err = d.Client.Dial("tcp", host, port)
+		var sConn net.Conn
+		sConn, err = d.Client.Dial("tcp", host, port)
+		if err != nil {
+			return
+		}
+
+		d.MyCopy(sConn, cConn)
 	} else {
 		err = errors.New("Client is nil")
 	}
@@ -69,9 +75,9 @@ func (d *Direct) getHost(host []byte) (newHost []byte, err error) {
 	return
 }
 
-func New(strConfig string) (obj *Direct, err error) {
+func New(jsonConfig string) (obj *Direct, err error) {
 	var config Config
-	err = json.Unmarshal([]byte(strConfig), &config)
+	err = json.Unmarshal([]byte(jsonConfig), &config)
 	if err != nil {
 		err = errors.Wrap(err, "direct new")
 		return

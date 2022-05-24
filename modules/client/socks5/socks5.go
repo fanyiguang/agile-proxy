@@ -4,23 +4,25 @@ import (
 	"encoding/json"
 	"github.com/pkg/errors"
 	"net"
-	"nimble-proxy/modules/client"
+	"nimble-proxy/modules/client/base"
 	"nimble-proxy/modules/dialer"
 	"nimble-proxy/pkg/socks5"
 )
 
 type Socks5 struct {
-	client.BaseClient
-	dialerName dialer.Dialer
-	auth       int
+	base.Client
+	dialer   dialer.Dialer
+	authMode int
 }
 
 func (s *Socks5) Dial(network string, host, port []byte) (conn net.Conn, err error) {
-	s.dial(network)
+	conn, err = s.dial(network)
+	if err != nil {
+		return
+	}
 
-	socks5Client := socks5.NewClient(conn, host, port, socks5.SetClientAuth(s.auth), socks5.SetClientUsername(s.Username), socks5.SetClientPassword(s.Password))
+	socks5Client := socks5.NewClient(conn, host, port, socks5.SetClientAuth(s.authMode), socks5.SetClientUsername(s.Username), socks5.SetClientPassword(s.Password))
 	err = socks5Client.HandShark()
-
 	return
 }
 
@@ -30,9 +32,9 @@ func (s *Socks5) Close() {
 }
 
 func (s *Socks5) dial(network string) (conn net.Conn, err error) {
-	if s.dialerName != nil {
-		conn, err = s.dialerName.Dial(network, s.Host, s.Port)
-		if err != nil && s.Mode == 1 { // 连接器返回失败且自身为严格模式直接返回
+	if s.dialer != nil {
+		conn, err = s.dialer.Dial(network, s.Host, s.Port)
+		if err == nil || s.Mode == 1 { // mode=1 严格模式
 			return
 		}
 	}
@@ -53,13 +55,17 @@ func New(strConfig string) (obj *Socks5, err error) {
 	}
 
 	obj = &Socks5{
-		BaseClient: client.BaseClient{
+		Client: base.Client{
 			Host:     config.Ip,
 			Port:     config.Port,
 			Username: config.Username,
 			Password: config.Password,
 		},
-		auth: config.Auth,
+		authMode: config.AuthMode,
+	}
+
+	if config.DialerName != "" {
+		obj.dialer = dialer.GetDialer(config.DialerName)
 	}
 
 	return

@@ -1,18 +1,12 @@
 package client
 
 import (
-	jsoniter "github.com/json-iterator/go"
 	"github.com/pkg/errors"
 	"net"
 	globalConfig "nimble-proxy/config"
 	"nimble-proxy/helper/log"
 	"nimble-proxy/modules/client/socks5"
 	"strings"
-)
-
-var (
-	json    = jsoniter.ConfigCompatibleWithStandardLibrary
-	clients = make(map[string]Client)
 )
 
 type Client interface {
@@ -26,14 +20,6 @@ type BaseClient struct {
 	Username string
 	Password string
 	Mode     int // 0-降级模式（如果有配置连接器且连接器无法使用会走默认网络，默认为降级模式） 1-严格模式（如果有配置连接器且连接器无法使用则直接返回失败）
-}
-
-func GetClient(name string) (t Client) {
-	return clients[name]
-}
-
-func GetAllClients() map[string]Client {
-	return clients
 }
 
 func Factory(configs []string) {

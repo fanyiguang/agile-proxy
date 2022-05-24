@@ -8,7 +8,7 @@ type Parser interface {
 	Parser(config []byte) (proxyConfig ProxyConfigInfo, err error)
 }
 
-func ConfigParser(config []byte) (proxyConfig ProxyConfigInfo, err error) {
+func Config(config []byte) (proxyConfig ProxyConfigInfo, err error) {
 	switch mode {
 	case Json:
 		parser := new(json.Json)

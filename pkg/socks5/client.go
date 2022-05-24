@@ -147,7 +147,6 @@ func (c *Client) authentication() (err error) {
 }
 
 func (c *Client) sendReqInfo() (err error) {
-	//TODO 支持udp流量0x03
 	reqBuffer := []byte{0x05, 0x01, 0x00}
 	if ip := net.ParseIP(common.BytesToStr(c.desHost)); ip != nil {
 		reqBuffer = append(reqBuffer, 0x01)

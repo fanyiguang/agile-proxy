@@ -1,0 +1,43 @@
+{
+  "client": [
+    {
+      "ip": "127.0.0.1",
+      "port": "7890",
+      "username": "admin",
+      "password": "123",
+      "type": "socks5",
+      "name": "socks5",
+      "auth_mode": 0,
+      "dialer_name": "direct",
+      "mode": 1
+    }
+  ],
+  "server": [
+    {
+      "ip": "127.0.0.1",
+      "port": "7890",
+      "username": "admin",
+      "password": "123",
+      "type": "socks5",
+      "name": "socks5",
+      "auth_mode": 1,
+      "transport_name": "normal"
+    }
+  ],
+  "dialer": [
+    {
+      "type": "direct",
+      "name": "direct",
+      "interface": "192.168.31.125"
+    }
+  ],
+  "transport": [
+    {
+      "type": "normal",
+      "name": "normal",
+      "client_name": "socks5"
+    }
+  ],
+  "log_path": "D:\\study\\go-objects\\my\\src\\nimble-proxy\\log\\proxy-test.log",
+  "log_level": "debug"
+}
