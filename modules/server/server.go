@@ -1,14 +1,12 @@
 package server
 
 import (
+	official "encoding/json"
 	jsoniter "github.com/json-iterator/go"
 	"github.com/pkg/errors"
-	"net"
 	pConfig "nimble-proxy/config"
 	"nimble-proxy/helper/log"
-	"nimble-proxy/modules/ipc"
 	"nimble-proxy/modules/server/socks5"
-	"nimble-proxy/modules/transport"
 	"strings"
 )
 
@@ -16,33 +14,12 @@ var json = jsoniter.ConfigCompatibleWithStandardLibrary
 
 type Server interface {
 	Run() (err error)
-	GetName() string
-	GetType() string
+	Name() string
+	Type() string
 	Close()
 }
 
-type BaseServer struct {
-	Name        string
-	Type        string
-	Ip          string
-	Port        string
-	Username    string
-	Password    string
-	DoneCh      chan struct{}
-	Listen      net.Listener
-	Transmitter transport.Transport
-	OutputMsgCh chan<- ipc.Msg
-}
-
-func (b *BaseServer) GetName() string {
-	return b.Name
-}
-
-func (b *BaseServer) GetType() string {
-	return b.Type
-}
-
-func Factory(configs []string) (servers []Server) {
+func Factory(configs []official.RawMessage) (servers []Server) {
 	for _, config := range configs {
 		var err error
 		var server Server

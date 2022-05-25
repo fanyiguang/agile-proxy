@@ -1,7 +1,7 @@
 package app
 
 import (
-	"encoding/json"
+	"io"
 	"nimble-proxy/helper/log"
 	"nimble-proxy/modules/client"
 	"nimble-proxy/modules/dialer"
@@ -12,13 +12,13 @@ import (
 )
 
 func App(configPath string) (err error) {
-	jsonConfig, err := os.Open(configPath)
+	configFile, err := os.Open(configPath)
 	if err != nil {
 		return err
 	}
 
 	var config []byte
-	err = json.NewDecoder(jsonConfig).Decode(&config)
+	config, err = io.ReadAll(configFile)
 	if err != nil {
 		return
 	}
@@ -32,7 +32,7 @@ func App(configPath string) (err error) {
 	log.New(proxyConfig.LogPath, proxyConfig.LogLevel)
 
 	// 固定初始化顺序无法改变
-	// 依赖关系：server -> transport -> client-> dialer
+	//依赖关系：server -> transport -> client-> dialer
 	dialer.Factory(proxyConfig.DialerConfig)
 	client.Factory(proxyConfig.ClientConfig)
 	transport.Factory(proxyConfig.TransportConfig)
@@ -40,7 +40,7 @@ func App(configPath string) (err error) {
 	for _, s := range servers {
 		err := s.Run()
 		if err != nil {
-			log.WarnF("%v(%v) run failed: %v", s.GetName(), s.GetType(), err)
+			log.WarnF("%v(%v) run failed: %v", s.Name(), s.Type(), err)
 		}
 	}
 

@@ -1,6 +1,7 @@
 package dialer
 
 import (
+	official "encoding/json"
 	"github.com/pkg/errors"
 	"net"
 	pConfig "nimble-proxy/config"
@@ -15,17 +16,11 @@ type Dialer interface {
 	DialTimeout(network string, host, port string, timeout time.Duration) (conn net.Conn, err error)
 }
 
-type BaseDialer struct {
-	Name  string
-	Type  string
-	IFace string
-}
-
-func Factory(configs []string) {
+func Factory(configs []official.RawMessage) {
 	for _, config := range configs {
 		var err error
 		var dialer Dialer
-		switch strings.ToLower(json.Get([]byte(config), "type").ToString()) {
+		switch strings.ToLower(json.Get(config, "type").ToString()) {
 		case pConfig.Socks5:
 		case pConfig.Ssh:
 		case pConfig.Direct:

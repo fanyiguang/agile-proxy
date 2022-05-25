@@ -1,14 +1,17 @@
 package parser
 
-import "nimble-proxy/modules/parser/json"
+import (
+	"nimble-proxy/modules/parser/json"
+	"nimble-proxy/modules/parser/model"
+)
 
 var mode = Json
 
 type Parser interface {
-	Parser(config []byte) (proxyConfig ProxyConfigInfo, err error)
+	Parser(config []byte) (proxyConfig model.ProxyConfig, err error)
 }
 
-func Config(config []byte) (proxyConfig ProxyConfigInfo, err error) {
+func Config(config []byte) (proxyConfig model.ProxyConfig, err error) {
 	switch mode {
 	case Json:
 		parser := new(json.Json)

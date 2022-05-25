@@ -8,13 +8,14 @@ import (
 	"nimble-proxy/helper/dns"
 	"nimble-proxy/helper/log"
 	"nimble-proxy/modules/client"
-	"nimble-proxy/modules/transport"
+	"nimble-proxy/modules/transport/base"
+	"nimble-proxy/modules/transport/model"
 )
 
 type Direct struct {
-	transport.BaseTransport
-	Client  client.Client // 传输器可以使用的客户端
-	DnsInfo transport.DnsInfo
+	baseTransport base.Transport
+	Client        client.Client // 传输器可以使用的客户端
+	DnsInfo       model.DnsInfo
 }
 
 func (d *Direct) Close() (err error) {
@@ -34,7 +35,7 @@ func (d *Direct) Transport(cConn net.Conn, host, port []byte) (err error) {
 			return
 		}
 
-		d.MyCopy(sConn, cConn)
+		d.baseTransport.MyCopy(sConn, cConn)
 	} else {
 		err = errors.New("Client is nil")
 	}
@@ -75,19 +76,19 @@ func (d *Direct) getHost(host []byte) (newHost []byte, err error) {
 	return
 }
 
-func New(jsonConfig string) (obj *Direct, err error) {
+func New(jsonConfig json.RawMessage) (obj *Direct, err error) {
 	var config Config
-	err = json.Unmarshal([]byte(jsonConfig), &config)
+	err = json.Unmarshal(jsonConfig, &config)
 	if err != nil {
 		err = errors.Wrap(err, "direct new")
 		return
 	}
 
 	obj = &Direct{
-		BaseTransport: transport.BaseTransport{
-			Type:       config.Type,
-			Name:       config.Name,
-			ClientName: config.ClientName,
+		baseTransport: base.Transport{
+			TransportType: config.Type,
+			TransportName: config.Name,
+			ClientName:    config.ClientName,
 		},
 		DnsInfo: config.DnsInfo,
 	}

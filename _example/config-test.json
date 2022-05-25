@@ -1,10 +1,10 @@
 {
   "client": [
     {
-      "ip": "127.0.0.1",
-      "port": "7890",
-      "username": "admin",
-      "password": "123",
+      "ip": "121.196.209.121",
+      "port": "21080",
+      "username": "9mMJQZ",
+      "password": "gwv7Zvsm4mnm",
       "type": "socks5",
       "name": "socks5",
       "auth_mode": 0,
@@ -21,7 +21,7 @@
       "type": "socks5",
       "name": "socks5",
       "auth_mode": 1,
-      "transport_name": "normal"
+      "transport_name": "direct"
     }
   ],
   "dialer": [
@@ -33,8 +33,8 @@
   ],
   "transport": [
     {
-      "type": "normal",
-      "name": "normal",
+      "type": "direct",
+      "name": "direct",
       "client_name": "socks5"
     }
   ],

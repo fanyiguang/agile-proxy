@@ -90,7 +90,7 @@ func (s *Server) handShake() (err error) {
 	}
 
 	buffer = buffer[:n]
-	if s.verCheck(buffer[0]) {
+	if !s.verCheck(buffer[0]) {
 		err = errors.New("req version not socks5")
 		return
 	}

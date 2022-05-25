@@ -4,12 +4,12 @@ import (
 	"encoding/json"
 	"github.com/pkg/errors"
 	"net"
-	"nimble-proxy/modules/dialer"
+	"nimble-proxy/modules/dialer/base"
 	"time"
 )
 
 type Direct struct {
-	dialer.BaseDialer
+	base.Dialer
 }
 
 func (d *Direct) Dial(network string, host, port string) (conn net.Conn, err error) {
@@ -19,9 +19,9 @@ func (d *Direct) Dial(network string, host, port string) (conn net.Conn, err err
 			err = errors.Wrap(_err, "net.ResolveTCPAddr")
 			return
 		}
-		lAddr, _err := net.ResolveTCPAddr("tcp", net.JoinHostPort(d.IFace, ":0"))
+		lAddr, _err := net.ResolveTCPAddr("tcp", net.JoinHostPort(d.IFace, "0"))
 		if _err != nil {
-			err = errors.Wrap(_err, "net.ResolveTCPAddr")
+			err = errors.Wrap(_err, "net.ResolveTCPAddr-2")
 			return
 		}
 
@@ -37,19 +37,19 @@ func (d *Direct) DialTimeout(network string, ip, port string, timeout time.Durat
 	panic("implement me")
 }
 
-func New(jsonConfig string) (obj *Direct, err error) {
+func New(jsonConfig json.RawMessage) (obj *Direct, err error) {
 	var config Config
-	err = json.Unmarshal([]byte(jsonConfig), &config)
+	err = json.Unmarshal(jsonConfig, &config)
 	if err != nil {
 		err = errors.Wrap(err, "direct new")
 		return
 	}
 
 	obj = &Direct{
-		dialer.BaseDialer{
-			Name:  config.Name,
-			Type:  config.Type,
-			IFace: config.Interface,
+		Dialer: base.Dialer{
+			DialerName: config.Name,
+			DialerType: config.Type,
+			IFace:      config.Interface,
 		},
 	}
 

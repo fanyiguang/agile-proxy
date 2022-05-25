@@ -46,9 +46,9 @@ func (s *Socks5) dial(network string) (conn net.Conn, err error) {
 	return
 }
 
-func New(strConfig string) (obj *Socks5, err error) {
+func New(strConfig json.RawMessage) (obj *Socks5, err error) {
 	var config Config
-	err = json.Unmarshal([]byte(strConfig), &config)
+	err = json.Unmarshal(strConfig, &config)
 	if err != nil {
 		err = errors.Wrap(err, "socks5 new")
 		return
@@ -56,10 +56,13 @@ func New(strConfig string) (obj *Socks5, err error) {
 
 	obj = &Socks5{
 		Client: base.Client{
-			Host:     config.Ip,
-			Port:     config.Port,
-			Username: config.Username,
-			Password: config.Password,
+			Host:       config.Ip,
+			Port:       config.Port,
+			Username:   config.Username,
+			Password:   config.Password,
+			ClientName: config.Name,
+			ClientType: config.Type,
+			Mode:       config.Mode,
 		},
 		authMode: config.AuthMode,
 	}

@@ -7,13 +7,13 @@ import (
 	"nimble-proxy/helper/Go"
 	"nimble-proxy/helper/log"
 	"nimble-proxy/modules/ipc"
-	"nimble-proxy/modules/server"
+	"nimble-proxy/modules/server/base"
 	"nimble-proxy/modules/transport"
 	"nimble-proxy/pkg/socks5"
 )
 
 type Socks5 struct {
-	server.BaseServer
+	base.Server
 	AuthMode int
 }
 
@@ -43,7 +43,7 @@ func (s *Socks5) accept() {
 			}
 			err = s.handler(conn)
 			if err != nil {
-				log.WarnF("server: %v handler failed: %v", s.Name, err)
+				log.WarnF("server: %v handler failed: %#v", s.Name(), err)
 			}
 		}
 	}
@@ -76,7 +76,7 @@ func (s *Socks5) listen() (err error) {
 	}
 
 	s.Listen = listen
-	log.InfoF("server: %v init successful, listen: %v", s.Name, s.Port)
+	log.InfoF("server: %v init successful, listen: %v", s.Name(), s.Port)
 	return
 }
 
@@ -95,20 +95,22 @@ func (s *Socks5) handler(conn net.Conn) (err error) {
 	return s.transport(conn, host, port)
 }
 
-func New(jsonConfig string) (obj *Socks5, err error) {
+func New(jsonConfig json.RawMessage) (obj *Socks5, err error) {
 	var config Config
-	err = json.Unmarshal([]byte(jsonConfig), &config)
+	err = json.Unmarshal(jsonConfig, &config)
 	if err != nil {
 		err = errors.Wrap(err, "socks5 new")
 		return
 	}
 
 	obj = &Socks5{
-		BaseServer: server.BaseServer{
+		Server: base.Server{
 			Ip:          config.Ip,
 			Port:        config.Port,
 			Username:    config.Username,
 			Password:    config.Password,
+			ServerName:  config.Name,
+			ServerType:  config.Type,
 			OutputMsgCh: ipc.OutputCh,
 			DoneCh:      make(chan struct{}),
 		},
