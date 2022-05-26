@@ -43,7 +43,7 @@ func (s *Socks5) accept() {
 			}
 			err = s.handler(conn)
 			if err != nil {
-				log.WarnF("server: %v handler failed: %#v", s.Name(), err)
+				log.WarnF("server: %v, handler failed: %+v", s.Name(), err)
 			}
 		}
 	}
@@ -92,6 +92,7 @@ func (s *Socks5) handler(conn net.Conn) (err error) {
 	}
 
 	host, port := socks5Server.GetDesInfo()
+	log.DebugF("des host: %v port: %v", string(host), port)
 	return s.transport(conn, host, port)
 }
 

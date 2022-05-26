@@ -16,7 +16,7 @@ func (d *Direct) Dial(network string, host, port string) (conn net.Conn, err err
 	if d.IFace != "" {
 		rAddr, _err := net.ResolveTCPAddr("tcp", net.JoinHostPort(host, port))
 		if _err != nil {
-			err = errors.Wrap(_err, "net.ResolveTCPAddr")
+			err = errors.Wrap(_err, "net.ResolveTCPAddr-1")
 			return
 		}
 		lAddr, _err := net.ResolveTCPAddr("tcp", net.JoinHostPort(d.IFace, "0"))
@@ -26,6 +26,9 @@ func (d *Direct) Dial(network string, host, port string) (conn net.Conn, err err
 		}
 
 		conn, err = net.DialTCP(network, lAddr, rAddr)
+		if err != nil {
+			err = errors.Wrap(err, "net.DialTCP")
+		}
 		return
 	}
 

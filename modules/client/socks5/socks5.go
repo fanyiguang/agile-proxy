@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/pkg/errors"
 	"net"
+	"nimble-proxy/helper/log"
 	"nimble-proxy/modules/client/base"
 	"nimble-proxy/modules/dialer"
 	"nimble-proxy/pkg/socks5"
@@ -36,6 +37,10 @@ func (s *Socks5) dial(network string) (conn net.Conn, err error) {
 		conn, err = s.dialer.Dial(network, s.Host, s.Port)
 		if err == nil || s.Mode == 1 { // mode=1 严格模式
 			return
+		}
+
+		if err != nil {
+			log.WarnF("s.dialer.Dial failed: %v", err)
 		}
 	}
 
