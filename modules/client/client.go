@@ -7,12 +7,15 @@ import (
 	globalConfig "nimble-proxy/config"
 	"nimble-proxy/helper/log"
 	"nimble-proxy/modules/client/socks5"
+	"nimble-proxy/modules/client/ssl"
 	"strings"
+	"time"
 )
 
 type Client interface {
 	Dial(network string, host, port []byte) (conn net.Conn, err error)
-	Close()
+	DialTimeout(network string, host, port []byte, timeout time.Duration) (conn net.Conn, err error)
+	Close() (err error)
 }
 
 func Factory(configs []official.RawMessage) {
@@ -23,6 +26,7 @@ func Factory(configs []official.RawMessage) {
 		case globalConfig.Socks5:
 			client, err = socks5.New(config)
 		case globalConfig.Ssl:
+			client, err = ssl.New(config)
 		case globalConfig.Ssh:
 		default:
 			err = errors.New("type is invalid")

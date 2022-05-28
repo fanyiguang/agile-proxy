@@ -7,6 +7,7 @@ import (
 	pConfig "nimble-proxy/config"
 	"nimble-proxy/helper/log"
 	"nimble-proxy/modules/server/socks5"
+	"nimble-proxy/modules/server/ssl"
 	"strings"
 )
 
@@ -27,6 +28,7 @@ func Factory(configs []official.RawMessage) (servers []Server) {
 		case pConfig.Socks5:
 			server, err = socks5.New(config)
 		case pConfig.Ssl:
+			server, err = ssl.New(config)
 		case pConfig.Ssh:
 		default:
 			err = errors.New("type is invalid")

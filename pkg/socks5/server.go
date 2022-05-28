@@ -4,16 +4,14 @@ import (
 	"fmt"
 	"github.com/pkg/errors"
 	"net"
+	"sync"
 )
 
 type Server struct {
-	conn         net.Conn
-	username     string
-	password     string
-	desHost      []byte
-	desPort      []byte
-	authMode     int
-	usedAuthMode uint8
+	bufferPool sync.Pool
+	username   string
+	password   string
+	authMode   int
 }
 
 type ServerOperation func(server *Server)
@@ -36,36 +34,32 @@ func SetServerAuth(authMode int) ServerOperation {
 	}
 }
 
-func NewServer(conn net.Conn, operates ...ServerOperation) *Server {
+func NewServer(operates ...ServerOperation) *Server {
 	server := &Server{
-		conn: conn,
+		bufferPool: sync.Pool{New: func() any {
+			return make([]byte, 512)
+		}},
 	}
-
 	for _, operate := range operates {
 		operate(server)
 	}
-
 	return server
 }
 
-func (s *Server) HandShake() (err error) {
-	err = s.handShake()
+func (s *Server) HandShake(conn net.Conn) (desHost, desPort []byte, err error) {
+	usedAuthMode, err := s.handShake(conn)
 	if err != nil {
 		return
 	}
 
-	if s.usedAuthMode == pass {
-		err = s.authentication()
+	if usedAuthMode == pass {
+		err = s.authentication(conn)
 		if err != nil {
 			return
 		}
 	}
 
-	return s.readReqInfo()
-}
-
-func (s *Server) GetDesInfo() ([]byte, []byte) {
-	return s.desHost, s.desPort
+	return s.readReqInfo(conn)
 }
 
 func (s *Server) verCheck(t byte) bool {
@@ -76,9 +70,10 @@ func (s *Server) verCheck(t byte) bool {
 	}
 }
 
-func (s *Server) handShake() (err error) {
-	buffer := make([]byte, 16)
-	n, err := s.conn.Read(buffer)
+func (s *Server) handShake(conn net.Conn) (usedAuthMode uint8, err error) {
+	buffer := s.bufferPool.Get().([]byte)
+	defer s.bufferPool.Put(buffer)
+	n, err := conn.Read(buffer)
 	if err != nil {
 		err = errors.Wrap(err, "reader.Read")
 		return
@@ -103,25 +98,26 @@ func (s *Server) handShake() (err error) {
 	authModes := buffer[2 : buffer[1]+2]
 	for _, authMode := range authModes {
 		if authMode == noAuth && s.authMode == 1 {
-			_, err = s.conn.Write(noAuthResponse)
-			s.usedAuthMode = noAuth
+			_, err = conn.Write(noAuthResponse)
+			usedAuthMode = noAuth
 			return
 		}
 		if authMode == pass {
-			_, err = s.conn.Write(passAuthResponse)
-			s.usedAuthMode = pass
+			_, err = conn.Write(passAuthResponse)
+			usedAuthMode = pass
 			return
 		}
 	}
 
-	_, _ = s.conn.Write(errorAuthResponse)
+	_, _ = conn.Write(errorAuthResponse)
 	err = nMETHODSError
 	return
 }
 
-func (s *Server) authentication() (err error) {
-	buffer := make([]byte, 512)
-	n, err := s.conn.Read(buffer)
+func (s *Server) authentication(conn net.Conn) (err error) {
+	buffer := s.bufferPool.Get().([]byte)
+	defer s.bufferPool.Put(buffer)
+	n, err := conn.Read(buffer)
 	if err != nil {
 		err = errors.Wrap(err, "reader.Read")
 		return
@@ -145,24 +141,25 @@ func (s *Server) authentication() (err error) {
 
 	passwordLen := buffer[2+usernameLen]
 	if n < int(usernameLen)+2+1+int(passwordLen) {
-		_, err = s.conn.Write([]byte{buffer[0], 0x01})
+		_, err = conn.Write([]byte{buffer[0], 0x01})
 		err = errors.Wrap(outOfRangeError, "")
 		return
 	}
 
 	if s.password != string(buffer[2+usernameLen+1:2+usernameLen+1+passwordLen]) {
-		_, err = s.conn.Write([]byte{buffer[0], 0x02})
+		_, err = conn.Write([]byte{buffer[0], 0x02})
 		err = errors.New("password is failed")
 		return
 	}
 
-	_, err = s.conn.Write([]byte{buffer[0], 0x00})
+	_, err = conn.Write([]byte{buffer[0], 0x00})
 	return
 }
 
-func (s *Server) readReqInfo() (err error) {
-	buffer := make([]byte, 512)
-	n, err := s.conn.Read(buffer)
+func (s *Server) readReqInfo(conn net.Conn) (desHost, desPort []byte, err error) {
+	buffer := s.bufferPool.Get().([]byte)
+	defer s.bufferPool.Put(buffer)
+	n, err := conn.Read(buffer)
 	if err != nil {
 		err = errors.Wrap(err, "reader.Read")
 		return
@@ -174,9 +171,9 @@ func (s *Server) readReqInfo() (err error) {
 	}
 	switch buffer[1] {
 	case tcp:
-		err = s.handlerTcp(buffer)
+		desHost, desPort, err = s.handlerTcp(buffer)
 	case udp:
-		err = s.handlerUdp(buffer)
+		desHost, desPort, err = s.handlerUdp(buffer)
 	default:
 		err = errors.New("unsupported transport layer protocol")
 	}
@@ -186,17 +183,17 @@ func (s *Server) readReqInfo() (err error) {
 	responseMsg[3] = buffer[1] // 对应协议
 	if err != nil {
 		responseMsg[1] = 0x00 // 失败
-		_, err = s.conn.Write(responseMsg)
+		_, err = conn.Write(responseMsg)
 	} else {
 		// 正常应该成功与目标ip和端口建立连接后再回复
 		// 此条消息，但是为了项目结构的清晰就提前回复
-		// 客服端了
-		_, err = s.conn.Write(responseMsg)
+		// 客户端了
+		_, err = conn.Write(responseMsg)
 	}
 	return
 }
 
-func (s *Server) handlerTcp(buffer []byte) (err error) {
+func (s *Server) handlerTcp(buffer []byte) (desHost, desPort []byte, err error) {
 	n := len(buffer)
 	switch buffer[3] {
 	case ipv4:
@@ -205,21 +202,21 @@ func (s *Server) handlerTcp(buffer []byte) (err error) {
 			err = errors.Wrap(outOfRangeError, "ipv4")
 			return
 		}
-		s.desHost, s.desPort = buffer[4:hostEndPos], buffer[hostEndPos:hostEndPos+2]
+		desHost, desPort = buffer[4:hostEndPos], buffer[hostEndPos:hostEndPos+2]
 	case domain:
 		domainEndPos := 5 + buffer[4]
 		if n < int(domainEndPos)+2 {
 			err = errors.Wrap(outOfRangeError, "domain")
 			return
 		}
-		s.desHost, s.desPort = buffer[5:domainEndPos], buffer[domainEndPos:domainEndPos+2]
+		desHost, desPort = buffer[5:domainEndPos], buffer[domainEndPos:domainEndPos+2]
 	case ipv6:
 		hostEndPos := 4 + net.IPv6len
 		if n < hostEndPos+2 {
 			err = errors.Wrap(outOfRangeError, "ipv6")
 			return
 		}
-		s.desHost, s.desPort = buffer[4:hostEndPos], buffer[hostEndPos:hostEndPos+2]
+		desHost, desPort = buffer[4:hostEndPos], buffer[hostEndPos:hostEndPos+2]
 	default:
 		err = aTYPError
 	}
@@ -227,7 +224,7 @@ func (s *Server) handlerTcp(buffer []byte) (err error) {
 }
 
 //TODO UDP流量实现
-func (s *Server) handlerUdp(buffer []byte) (err error) {
+func (s *Server) handlerUdp(buffer []byte) (desHost, desPort []byte, err error) {
 	err = errors.New("UDP is not supported temporarily")
 	return
 }

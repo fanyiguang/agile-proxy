@@ -4,50 +4,39 @@ import (
 	"encoding/json"
 	"github.com/pkg/errors"
 	"net"
-	"nimble-proxy/helper/log"
 	"nimble-proxy/modules/client/base"
 	"nimble-proxy/modules/dialer"
 	"nimble-proxy/pkg/socks5"
+	"time"
 )
 
 type Socks5 struct {
 	base.Client
-	dialer   dialer.Dialer
-	authMode int
+	socks5Client *socks5.Client
+	authMode     int
 }
 
 func (s *Socks5) Dial(network string, host, port []byte) (conn net.Conn, err error) {
-	conn, err = s.dial(network)
+	conn, err = s.Client.Dial(network)
 	if err != nil {
 		return
 	}
 
-	socks5Client := socks5.NewClient(conn, host, port, socks5.SetClientAuth(s.authMode), socks5.SetClientUsername(s.Username), socks5.SetClientPassword(s.Password))
-	err = socks5Client.HandShark()
+	err = s.socks5Client.HandShark(conn, host, port)
 	return
 }
 
-func (s *Socks5) Close() {
-	//TODO implement me
-	panic("implement me")
+func (s *Socks5) DialTimeout(network string, host, port []byte, timeout time.Duration) (conn net.Conn, err error) {
+	conn, err = s.Client.DialTimeout(network, timeout)
+	if err != nil {
+		return
+	}
+
+	err = s.socks5Client.HandShark(conn, host, port)
+	return
 }
 
-func (s *Socks5) dial(network string) (conn net.Conn, err error) {
-	if s.dialer != nil {
-		conn, err = s.dialer.Dial(network, s.Host, s.Port)
-		if err == nil || s.Mode == 1 { // mode=1 严格模式
-			return
-		}
-
-		if err != nil {
-			log.WarnF("s.dialer.Dial failed: %v", err)
-		}
-	}
-
-	conn, err = net.Dial(network, net.JoinHostPort(s.Host, s.Port))
-	if err != nil {
-		err = errors.Wrap(err, "socks5 Dial")
-	}
+func (s *Socks5) Close() (err error) {
 	return
 }
 
@@ -73,8 +62,9 @@ func New(strConfig json.RawMessage) (obj *Socks5, err error) {
 	}
 
 	if config.DialerName != "" {
-		obj.dialer = dialer.GetDialer(config.DialerName)
+		obj.Client.Dialer = dialer.GetDialer(config.DialerName)
 	}
+	obj.socks5Client = socks5.NewClient(socks5.SetClientAuth(obj.authMode), socks5.SetClientUsername(obj.Username), socks5.SetClientPassword(obj.Password))
 
 	return
 }

@@ -1,9 +1,9 @@
 package dns
 
 import (
-	"errors"
 	"fmt"
 	"github.com/miekg/dns"
+	"github.com/pkg/errors"
 )
 
 // LookupHost
@@ -15,6 +15,7 @@ func LookupHost(domain, server string) (ips []string, err error) {
 	dnsMsg.SetQuestion(fmt.Sprintf("%s.", domain), dns.TypeA)
 	msg, _, err = client.Exchange(&dnsMsg, server)
 	if err != nil {
+		err = errors.Wrap(err, "client.Exchange")
 		return
 	}
 

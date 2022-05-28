@@ -15,10 +15,12 @@ import (
 
 type Socks5 struct {
 	base.Server
-	AuthMode int
+	socks5Server *socks5.Server
+	authMode     int
 }
 
 func (s *Socks5) Run() (err error) {
+	s.init()
 	err = s.listen()
 	if err != nil {
 		return
@@ -66,19 +68,21 @@ func (s *Socks5) Close() (err error) {
 }
 
 func (s *Socks5) listen() (err error) {
+	// 可预知的错误，可以通过自定义的错误信息
+	// 找到错误位置。所以无需使用wrap。
 	if s.Port == "" {
-		err = errors.Wrap(errors.New("server port is nil"), "")
+		err = errors.New("server port is nil")
 		return
 	}
 
-	listen, _err := net.Listen("tcp", net.JoinHostPort(s.Ip, s.Port))
-	if _err != nil {
-		err = errors.Wrap(_err, "net.Listen")
+	addr := net.JoinHostPort(s.Ip, s.Port)
+	s.Listen, err = net.Listen("tcp", addr)
+	if err != nil {
+		err = errors.Wrap(err, "net.Listen")
 		return
 	}
 
-	s.Listen = listen
-	log.InfoF("server: %v init successful, listen: %v", s.Name(), s.Port)
+	log.InfoF("server: %v init successful, listen: %v", s.Name(), addr)
 	return
 }
 
@@ -87,15 +91,17 @@ func (s *Socks5) handler(conn net.Conn) (err error) {
 		_ = conn.Close()
 	}()
 
-	socks5Server := socks5.NewServer(conn, socks5.SetServerAuth(s.AuthMode), socks5.SetServerUsername(s.Username), socks5.SetServerPassword(s.Password))
-	err = socks5Server.HandShake()
+	host, port, err := s.socks5Server.HandShake(conn)
 	if err != nil {
 		return
 	}
 
-	host, port := socks5Server.GetDesInfo()
 	log.DebugF("des host: %v port: %v", string(host), port)
 	return s.transport(conn, host, port)
+}
+
+func (s *Socks5) init() {
+	s.socks5Server = socks5.NewServer(socks5.SetServerAuth(s.authMode), socks5.SetServerUsername(s.Username), socks5.SetServerPassword(s.Password))
 }
 
 func New(jsonConfig json.RawMessage) (obj *Socks5, err error) {
@@ -117,7 +123,7 @@ func New(jsonConfig json.RawMessage) (obj *Socks5, err error) {
 			OutputMsgCh: ipc.OutputCh,
 			DoneCh:      make(chan struct{}),
 		},
-		AuthMode: config.AuthMode,
+		authMode: config.AuthMode,
 	}
 
 	if len(config.TransportName) > 0 {

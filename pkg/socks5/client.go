@@ -8,13 +8,9 @@ import (
 )
 
 type Client struct {
-	conn         net.Conn
-	username     string
-	password     string
-	desHost      []byte
-	desPort      []byte
-	authMode     uint8 // 认证模式 0-允许匿名模式 1-不允许匿名模式
-	usedAuthMode uint8
+	username string
+	password string
+	authMode uint8 // 认证模式 0-允许匿名模式 1-不允许匿名模式
 }
 
 type ClientOperation func(client *Client)
@@ -37,44 +33,38 @@ func SetClientAuth(authMode int) ClientOperation {
 	}
 }
 
-func NewClient(conn net.Conn, desHost, desPort []byte, operates ...ClientOperation) *Client {
-	client := &Client{
-		conn:    conn,
-		desHost: desHost,
-		desPort: desPort,
-	}
-
+func NewClient(operates ...ClientOperation) *Client {
+	client := new(Client)
 	for _, operate := range operates {
 		operate(client)
 	}
-
 	return client
 }
 
-func (c *Client) HandShark() (err error) {
-	err = c.handShake()
+func (c *Client) HandShark(conn net.Conn, desHost, desPort []byte) (err error) {
+	usedAuthMode, err := c.handShake(conn)
 	if err != nil {
 		return
 	}
 
-	if c.usedAuthMode == pass {
-		err = c.authentication()
+	if usedAuthMode == pass {
+		err = c.authentication(conn)
 		if err != nil {
 			return
 		}
 	}
 
-	err = c.sendReqInfo()
+	err = c.sendReqInfo(conn, desHost, desPort)
 	return
 }
 
-func (c *Client) handShake() (err error) {
+func (c *Client) handShake(conn net.Conn) (usedAuthMode uint8, err error) {
 	// 目前暂时只支持匿名和密码认证
 	switch c.authMode {
 	case modeNoAuth:
-		_, err = c.conn.Write(noAuthRequest)
+		_, err = conn.Write(noAuthRequest)
 	case modePass:
-		_, err = c.conn.Write(supportPassAuthRequest)
+		_, err = conn.Write(supportPassAuthRequest)
 	default:
 		err = errors.New("invalid auth_type")
 	}
@@ -84,7 +74,7 @@ func (c *Client) handShake() (err error) {
 	}
 
 	buffer := make([]byte, 2)
-	n, _err := c.conn.Read(buffer)
+	n, _err := conn.Read(buffer)
 	if _err != nil {
 		err = errors.Wrap(_err, "c.conn.Read")
 		return
@@ -104,9 +94,9 @@ func (c *Client) handShake() (err error) {
 	// 目前暂时只支持匿名和密码返回的校验
 	switch buffer[1] {
 	case noAuth:
-		c.usedAuthMode = noAuth
+		usedAuthMode = noAuth
 	case pass:
-		c.usedAuthMode = pass
+		usedAuthMode = pass
 	case errorAuth:
 		err = errors.New("socks5 server not support auth mode")
 	default:
@@ -116,20 +106,20 @@ func (c *Client) handShake() (err error) {
 	return
 }
 
-func (c *Client) authentication() (err error) {
+func (c *Client) authentication(conn net.Conn) (err error) {
 	reqBuffer := []byte{0x05} // 认证子协商版本（与SOCKS协议版本的0x05无关系，为其他值亦可）
 	reqBuffer = append(reqBuffer, byte(len(c.username)))
 	reqBuffer = append(reqBuffer, c.username...)
 	reqBuffer = append(reqBuffer, byte(len(c.password)))
 	reqBuffer = append(reqBuffer, c.password...)
-	_, err = c.conn.Write(reqBuffer)
+	_, err = conn.Write(reqBuffer)
 	if err != nil {
 		err = errors.Wrap(err, "c.conn.Write")
 		return
 	}
 
 	resBuffer := make([]byte, 2)
-	n, _err := c.conn.Read(resBuffer)
+	n, _err := conn.Read(resBuffer)
 	if _err != nil {
 		err = errors.Wrap(_err, "c.conn.Read")
 		return
@@ -146,23 +136,23 @@ func (c *Client) authentication() (err error) {
 	return
 }
 
-func (c *Client) sendReqInfo() (err error) {
+func (c *Client) sendReqInfo(conn net.Conn, desHost, desPort []byte) (err error) {
 	reqBuffer := []byte{0x05, 0x01, 0x00}
-	if ip := net.ParseIP(common.BytesToStr(c.desHost)); ip != nil {
+	if ip := net.ParseIP(common.BytesToStr(desHost)); ip != nil {
 		reqBuffer = append(reqBuffer, 0x01)
 	} else {
 		reqBuffer = append(reqBuffer, 0x03)
-		reqBuffer = append(reqBuffer, byte(common.GetBytesLen(c.desHost)))
+		reqBuffer = append(reqBuffer, byte(common.GetBytesLen(desHost)))
 	}
-	reqBuffer = append(reqBuffer, c.desHost...)
-	reqBuffer = append(reqBuffer, c.desPort...)
-	_, err = c.conn.Write(reqBuffer)
+	reqBuffer = append(reqBuffer, desHost...)
+	reqBuffer = append(reqBuffer, desPort...)
+	_, err = conn.Write(reqBuffer)
 
 	// 如果响应的type为0x01(ipv4)的长度为：1+1+1+1+4+2
 	// 如果响应的type为0x03(ipv6)的长度为：1+1+1+1+16+2 兼容前者
 	// 故使用1+1+1+1+16+2
 	resBuffer := make([]byte, 1*4+16+2)
-	n, _err := c.conn.Read(resBuffer)
+	n, _err := conn.Read(resBuffer)
 	if _err != nil {
 		err = errors.Wrap(_err, "c.conn.Read")
 		return

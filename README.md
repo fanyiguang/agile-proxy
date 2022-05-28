@@ -1,1 +1,1 @@
-## nimble-proxy
+## agile-proxy

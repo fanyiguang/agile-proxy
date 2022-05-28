@@ -35,7 +35,11 @@
     {
       "type": "direct",
       "name": "direct",
-      "client_name": "socks5"
+      "client_name": "socks5",
+      "dns": {
+        "local_dns": true,
+        "server": "114.114.114.114"
+      }
     }
   ],
   "log_path": "D:\\study\\go-objects\\my\\src\\nimble-proxy\\log\\proxy-test.log",
