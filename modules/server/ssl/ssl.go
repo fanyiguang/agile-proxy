@@ -39,7 +39,9 @@ func (s *Ssl) Run() (err error) {
 
 func (s *Ssl) Close() (err error) {
 	common.CloseChan(s.DoneCh)
-	_ = s.Listen.Close()
+	if s.Listen != nil {
+		err = s.Listen.Close()
+	}
 	return
 }
 

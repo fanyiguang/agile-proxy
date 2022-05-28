@@ -63,7 +63,9 @@ func (s *Socks5) transport(conn net.Conn, desHost, desPort []byte) (err error) {
 
 func (s *Socks5) Close() (err error) {
 	common.CloseChan(s.DoneCh)
-	_ = s.Listen.Close()
+	if s.Listen != nil {
+		err = s.Listen.Close()
+	}
 	return
 }
 

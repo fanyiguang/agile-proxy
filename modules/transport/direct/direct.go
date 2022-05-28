@@ -30,6 +30,7 @@ func (d *Direct) Transport(cConn net.Conn, host, port []byte) (err error) {
 			return
 		}
 
+		defer sConn.Close()
 		d.baseTransport.MyCopy(sConn, cConn)
 	} else {
 		err = errors.New("Client is nil")
