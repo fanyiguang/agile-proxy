@@ -16,14 +16,14 @@ type Server interface {
 	Run() (err error)
 	Name() string
 	Type() string
-	Close()
+	Close() (err error)
 }
 
 func Factory(configs []official.RawMessage) (servers []Server) {
 	for _, config := range configs {
 		var err error
 		var server Server
-		switch strings.ToLower(json.Get([]byte(config), "type").ToString()) {
+		switch strings.ToLower(json.Get(config, "type").ToString()) {
 		case pConfig.Socks5:
 			server, err = socks5.New(config)
 		case pConfig.Ssl:

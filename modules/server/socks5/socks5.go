@@ -5,6 +5,7 @@ import (
 	"github.com/pkg/errors"
 	"net"
 	"nimble-proxy/helper/Go"
+	"nimble-proxy/helper/common"
 	"nimble-proxy/helper/log"
 	"nimble-proxy/modules/ipc"
 	"nimble-proxy/modules/server/base"
@@ -34,7 +35,7 @@ func (s *Socks5) accept() {
 	for {
 		select {
 		case <-s.DoneCh:
-			log.InfoF("server: %v accept end", s.Name)
+			log.InfoF("server: %v accept end", s.Name())
 		default:
 			conn, err := s.Listen.Accept()
 			if err != nil {
@@ -58,9 +59,10 @@ func (s *Socks5) transport(conn net.Conn, desHost, desPort []byte) (err error) {
 	return
 }
 
-func (s *Socks5) Close() {
-	//TODO implement me
-	panic("implement me")
+func (s *Socks5) Close() (err error) {
+	common.CloseChan(s.DoneCh)
+	_ = s.Listen.Close()
+	return
 }
 
 func (s *Socks5) listen() (err error) {
