@@ -66,7 +66,7 @@ func (s *Ssh) DialTimeout(network string, host, port []byte, timeout time.Durati
 func (s *Ssh) Close() (err error) {
 	common.CloseChan(s.doneCh)
 	if s.client != nil {
-		_ = s.client.Close()
+		err = s.client.Close()
 	}
 	return
 }

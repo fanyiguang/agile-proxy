@@ -34,9 +34,8 @@ func (s *Ssh) Close() (err error) {
 }
 
 func (s *Ssh) listen() (err error) {
-	addr := net.JoinHostPort(s.Ip, s.Port)
 	server := ssh.Server{
-		Addr: addr,
+		Addr: net.JoinHostPort(s.Ip, s.Port),
 		LocalPortForwardingCallback: func(ctx ssh.Context, destinationHost string, destinationPort uint32) bool {
 			return true
 		},
@@ -51,9 +50,9 @@ func (s *Ssh) listen() (err error) {
 		},
 	}
 
-	s.Listen, err = net.Listen("tcp", addr)
+	s.Listen, err = net.Listen("tcp", server.Addr)
 	if err != nil {
-		err = errors.Wrap(err, "ssh net.Listen")
+		err = errors.Wrap(err, "net.Listen")
 		return
 	}
 
@@ -73,7 +72,7 @@ func (s *Ssh) listen() (err error) {
 	case err = <-errCh:
 		log.WarnF("server: %v server.ListenAndServe failed-2: %v", s.Name(), err)
 	case <-time.After(time.Second * 5):
-		log.InfoF("server: %v init successful, listen: %v", s.Name(), addr)
+		log.InfoF("server: %v init successful, listen: %v", s.Name(), server.Addr)
 	}
 
 	return
