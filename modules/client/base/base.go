@@ -5,6 +5,7 @@ import (
 	"net"
 	"nimble-proxy/helper/log"
 	"nimble-proxy/modules/dialer"
+	"strconv"
 	"time"
 )
 
@@ -55,4 +56,11 @@ func (s *Client) DialTimeout(network string, timeout time.Duration) (conn net.Co
 		err = errors.Wrap(err, "socks5 Dial")
 	}
 	return
+}
+
+func (s *Client) GetStrPort(bPort []byte) string {
+	if len(bPort) < 2 {
+		return ""
+	}
+	return strconv.Itoa(int(bPort[0])<<8 | int(bPort[1]))
 }
