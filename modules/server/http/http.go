@@ -1,13 +1,18 @@
 package http
 
 import (
+	"encoding/base64"
+	"encoding/json"
+	"fmt"
 	"github.com/pkg/errors"
 	"net"
 	"net/http"
 	"nimble-proxy/helper/Go"
 	"nimble-proxy/helper/common"
 	"nimble-proxy/helper/log"
+	"nimble-proxy/modules/ipc"
 	"nimble-proxy/modules/server/base"
+	"nimble-proxy/modules/transport"
 	"strconv"
 	"strings"
 	"time"
@@ -19,6 +24,7 @@ type Http struct {
 }
 
 func (h *Http) Run() (err error) {
+	h.init()
 	err = h.listen()
 	return
 }
@@ -169,5 +175,39 @@ func (h *Http) GetHostAndPort(host string) (newHost, newPort []byte, err error) 
 	}
 
 	newHost = common.StrToBytes(_host)
+	return
+}
+
+func (h *Http) init() {
+	if h.Username != "" && h.Password != "" {
+		h.basicToken = fmt.Sprintf("Basic %v", base64.StdEncoding.EncodeToString([]byte(h.Username+":"+h.Password)))
+	}
+}
+
+func New(jsonConfig json.RawMessage) (obj *Http, err error) {
+	var config Config
+	err = json.Unmarshal(jsonConfig, &config)
+	if err != nil {
+		err = errors.Wrap(err, "new")
+		return
+	}
+
+	obj = &Http{
+		Server: base.Server{
+			Ip:          config.Ip,
+			Port:        config.Port,
+			Username:    config.Username,
+			Password:    config.Password,
+			ServerName:  config.Name,
+			ServerType:  config.Type,
+			OutputMsgCh: ipc.OutputCh,
+			DoneCh:      make(chan struct{}),
+		},
+	}
+
+	if len(config.TransportName) > 0 {
+		obj.Transmitter = transport.GetTransport(config.TransportName)
+	}
+
 	return
 }

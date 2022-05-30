@@ -1,6 +1,9 @@
 package https
 
 import (
+	"encoding/base64"
+	"encoding/json"
+	"fmt"
 	"github.com/pkg/errors"
 	"net"
 	"net/http"
@@ -8,7 +11,9 @@ import (
 	"nimble-proxy/helper/common"
 	"nimble-proxy/helper/log"
 	"nimble-proxy/helper/tls"
+	"nimble-proxy/modules/ipc"
 	"nimble-proxy/modules/server/base"
+	"nimble-proxy/modules/transport"
 	"strconv"
 	"strings"
 	"time"
@@ -16,14 +21,15 @@ import (
 
 type Https struct {
 	base.Server
-	basicToken   string
-	crtPath      string
-	keyPath      string
-	readTimeout  int
-	writeTimeout int
+	basicToken string
+	crtPath    string
+	keyPath    string
+	//readTimeout  int
+	//writeTimeout int
 }
 
 func (h *Https) Run() (err error) {
+	h.init()
 	err = h.listen()
 	return
 }
@@ -180,5 +186,41 @@ func (h *Https) GetHostAndPort(host string) (newHost, newPort []byte, err error)
 	}
 
 	newHost = common.StrToBytes(_host)
+	return
+}
+
+func (h *Https) init() {
+	if h.Username != "" && h.Password != "" {
+		h.basicToken = fmt.Sprintf("Basic %v", base64.StdEncoding.EncodeToString([]byte(h.Username+":"+h.Password)))
+	}
+}
+
+func New(jsonConfig json.RawMessage) (obj *Https, err error) {
+	var config Config
+	err = json.Unmarshal(jsonConfig, &config)
+	if err != nil {
+		err = errors.Wrap(err, "new")
+		return
+	}
+
+	obj = &Https{
+		Server: base.Server{
+			Ip:          config.Ip,
+			Port:        config.Port,
+			Username:    config.Username,
+			Password:    config.Password,
+			ServerName:  config.Name,
+			ServerType:  config.Type,
+			OutputMsgCh: ipc.OutputCh,
+			DoneCh:      make(chan struct{}),
+		},
+		crtPath: config.CrtPath,
+		keyPath: config.KeyPath,
+	}
+
+	if len(config.TransportName) > 0 {
+		obj.Transmitter = transport.GetTransport(config.TransportName)
+	}
+
 	return
 }

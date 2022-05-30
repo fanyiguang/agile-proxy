@@ -117,7 +117,7 @@ func New(jsonConfig json.RawMessage) (obj *Ssl, err error) {
 	var config Config
 	err = json.Unmarshal(jsonConfig, &config)
 	if err != nil {
-		err = errors.Wrap(err, "socks5 new")
+		err = errors.Wrap(err, "new")
 		return
 	}
 

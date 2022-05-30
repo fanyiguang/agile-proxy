@@ -6,7 +6,10 @@ import (
 	"github.com/pkg/errors"
 	pConfig "nimble-proxy/config"
 	"nimble-proxy/helper/log"
+	"nimble-proxy/modules/server/http"
+	"nimble-proxy/modules/server/https"
 	"nimble-proxy/modules/server/socks5"
+	"nimble-proxy/modules/server/ssh"
 	"nimble-proxy/modules/server/ssl"
 	"strings"
 )
@@ -30,6 +33,11 @@ func Factory(configs []official.RawMessage) (servers []Server) {
 		case pConfig.Ssl:
 			server, err = ssl.New(config)
 		case pConfig.Ssh:
+			server, err = ssh.New(config)
+		case pConfig.Https:
+			server, err = https.New(config)
+		case pConfig.Http:
+			server, err = http.New(config)
 		default:
 			err = errors.New("type is invalid")
 		}

@@ -152,7 +152,7 @@ func New(jsonConfig json.RawMessage) (obj *Ssh, err error) {
 	var config Config
 	err = json.Unmarshal(jsonConfig, &config)
 	if err != nil {
-		err = errors.Wrap(err, "socks5 new")
+		err = errors.Wrap(err, "new")
 		return
 	}
 
