@@ -1,6 +1,7 @@
 package ssh
 
 import (
+	"encoding/json"
 	"github.com/pkg/errors"
 	"golang.org/x/crypto/ssh"
 	"io/ioutil"
@@ -11,6 +12,7 @@ import (
 	"nimble-proxy/helper/common"
 	"nimble-proxy/helper/log"
 	"nimble-proxy/modules/client/base"
+	"nimble-proxy/modules/dialer"
 	"time"
 )
 
@@ -211,5 +213,33 @@ func (s *Ssh) sshDial() (client *ssh.Client, err error) {
 
 func (s *Ssh) reconnect() (err error) {
 	s.client, err = s.sshDial()
+	return
+}
+
+func New(strConfig json.RawMessage) (obj *Ssh, err error) {
+	var _config Config
+	err = json.Unmarshal(strConfig, &_config)
+	if err != nil {
+		err = errors.Wrap(err, "new")
+		return
+	}
+
+	obj = &Ssh{
+		Client: base.Client{
+			Host:       _config.Ip,
+			Port:       _config.Port,
+			Username:   _config.Username,
+			Password:   _config.Password,
+			ClientName: _config.Name,
+			ClientType: _config.Type,
+			Mode:       _config.Mode,
+		},
+		rsaPath: _config.RsaPath,
+	}
+
+	if _config.DialerName != "" {
+		obj.Client.Dialer = dialer.GetDialer(_config.DialerName)
+	}
+
 	return
 }

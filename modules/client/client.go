@@ -7,6 +7,7 @@ import (
 	globalConfig "nimble-proxy/config"
 	"nimble-proxy/helper/log"
 	"nimble-proxy/modules/client/socks5"
+	"nimble-proxy/modules/client/ssh"
 	"nimble-proxy/modules/client/ssl"
 	"strings"
 	"time"
@@ -28,6 +29,7 @@ func Factory(configs []official.RawMessage) {
 		case globalConfig.Ssl:
 			client, err = ssl.New(config)
 		case globalConfig.Ssh:
+			client, err = ssh.New(config)
 		default:
 			err = errors.New("type is invalid")
 		}
@@ -36,7 +38,7 @@ func Factory(configs []official.RawMessage) {
 			continue
 		}
 
-		clientName := json.Get([]byte(config), "name").ToString()
+		clientName := json.Get(config, "name").ToString()
 		if clientName != "" {
 			clients[clientName] = client
 		}
