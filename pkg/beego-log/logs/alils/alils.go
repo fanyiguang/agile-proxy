@@ -1,3 +1,3 @@
 package alils
 
-//_ "nimble-proxy/pkg/core/logs/alils"
+//_ "agile-proxy/pkg/core/logs/alils"

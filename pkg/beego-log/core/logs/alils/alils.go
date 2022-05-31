@@ -1,9 +1,9 @@
 package alils
 
 import (
+	logs2 "agile-proxy/pkg/beego-log/core/logs"
 	"encoding/json"
 	"fmt"
-	logs2 "nimble-proxy/pkg/beego-log/core/logs"
 	"strings"
 	"sync"
 

@@ -1,9 +1,9 @@
 package json
 
 import (
+	"agile-proxy/modules/parser/model"
 	jsoniter "github.com/json-iterator/go"
 	"github.com/pkg/errors"
-	"nimble-proxy/modules/parser/model"
 )
 
 var json = jsoniter.ConfigCompatibleWithStandardLibrary

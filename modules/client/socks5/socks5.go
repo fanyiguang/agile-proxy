@@ -1,12 +1,12 @@
 package socks5
 
 import (
+	"agile-proxy/modules/client/base"
+	"agile-proxy/modules/dialer"
+	"agile-proxy/pkg/socks5"
 	"encoding/json"
 	"github.com/pkg/errors"
 	"net"
-	"nimble-proxy/modules/client/base"
-	"nimble-proxy/modules/dialer"
-	"nimble-proxy/pkg/socks5"
 	"time"
 )
 

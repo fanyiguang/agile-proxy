@@ -42,6 +42,6 @@
       }
     }
   ],
-  "log_path": "D:\\study\\go-objects\\my\\src\\nimble-proxy\\log\\proxy-test.log",
+  "log_path": "D:\\study\\go-objects\\my\\src\\agile-proxy\\log\\proxy-test.log",
   "log_level": "debug"
 }

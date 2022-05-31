@@ -1,16 +1,16 @@
 package server
 
 import (
+	pConfig "agile-proxy/config"
+	"agile-proxy/helper/log"
+	"agile-proxy/modules/server/http"
+	"agile-proxy/modules/server/https"
+	"agile-proxy/modules/server/socks5"
+	"agile-proxy/modules/server/ssh"
+	"agile-proxy/modules/server/ssl"
 	official "encoding/json"
 	jsoniter "github.com/json-iterator/go"
 	"github.com/pkg/errors"
-	pConfig "nimble-proxy/config"
-	"nimble-proxy/helper/log"
-	"nimble-proxy/modules/server/http"
-	"nimble-proxy/modules/server/https"
-	"nimble-proxy/modules/server/socks5"
-	"nimble-proxy/modules/server/ssh"
-	"nimble-proxy/modules/server/ssl"
 	"strings"
 )
 

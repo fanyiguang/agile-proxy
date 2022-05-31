@@ -1,9 +1,9 @@
 package base
 
 import (
+	"agile-proxy/modules/ipc"
+	"agile-proxy/modules/transport"
 	"net"
-	"nimble-proxy/modules/ipc"
-	"nimble-proxy/modules/transport"
 )
 
 type Server struct {

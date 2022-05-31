@@ -1,10 +1,10 @@
 package direct
 
 import (
+	"agile-proxy/modules/dialer/base"
 	"encoding/json"
 	"github.com/pkg/errors"
 	"net"
-	"nimble-proxy/modules/dialer/base"
 	"time"
 )
 

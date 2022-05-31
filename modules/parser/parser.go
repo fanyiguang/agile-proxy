@@ -1,8 +1,8 @@
 package parser
 
 import (
-	"nimble-proxy/modules/parser/json"
-	"nimble-proxy/modules/parser/model"
+	"agile-proxy/modules/parser/json"
+	"agile-proxy/modules/parser/model"
 )
 
 var mode = Json

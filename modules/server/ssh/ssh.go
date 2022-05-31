@@ -1,18 +1,18 @@
 package ssh
 
 import (
+	"agile-proxy/helper/Go"
+	"agile-proxy/helper/common"
+	"agile-proxy/helper/log"
+	"agile-proxy/modules/ipc"
+	"agile-proxy/modules/server/base"
+	"agile-proxy/modules/transport"
 	"encoding/json"
 	"github.com/gliderlabs/ssh"
 	"github.com/pkg/errors"
 	sysSsh "golang.org/x/crypto/ssh"
 	"io/ioutil"
 	"net"
-	"nimble-proxy/helper/Go"
-	"nimble-proxy/helper/common"
-	"nimble-proxy/helper/log"
-	"nimble-proxy/modules/ipc"
-	"nimble-proxy/modules/server/base"
-	"nimble-proxy/modules/transport"
 	"time"
 )
 

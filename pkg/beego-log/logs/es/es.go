@@ -1,3 +1,3 @@
 package es
 
-//_ "nimble-proxy/pkg/core/logs/es"
+//_ "agile-proxy/pkg/core/logs/es"

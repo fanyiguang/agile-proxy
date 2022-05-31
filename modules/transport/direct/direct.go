@@ -1,11 +1,11 @@
 package direct
 
 import (
+	"agile-proxy/modules/client"
+	"agile-proxy/modules/transport/base"
 	"encoding/json"
 	"github.com/pkg/errors"
 	"net"
-	"nimble-proxy/modules/client"
-	"nimble-proxy/modules/transport/base"
 )
 
 type Direct struct {

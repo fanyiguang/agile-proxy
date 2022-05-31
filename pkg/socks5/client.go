@@ -1,10 +1,10 @@
 package socks5
 
 import (
+	"agile-proxy/helper/common"
 	"fmt"
 	"github.com/pkg/errors"
 	"net"
-	"nimble-proxy/helper/common"
 )
 
 type Client struct {

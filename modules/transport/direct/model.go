@@ -1,7 +1,7 @@
 package direct
 
 import (
-	"nimble-proxy/modules/transport/model"
+	"agile-proxy/modules/transport/model"
 )
 
 type Config struct {

@@ -15,7 +15,7 @@
 package es
 
 import (
-	logs2 "nimble-proxy/pkg/beego-log/core/logs"
+	logs2 "agile-proxy/pkg/beego-log/core/logs"
 	"testing"
 	"time"
 

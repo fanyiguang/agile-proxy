@@ -1,12 +1,12 @@
 package transport
 
 import (
+	pubConfig "agile-proxy/config"
+	"agile-proxy/helper/log"
+	"agile-proxy/modules/transport/direct"
 	official "encoding/json"
 	"errors"
 	"net"
-	pubConfig "nimble-proxy/config"
-	"nimble-proxy/helper/log"
-	"nimble-proxy/modules/transport/direct"
 	"strings"
 )
 

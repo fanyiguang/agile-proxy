@@ -1,12 +1,12 @@
 package es
 
 import (
+	logs2 "agile-proxy/pkg/beego-log/core/logs"
 	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"net/url"
-	logs2 "nimble-proxy/pkg/beego-log/core/logs"
 	"strings"
 	"time"
 
@@ -28,7 +28,7 @@ func NewES() logs2.Logger {
 // please import this package
 // usually means that you can import this package in your main package
 // for example, anonymous:
-// import _ "nimble-proxy/pkg/core/logs/es"
+// import _ "agile-proxy/pkg/core/logs/es"
 type esLogger struct {
 	*elasticsearch.Client
 	DSN       string `json:"dsn"`

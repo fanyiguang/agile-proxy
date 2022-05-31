@@ -1,14 +1,14 @@
 package client
 
 import (
+	globalConfig "agile-proxy/config"
+	"agile-proxy/helper/log"
+	"agile-proxy/modules/client/socks5"
+	"agile-proxy/modules/client/ssh"
+	"agile-proxy/modules/client/ssl"
 	official "encoding/json"
 	"github.com/pkg/errors"
 	"net"
-	globalConfig "nimble-proxy/config"
-	"nimble-proxy/helper/log"
-	"nimble-proxy/modules/client/socks5"
-	"nimble-proxy/modules/client/ssh"
-	"nimble-proxy/modules/client/ssl"
 	"strings"
 	"time"
 )

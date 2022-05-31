@@ -40,7 +40,7 @@
       "type": "ssl",
       "name": "ssl",
       "auth_mode": 0,
-      "cert_file": "D:\\study\\go-objects\\my\\src\\nimble-proxy\\_example\\config.json",
+      "cert_file": "D:\\study\\go-objects\\my\\src\\agile-proxy\\_example\\config.json",
       "dialer_name": "direct"
     }
   ],

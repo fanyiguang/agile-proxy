@@ -15,8 +15,8 @@
 package es
 
 import (
+	logs2 "agile-proxy/pkg/beego-log/core/logs"
 	"fmt"
-	logs2 "nimble-proxy/pkg/beego-log/core/logs"
 )
 
 // IndexNaming generate the index name

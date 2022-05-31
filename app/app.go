@@ -1,13 +1,13 @@
 package app
 
 import (
+	"agile-proxy/helper/log"
+	"agile-proxy/modules/client"
+	"agile-proxy/modules/dialer"
+	"agile-proxy/modules/parser"
+	"agile-proxy/modules/server"
+	"agile-proxy/modules/transport"
 	"io"
-	"nimble-proxy/helper/log"
-	"nimble-proxy/modules/client"
-	"nimble-proxy/modules/dialer"
-	"nimble-proxy/modules/parser"
-	"nimble-proxy/modules/server"
-	"nimble-proxy/modules/transport"
 	"os"
 )
 

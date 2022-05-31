@@ -1,10 +1,10 @@
 package base
 
 import (
+	"agile-proxy/helper/log"
+	"agile-proxy/modules/dialer"
 	"github.com/pkg/errors"
 	"net"
-	"nimble-proxy/helper/log"
-	"nimble-proxy/modules/dialer"
 	"strconv"
 	"time"
 )

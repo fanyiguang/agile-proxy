@@ -1,18 +1,18 @@
 package ssl
 
 import (
+	"agile-proxy/helper/Go"
+	"agile-proxy/helper/common"
+	"agile-proxy/helper/log"
+	"agile-proxy/helper/tls"
+	"agile-proxy/modules/ipc"
+	"agile-proxy/modules/server/base"
+	"agile-proxy/modules/transport"
+	"agile-proxy/pkg/socks5"
 	sysTls "crypto/tls"
 	"encoding/json"
 	"github.com/pkg/errors"
 	"net"
-	"nimble-proxy/helper/Go"
-	"nimble-proxy/helper/common"
-	"nimble-proxy/helper/log"
-	"nimble-proxy/helper/tls"
-	"nimble-proxy/modules/ipc"
-	"nimble-proxy/modules/server/base"
-	"nimble-proxy/modules/transport"
-	"nimble-proxy/pkg/socks5"
 )
 
 type Ssl struct {

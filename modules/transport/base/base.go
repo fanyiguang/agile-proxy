@@ -1,13 +1,13 @@
 package base
 
 import (
+	"agile-proxy/helper/common"
+	"agile-proxy/helper/dns"
+	"agile-proxy/helper/log"
+	"agile-proxy/modules/transport/model"
 	"github.com/pkg/errors"
 	"io"
 	"net"
-	"nimble-proxy/helper/common"
-	"nimble-proxy/helper/dns"
-	"nimble-proxy/helper/log"
-	"nimble-proxy/modules/transport/model"
 	"time"
 )
 
@@ -60,8 +60,8 @@ func (t *Transport) MyCopy(sConn net.Conn, cConn net.Conn) {
 
 func (t *Transport) myCopyN(det net.Conn, src net.Conn, done chan struct{}) {
 	for {
-		_ = src.SetReadDeadline(time.Now().Add(2 * time.Minute))
-		_ = det.SetWriteDeadline(time.Now().Add(2 * time.Minute))
+		_ = src.SetReadDeadline(time.Now().Add(time.Minute))
+		_ = det.SetWriteDeadline(time.Now().Add(time.Minute))
 		_, err := io.CopyN(det, src, 1024*32)
 		if err == io.EOF {
 			break

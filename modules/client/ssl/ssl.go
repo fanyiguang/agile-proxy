@@ -1,15 +1,15 @@
 package ssl
 
 import (
+	"agile-proxy/helper/tls"
+	"agile-proxy/modules/client/base"
+	"agile-proxy/modules/dialer"
+	"agile-proxy/pkg/socks5"
 	"context"
 	sysTls "crypto/tls"
 	"encoding/json"
 	"github.com/pkg/errors"
 	"net"
-	"nimble-proxy/helper/tls"
-	"nimble-proxy/modules/client/base"
-	"nimble-proxy/modules/dialer"
-	"nimble-proxy/pkg/socks5"
 	"time"
 )
 

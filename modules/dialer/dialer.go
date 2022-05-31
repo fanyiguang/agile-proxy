@@ -1,12 +1,12 @@
 package dialer
 
 import (
+	pConfig "agile-proxy/config"
+	"agile-proxy/helper/log"
+	"agile-proxy/modules/dialer/direct"
 	official "encoding/json"
 	"github.com/pkg/errors"
 	"net"
-	pConfig "nimble-proxy/config"
-	"nimble-proxy/helper/log"
-	"nimble-proxy/modules/dialer/direct"
 	"strings"
 	"time"
 )

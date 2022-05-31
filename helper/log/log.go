@@ -1,8 +1,8 @@
 package log
 
 import (
+	"agile-proxy/pkg/beego-log/core/logs"
 	"encoding/json"
-	"nimble-proxy/pkg/beego-log/core/logs"
 )
 
 var (

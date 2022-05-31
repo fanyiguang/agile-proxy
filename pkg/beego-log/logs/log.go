@@ -15,7 +15,7 @@
 // Package logs provide a general log interface
 // Usage:
 //
-// import "nimble-proxy/pkg/core/logs"
+// import "agile-proxy/pkg/core/logs"
 //
 //	log := NewLogger(10000)
 //	log.SetLogger("console", "")
@@ -34,8 +34,8 @@
 package logs
 
 import (
+	logs2 "agile-proxy/pkg/beego-log/core/logs"
 	"log"
-	logs2 "nimble-proxy/pkg/beego-log/core/logs"
 	"time"
 )
 

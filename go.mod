@@ -1,4 +1,4 @@
-module nimble-proxy
+module agile-proxy
 
 go 1.18
 
