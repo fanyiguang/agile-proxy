@@ -4,7 +4,7 @@ import (
 	"agile-proxy/helper/Go"
 	"agile-proxy/helper/common"
 	"agile-proxy/helper/log"
-	"agile-proxy/modules/ipc"
+	commonBase "agile-proxy/modules/base"
 	"agile-proxy/modules/server/base"
 	"agile-proxy/modules/transport"
 	"encoding/base64"
@@ -38,7 +38,7 @@ func (h *Http) Close() (err error) {
 
 func (h *Http) listen() (err error) {
 	server := &http.Server{
-		Addr: net.JoinHostPort(h.Ip, h.Port),
+		Addr: net.JoinHostPort(h.Host, h.Port),
 		Handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			h.proxy(w, r)
 		}),
@@ -194,14 +194,20 @@ func New(jsonConfig json.RawMessage) (obj *Http, err error) {
 
 	obj = &Http{
 		Server: base.Server{
-			Ip:          config.Ip,
-			Port:        config.Port,
-			Username:    config.Username,
-			Password:    config.Password,
-			ServerName:  config.Name,
-			ServerType:  config.Type,
-			OutputMsgCh: ipc.OutputCh,
-			DoneCh:      make(chan struct{}),
+			NetInfo: commonBase.NetInfo{
+				Host:     config.Ip,
+				Port:     config.Port,
+				Username: config.Username,
+				Password: config.Password,
+			},
+			IdentInfo: commonBase.IdentInfo{
+				ModuleName: config.Name,
+				ModuleType: config.Type,
+			},
+			OutputMsg: commonBase.OutputMsg{
+				OutputMsgCh: commonBase.OutputCh,
+			},
+			DoneCh: make(chan struct{}),
 		},
 	}
 

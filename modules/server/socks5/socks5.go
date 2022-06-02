@@ -4,7 +4,7 @@ import (
 	"agile-proxy/helper/Go"
 	"agile-proxy/helper/common"
 	"agile-proxy/helper/log"
-	"agile-proxy/modules/ipc"
+	commonBase "agile-proxy/modules/base"
 	"agile-proxy/modules/server/base"
 	"agile-proxy/modules/transport"
 	"agile-proxy/pkg/socks5"
@@ -77,7 +77,7 @@ func (s *Socks5) listen() (err error) {
 		return
 	}
 
-	addr := net.JoinHostPort(s.Ip, s.Port)
+	addr := net.JoinHostPort(s.Host, s.Port)
 	s.Listen, err = net.Listen("tcp", addr)
 	if err != nil {
 		err = errors.Wrap(err, "net.Listen")
@@ -116,14 +116,20 @@ func New(jsonConfig json.RawMessage) (obj *Socks5, err error) {
 
 	obj = &Socks5{
 		Server: base.Server{
-			Ip:          config.Ip,
-			Port:        config.Port,
-			Username:    config.Username,
-			Password:    config.Password,
-			ServerName:  config.Name,
-			ServerType:  config.Type,
-			OutputMsgCh: ipc.OutputCh,
-			DoneCh:      make(chan struct{}),
+			NetInfo: commonBase.NetInfo{
+				Host:     config.Ip,
+				Port:     config.Port,
+				Username: config.Username,
+				Password: config.Password,
+			},
+			IdentInfo: commonBase.IdentInfo{
+				ModuleName: config.Name,
+				ModuleType: config.Type,
+			},
+			OutputMsg: commonBase.OutputMsg{
+				OutputMsgCh: commonBase.OutputCh,
+			},
+			DoneCh: make(chan struct{}),
 		},
 		authMode: config.AuthMode,
 	}

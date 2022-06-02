@@ -5,7 +5,7 @@ import (
 	"agile-proxy/helper/common"
 	"agile-proxy/helper/log"
 	"agile-proxy/helper/tls"
-	"agile-proxy/modules/ipc"
+	commonBase "agile-proxy/modules/base"
 	"agile-proxy/modules/server/base"
 	"agile-proxy/modules/transport"
 	"agile-proxy/pkg/socks5"
@@ -56,7 +56,7 @@ func (s *Ssl) listen() (err error) {
 		return
 	}
 
-	addr := net.JoinHostPort(s.Ip, s.Port)
+	addr := net.JoinHostPort(s.Host, s.Port)
 	s.Listen, err = sysTls.Listen("tcp", addr, tlsConfig)
 	if err != nil {
 		err = errors.Wrap(err, "tls.Listen")
@@ -123,14 +123,20 @@ func New(jsonConfig json.RawMessage) (obj *Ssl, err error) {
 
 	obj = &Ssl{
 		Server: base.Server{
-			Ip:          config.Ip,
-			Port:        config.Port,
-			Username:    config.Username,
-			Password:    config.Password,
-			ServerName:  config.Name,
-			ServerType:  config.Type,
-			OutputMsgCh: ipc.OutputCh,
-			DoneCh:      make(chan struct{}),
+			NetInfo: commonBase.NetInfo{
+				Host:     config.Ip,
+				Port:     config.Port,
+				Username: config.Username,
+				Password: config.Password,
+			},
+			IdentInfo: commonBase.IdentInfo{
+				ModuleName: config.Name,
+				ModuleType: config.Type,
+			},
+			OutputMsg: commonBase.OutputMsg{
+				OutputMsgCh: commonBase.OutputCh,
+			},
+			DoneCh: make(chan struct{}),
 		},
 		crtPath:  config.CrtPath,
 		keyPath:  config.KeyPath,

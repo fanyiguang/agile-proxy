@@ -4,7 +4,7 @@ import (
 	pConfig "agile-proxy/config"
 	"agile-proxy/helper/log"
 	"agile-proxy/modules/dialer/direct"
-	official "encoding/json"
+	sysJson "encoding/json"
 	"github.com/pkg/errors"
 	"net"
 	"strings"
@@ -16,7 +16,7 @@ type Dialer interface {
 	DialTimeout(network string, host, port string, timeout time.Duration) (conn net.Conn, err error)
 }
 
-func Factory(configs []official.RawMessage) {
+func Factory(configs []sysJson.RawMessage) {
 	for _, config := range configs {
 		var err error
 		var dialer Dialer

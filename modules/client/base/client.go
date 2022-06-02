@@ -2,6 +2,7 @@ package base
 
 import (
 	"agile-proxy/helper/log"
+	"agile-proxy/modules/base"
 	"agile-proxy/modules/dialer"
 	"github.com/pkg/errors"
 	"net"
@@ -10,14 +11,11 @@ import (
 )
 
 type Client struct {
-	Dialer     dialer.Dialer
-	Host       string
-	Port       string
-	Username   string
-	Password   string
-	ClientName string
-	ClientType string
-	Mode       int // 0-降级模式（如果有配置连接器且连接器无法使用会走默认网络，默认为降级模式） 1-严格模式（如果有配置连接器且连接器无法使用则直接返回失败）
+	base.NetInfo
+	base.IdentInfo
+	base.OutputMsg
+	Dialer dialer.Dialer
+	Mode   int // 0-降级模式（如果有配置连接器且连接器无法使用会走默认网络，默认为降级模式） 1-严格模式（如果有配置连接器且连接器无法使用则直接返回失败）
 }
 
 func (s *Client) Dial(network string) (conn net.Conn, err error) {

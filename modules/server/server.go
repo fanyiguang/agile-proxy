@@ -8,7 +8,7 @@ import (
 	"agile-proxy/modules/server/socks5"
 	"agile-proxy/modules/server/ssh"
 	"agile-proxy/modules/server/ssl"
-	official "encoding/json"
+	sysJson "encoding/json"
 	jsoniter "github.com/json-iterator/go"
 	"github.com/pkg/errors"
 	"strings"
@@ -23,7 +23,7 @@ type Server interface {
 	Close() (err error)
 }
 
-func Factory(configs []official.RawMessage) (servers []Server) {
+func Factory(configs []sysJson.RawMessage) (servers []Server) {
 	for _, config := range configs {
 		var err error
 		var server Server

@@ -6,7 +6,7 @@ import (
 	"agile-proxy/modules/client/socks5"
 	"agile-proxy/modules/client/ssh"
 	"agile-proxy/modules/client/ssl"
-	official "encoding/json"
+	sysJson "encoding/json"
 	"github.com/pkg/errors"
 	"net"
 	"strings"
@@ -19,7 +19,7 @@ type Client interface {
 	Close() (err error)
 }
 
-func Factory(configs []official.RawMessage) {
+func Factory(configs []sysJson.RawMessage) {
 	for _, config := range configs {
 		var err error
 		var client Client

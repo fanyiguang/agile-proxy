@@ -4,7 +4,7 @@ import (
 	pubConfig "agile-proxy/config"
 	"agile-proxy/helper/log"
 	"agile-proxy/modules/transport/direct"
-	official "encoding/json"
+	sysJson "encoding/json"
 	"errors"
 	"net"
 	"strings"
@@ -15,7 +15,7 @@ type Transport interface {
 	Close() (err error)
 }
 
-func Factory(configs []official.RawMessage) {
+func Factory(configs []sysJson.RawMessage) {
 	for _, config := range configs {
 		var err error
 		var transport Transport

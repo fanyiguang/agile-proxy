@@ -1,6 +1,7 @@
 package direct
 
 import (
+	commonBase "agile-proxy/modules/base"
 	"agile-proxy/modules/dialer/base"
 	"encoding/json"
 	"github.com/pkg/errors"
@@ -96,9 +97,14 @@ func New(jsonConfig json.RawMessage) (obj *Direct, err error) {
 
 	obj = &Direct{
 		Dialer: base.Dialer{
-			DialerName: config.Name,
-			DialerType: config.Type,
-			IFace:      config.Interface,
+			IdentInfo: commonBase.IdentInfo{
+				ModuleName: config.Name,
+				ModuleType: config.Type,
+			},
+			OutputMsg: commonBase.OutputMsg{
+				OutputMsgCh: commonBase.OutputCh,
+			},
+			IFace: config.Interface,
 		},
 	}
 

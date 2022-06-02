@@ -5,6 +5,7 @@ import (
 	"agile-proxy/helper/Go"
 	"agile-proxy/helper/common"
 	"agile-proxy/helper/log"
+	commonBase "agile-proxy/modules/base"
 	"agile-proxy/modules/client/base"
 	"agile-proxy/modules/dialer"
 	"encoding/json"
@@ -161,7 +162,7 @@ func (s *Ssh) keepAlive() {
 			}
 
 		case <-s.doneCh:
-			log.InfoF("server: %v keepAlive end", s.ClientName)
+			log.InfoF("server: %v keepAlive end", s.Name())
 			return
 		}
 	}
@@ -226,13 +227,20 @@ func New(strConfig json.RawMessage) (obj *Ssh, err error) {
 
 	obj = &Ssh{
 		Client: base.Client{
-			Host:       _config.Ip,
-			Port:       _config.Port,
-			Username:   _config.Username,
-			Password:   _config.Password,
-			ClientName: _config.Name,
-			ClientType: _config.Type,
-			Mode:       _config.Mode,
+			NetInfo: commonBase.NetInfo{
+				Host:     _config.Ip,
+				Port:     _config.Port,
+				Username: _config.Username,
+				Password: _config.Password,
+			},
+			IdentInfo: commonBase.IdentInfo{
+				ModuleName: _config.Name,
+				ModuleType: _config.Type,
+			},
+			OutputMsg: commonBase.OutputMsg{
+				OutputMsgCh: commonBase.OutputCh,
+			},
+			Mode: _config.Mode,
 		},
 		rsaPath: _config.RsaPath,
 	}

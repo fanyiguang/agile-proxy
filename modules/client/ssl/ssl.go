@@ -2,6 +2,7 @@ package ssl
 
 import (
 	"agile-proxy/helper/tls"
+	commonBase "agile-proxy/modules/base"
 	"agile-proxy/modules/client/base"
 	"agile-proxy/modules/dialer"
 	"agile-proxy/pkg/socks5"
@@ -94,13 +95,20 @@ func New(strConfig json.RawMessage) (obj *Ssl, err error) {
 
 	obj = &Ssl{
 		Client: base.Client{
-			Host:       config.Ip,
-			Port:       config.Port,
-			Username:   config.Username,
-			Password:   config.Password,
-			ClientName: config.Name,
-			ClientType: config.Type,
-			Mode:       config.Mode,
+			NetInfo: commonBase.NetInfo{
+				Host:     config.Ip,
+				Port:     config.Port,
+				Username: config.Username,
+				Password: config.Password,
+			},
+			IdentInfo: commonBase.IdentInfo{
+				ModuleName: config.Name,
+				ModuleType: config.Type,
+			},
+			OutputMsg: commonBase.OutputMsg{
+				OutputMsgCh: commonBase.OutputCh,
+			},
+			Mode: config.Mode,
 		},
 		crtPath:  config.CrtPath,
 		keyPath:  config.KeyPath,
