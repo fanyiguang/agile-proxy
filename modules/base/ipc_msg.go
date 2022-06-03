@@ -2,6 +2,7 @@ package base
 
 var (
 	OutputCh = make(chan outputMsg)
+	InputCh  = make(chan inputMsg)
 )
 
 type outputMsg struct {
@@ -10,4 +11,12 @@ type outputMsg struct {
 
 type OutputMsg struct {
 	OutputMsgCh chan<- outputMsg
+}
+
+type inputMsg struct {
+	Content string
+}
+
+type InputMsg struct {
+	InputMsgCh <-chan inputMsg
 }

@@ -76,7 +76,7 @@ func (s *Ssh) Close() (err error) {
 
 func (s *Ssh) controlCenter() (err error) {
 	select {
-	case <-s.initWorkerCh:
+	case <-s.initWorkerCh: // 只会有一个请求进去初始化
 		err = s.connect()
 	case <-s.initSuccessfulCh: // 成功
 
@@ -204,7 +204,8 @@ func (s *Ssh) sshDial() (client *ssh.Client, err error) {
 
 	c, chans, reqs, _err := ssh.NewClientConn(conn, net.JoinHostPort(s.Host, s.Port), sshConfig)
 	if _err != nil {
-		err = errors.Wrap(_err, "ssh.NewClientConn")
+		_ = conn.Close()
+		_ = errors.Wrap(_err, "ssh.NewClientConn")
 		return
 	}
 

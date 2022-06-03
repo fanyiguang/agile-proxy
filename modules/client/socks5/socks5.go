@@ -24,6 +24,9 @@ func (s *Socks5) Dial(network string, host, port []byte) (conn net.Conn, err err
 	}
 
 	err = s.socks5Client.HandShark(conn, host, port)
+	if err != nil {
+		_ = conn.Close()
+	}
 	return
 }
 
@@ -34,6 +37,9 @@ func (s *Socks5) DialTimeout(network string, host, port []byte, timeout time.Dur
 	}
 
 	err = s.socks5Client.HandShark(conn, host, port)
+	if err != nil {
+		_ = conn.Close()
+	}
 	return
 }
 

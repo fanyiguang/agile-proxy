@@ -1,13 +1,11 @@
 package ssl
 
 import (
-	"agile-proxy/helper/tls"
 	commonBase "agile-proxy/modules/base"
 	"agile-proxy/modules/client/base"
 	"agile-proxy/modules/dialer"
 	"agile-proxy/pkg/socks5"
 	"context"
-	sysTls "crypto/tls"
 	"encoding/json"
 	"github.com/pkg/errors"
 	"net"
@@ -16,10 +14,8 @@ import (
 
 type Ssl struct {
 	base.Client
-	tlsConfig    *sysTls.Config
+	commonBase.Tls
 	socks5Client *socks5.Client
-	crtPath      string
-	keyPath      string
 	authMode     int
 }
 
@@ -29,17 +25,22 @@ func (s *Ssl) Dial(network string, host, port []byte) (conn net.Conn, err error)
 		return
 	}
 
-	config, err := s.createTlsConfig()
+	config, err := s.CreateTlsConfig(s.Host)
 	if err != nil {
+		_ = conn.Close()
 		return
 	}
 
-	conn, err = tls.Handshake(context.Background(), conn, config)
+	conn, err = s.Handshake(context.Background(), conn, config)
 	if err != nil {
+		_ = conn.Close()
 		return
 	}
 
 	err = s.socks5Client.HandShark(conn, host, port)
+	if err != nil {
+		_ = conn.Close()
+	}
 	return
 }
 
@@ -49,39 +50,29 @@ func (s *Ssl) DialTimeout(network string, host, port []byte, timeout time.Durati
 		return
 	}
 
-	config, err := s.createTlsConfig()
+	config, err := s.CreateTlsConfig(s.Host)
 	if err != nil {
+		_ = conn.Close()
 		return
 	}
 
 	ctx, cancelFunc := context.WithTimeout(context.Background(), timeout)
 	defer cancelFunc()
-	conn, err = tls.Handshake(ctx, conn, config)
+
+	conn, err = s.Handshake(ctx, conn, config)
 	if err != nil {
+		_ = conn.Close()
 		return
 	}
 
 	err = s.socks5Client.HandShark(conn, host, port)
+	if err != nil {
+		_ = conn.Close()
+	}
 	return
 }
 
 func (s *Ssl) Close() (err error) {
-	//TODO 一些资源的释放减轻GC工作量
-	return
-}
-
-func (s *Ssl) createTlsConfig() (tlsConfig *sysTls.Config, err error) {
-	if s.tlsConfig != nil {
-		return s.tlsConfig, nil
-	}
-
-	tlsConfig, err = tls.CreateConfig(s.crtPath, s.keyPath)
-	if err != nil {
-		return
-	}
-
-	tlsConfig.ServerName = s.Host
-	s.tlsConfig = tlsConfig
 	return
 }
 
@@ -110,8 +101,10 @@ func New(strConfig json.RawMessage) (obj *Ssl, err error) {
 			},
 			Mode: config.Mode,
 		},
-		crtPath:  config.CrtPath,
-		keyPath:  config.KeyPath,
+		Tls: commonBase.Tls{
+			CrtPath: config.CrtPath,
+			KeyPath: config.KeyPath,
+		},
 		authMode: config.AuthMode,
 	}
 
