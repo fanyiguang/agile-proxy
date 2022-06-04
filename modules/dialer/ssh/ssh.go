@@ -5,8 +5,7 @@ import (
 	"agile-proxy/helper/Go"
 	"agile-proxy/helper/common"
 	"agile-proxy/helper/log"
-	"agile-proxy/modules/client/base"
-	"agile-proxy/modules/dialer"
+	"agile-proxy/modules/dialer/base"
 	"agile-proxy/modules/plugin"
 	pkgSsh "agile-proxy/pkg/ssh"
 	"encoding/json"
@@ -17,7 +16,8 @@ import (
 )
 
 type Ssh struct {
-	base.Client
+	base.Dialer
+	plugin.NetInfo
 	client           *pkgSsh.Client
 	initSuccessfulCh chan struct{}
 	initFailedCh     chan struct{}
@@ -28,20 +28,20 @@ type Ssh struct {
 	timeout          int
 }
 
-func (s *Ssh) Dial(network string, host, port []byte) (conn net.Conn, err error) {
+func (s *Ssh) Dial(network string, host, port string) (conn net.Conn, err error) {
 	err = s.controlCenter()
 	if err != nil {
 		return
 	}
 
-	conn, err = s.client.Dial(network, net.JoinHostPort(string(host), s.GetStrPort(port)))
+	conn, err = s.client.Dial(network, net.JoinHostPort(host, port))
 	if err != nil {
 		err = errors.Wrap(err, "s.client.Dial")
 	}
 	return
 }
 
-func (s *Ssh) DialTimeout(network string, host, port []byte, timeout time.Duration) (conn net.Conn, err error) {
+func (s *Ssh) DialTimeout(network string, host, port string, timeout time.Duration) (conn net.Conn, err error) {
 	err = s.controlCenter()
 	if err != nil {
 		return
@@ -49,7 +49,7 @@ func (s *Ssh) DialTimeout(network string, host, port []byte, timeout time.Durati
 
 	resCh := make(chan struct{})
 	Go.Go(func() {
-		conn, err = s.client.Dial(network, net.JoinHostPort(string(host), s.GetStrPort(port)))
+		conn, err = s.client.Dial(network, net.JoinHostPort(host, port))
 		if err != nil {
 			err = errors.Wrap(err, "s.client.Dial")
 		}
@@ -159,13 +159,7 @@ func New(jsonConfig json.RawMessage) (obj *Ssh, err error) {
 	}
 
 	obj = &Ssh{
-		Client: base.Client{
-			NetInfo: plugin.NetInfo{
-				Host:     _config.Ip,
-				Port:     _config.Port,
-				Username: _config.Username,
-				Password: _config.Password,
-			},
+		Dialer: base.Dialer{
 			IdentInfo: plugin.IdentInfo{
 				ModuleName: _config.Name,
 				ModuleType: _config.Type,
@@ -173,18 +167,18 @@ func New(jsonConfig json.RawMessage) (obj *Ssh, err error) {
 			OutputMsg: plugin.OutputMsg{
 				OutputMsgCh: plugin.OutputCh,
 			},
-			Mode: _config.Mode,
+		},
+		NetInfo: plugin.NetInfo{
+			Host:     _config.Ip,
+			Port:     _config.Port,
+			Username: _config.Username,
+			Password: _config.Password,
 		},
 		rsaPath: _config.RsaPath,
 	}
 
-	if _config.DialerName != "" {
-		obj.Client.Dialer = dialer.GetDialer(_config.DialerName)
-	}
-	// 初始化ssh客户端
 	obj.client = pkgSsh.New(_config.Ip, _config.Port, pkgSsh.SetUsername(_config.Username), pkgSsh.SetPassword(_config.Password), pkgSsh.SetRsaPath(_config.RsaPath), pkgSsh.SetDialFunc(func(network string, host, port string, timeout time.Duration) (conn net.Conn, err error) {
-		return obj.Dialer.DialTimeout(network, host, port, timeout)
+		return obj.DialByIFace(network, host, port)
 	}))
-
 	return
 }

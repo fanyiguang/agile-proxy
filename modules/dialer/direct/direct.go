@@ -1,8 +1,8 @@
 package direct
 
 import (
-	commonBase "agile-proxy/modules/base"
 	"agile-proxy/modules/dialer/base"
+	"agile-proxy/modules/plugin"
 	"encoding/json"
 	"github.com/pkg/errors"
 	"net"
@@ -14,77 +14,11 @@ type Direct struct {
 }
 
 func (d *Direct) Dial(network string, host, port string) (conn net.Conn, err error) {
-	if d.IFace != "" {
-		switch network {
-		case "tcp", "tcp4", "tcp6":
-			rAddr, _err := net.ResolveTCPAddr(network, net.JoinHostPort(host, port))
-			if _err != nil {
-				err = errors.Wrap(_err, "net.ResolveTCPAddr-1")
-				return
-			}
-			lAddr, _err := net.ResolveTCPAddr(network, net.JoinHostPort(d.IFace, "0"))
-			if _err != nil {
-				err = errors.Wrap(_err, "net.ResolveTCPAddr-2")
-				return
-			}
-			conn, err = net.DialTCP(network, lAddr, rAddr)
-		case "udp", "udp4", "udp6":
-			rAddr, _err := net.ResolveUDPAddr(network, net.JoinHostPort(host, port))
-			if _err != nil {
-				err = errors.Wrap(_err, "net.ResolveTCPAddr-1")
-				return
-			}
-			lAddr, _err := net.ResolveUDPAddr(network, net.JoinHostPort(d.IFace, "0"))
-			if _err != nil {
-				err = errors.Wrap(_err, "net.ResolveTCPAddr-2")
-				return
-			}
-			conn, err = net.DialUDP(network, lAddr, rAddr)
-		}
-		if err != nil {
-			err = errors.Wrap(err, "net.DialTCP")
-		}
-		return
-	}
-
-	return net.Dial(network, net.JoinHostPort(host, port))
+	return d.BaseDial(network, host, port)
 }
 
 func (d *Direct) DialTimeout(network string, host, port string, timeout time.Duration) (conn net.Conn, err error) {
-	if d.IFace != "" {
-		switch network {
-		case "tcp", "tcp4", "tcp6":
-			rAddr, _err := net.ResolveTCPAddr(network, net.JoinHostPort(host, port))
-			if _err != nil {
-				err = errors.Wrap(_err, "net.ResolveTCPAddr-1")
-				return
-			}
-			lAddr, _err := net.ResolveTCPAddr(network, net.JoinHostPort(d.IFace, "0"))
-			if _err != nil {
-				err = errors.Wrap(_err, "net.ResolveTCPAddr-2")
-				return
-			}
-			conn, err = net.DialTCP(network, lAddr, rAddr)
-		case "udp", "udp4", "udp6":
-			rAddr, _err := net.ResolveUDPAddr(network, net.JoinHostPort(host, port))
-			if _err != nil {
-				err = errors.Wrap(_err, "net.ResolveTCPAddr-1")
-				return
-			}
-			lAddr, _err := net.ResolveUDPAddr(network, net.JoinHostPort(d.IFace, "0"))
-			if _err != nil {
-				err = errors.Wrap(_err, "net.ResolveTCPAddr-2")
-				return
-			}
-			conn, err = net.DialUDP(network, lAddr, rAddr)
-		}
-		if err != nil {
-			err = errors.Wrap(err, "net.DialTCP")
-		}
-		return
-	}
-
-	return net.DialTimeout(network, net.JoinHostPort(host, port), timeout)
+	return d.BaseDialTimeout(network, host, port, timeout)
 }
 
 func New(jsonConfig json.RawMessage) (obj *Direct, err error) {
@@ -97,12 +31,12 @@ func New(jsonConfig json.RawMessage) (obj *Direct, err error) {
 
 	obj = &Direct{
 		Dialer: base.Dialer{
-			IdentInfo: commonBase.IdentInfo{
+			IdentInfo: plugin.IdentInfo{
 				ModuleName: config.Name,
 				ModuleType: config.Type,
 			},
-			OutputMsg: commonBase.OutputMsg{
-				OutputMsgCh: commonBase.OutputCh,
+			OutputMsg: plugin.OutputMsg{
+				OutputMsgCh: plugin.OutputCh,
 			},
 			IFace: config.Interface,
 		},
