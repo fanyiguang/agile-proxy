@@ -1,15 +1,15 @@
 package base
 
 import (
-	"agile-proxy/modules/base"
+	"agile-proxy/modules/plugin"
 	"agile-proxy/modules/transport"
 	"net"
 )
 
 type Server struct {
-	base.NetInfo
-	base.IdentInfo
-	base.OutputMsg
+	plugin.NetInfo
+	plugin.IdentInfo
+	plugin.OutputMsg
 	DoneCh      chan struct{}
 	Listen      net.Listener
 	Transmitter transport.Transport

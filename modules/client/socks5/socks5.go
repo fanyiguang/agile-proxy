@@ -1,9 +1,9 @@
 package socks5
 
 import (
-	commonBase "agile-proxy/modules/base"
 	"agile-proxy/modules/client/base"
 	"agile-proxy/modules/dialer"
+	"agile-proxy/modules/plugin"
 	"agile-proxy/pkg/socks5"
 	"encoding/json"
 	"github.com/pkg/errors"
@@ -47,9 +47,9 @@ func (s *Socks5) Close() (err error) {
 	return
 }
 
-func New(strConfig json.RawMessage) (obj *Socks5, err error) {
+func New(jsonConfig json.RawMessage) (obj *Socks5, err error) {
 	var config Config
-	err = json.Unmarshal(strConfig, &config)
+	err = json.Unmarshal(jsonConfig, &config)
 	if err != nil {
 		err = errors.Wrap(err, "new")
 		return
@@ -57,18 +57,18 @@ func New(strConfig json.RawMessage) (obj *Socks5, err error) {
 
 	obj = &Socks5{
 		Client: base.Client{
-			NetInfo: commonBase.NetInfo{
+			NetInfo: plugin.NetInfo{
 				Host:     config.Ip,
 				Port:     config.Port,
 				Username: config.Username,
 				Password: config.Password,
 			},
-			IdentInfo: commonBase.IdentInfo{
+			IdentInfo: plugin.IdentInfo{
 				ModuleName: config.Name,
 				ModuleType: config.Type,
 			},
-			OutputMsg: commonBase.OutputMsg{
-				OutputMsgCh: commonBase.OutputCh,
+			OutputMsg: plugin.OutputMsg{
+				OutputMsgCh: plugin.OutputCh,
 			},
 			Mode: config.Mode,
 		},

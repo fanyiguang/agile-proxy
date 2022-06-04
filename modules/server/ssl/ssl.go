@@ -5,7 +5,7 @@ import (
 	"agile-proxy/helper/common"
 	"agile-proxy/helper/log"
 	"agile-proxy/helper/tls"
-	commonBase "agile-proxy/modules/base"
+	"agile-proxy/modules/plugin"
 	"agile-proxy/modules/server/base"
 	"agile-proxy/modules/transport"
 	"agile-proxy/pkg/socks5"
@@ -123,18 +123,18 @@ func New(jsonConfig json.RawMessage) (obj *Ssl, err error) {
 
 	obj = &Ssl{
 		Server: base.Server{
-			NetInfo: commonBase.NetInfo{
+			NetInfo: plugin.NetInfo{
 				Host:     config.Ip,
 				Port:     config.Port,
 				Username: config.Username,
 				Password: config.Password,
 			},
-			IdentInfo: commonBase.IdentInfo{
+			IdentInfo: plugin.IdentInfo{
 				ModuleName: config.Name,
 				ModuleType: config.Type,
 			},
-			OutputMsg: commonBase.OutputMsg{
-				OutputMsgCh: commonBase.OutputCh,
+			OutputMsg: plugin.OutputMsg{
+				OutputMsgCh: plugin.OutputCh,
 			},
 			DoneCh: make(chan struct{}),
 		},

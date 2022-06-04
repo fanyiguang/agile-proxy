@@ -1,9 +1,9 @@
 package base
 
-import "agile-proxy/modules/base"
+import "agile-proxy/modules/plugin"
 
 type Dialer struct {
-	base.IdentInfo
-	base.OutputMsg
+	plugin.IdentInfo
+	plugin.OutputMsg
 	IFace string
 }

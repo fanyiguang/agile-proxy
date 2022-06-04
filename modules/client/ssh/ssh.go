@@ -5,9 +5,9 @@ import (
 	"agile-proxy/helper/Go"
 	"agile-proxy/helper/common"
 	"agile-proxy/helper/log"
-	commonBase "agile-proxy/modules/base"
 	"agile-proxy/modules/client/base"
 	"agile-proxy/modules/dialer"
+	"agile-proxy/modules/plugin"
 	"encoding/json"
 	"github.com/pkg/errors"
 	"golang.org/x/crypto/ssh"
@@ -218,9 +218,9 @@ func (s *Ssh) reconnect() (err error) {
 	return
 }
 
-func New(strConfig json.RawMessage) (obj *Ssh, err error) {
+func New(jsonConfig json.RawMessage) (obj *Ssh, err error) {
 	var _config Config
-	err = json.Unmarshal(strConfig, &_config)
+	err = json.Unmarshal(jsonConfig, &_config)
 	if err != nil {
 		err = errors.Wrap(err, "new")
 		return
@@ -228,18 +228,18 @@ func New(strConfig json.RawMessage) (obj *Ssh, err error) {
 
 	obj = &Ssh{
 		Client: base.Client{
-			NetInfo: commonBase.NetInfo{
+			NetInfo: plugin.NetInfo{
 				Host:     _config.Ip,
 				Port:     _config.Port,
 				Username: _config.Username,
 				Password: _config.Password,
 			},
-			IdentInfo: commonBase.IdentInfo{
+			IdentInfo: plugin.IdentInfo{
 				ModuleName: _config.Name,
 				ModuleType: _config.Type,
 			},
-			OutputMsg: commonBase.OutputMsg{
-				OutputMsgCh: commonBase.OutputCh,
+			OutputMsg: plugin.OutputMsg{
+				OutputMsgCh: plugin.OutputCh,
 			},
 			Mode: _config.Mode,
 		},

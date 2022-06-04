@@ -1,4 +1,4 @@
-package base
+package plugin
 
 type IdentInfo struct {
 	ModuleName string

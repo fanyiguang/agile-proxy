@@ -1,9 +1,9 @@
 package ssl
 
 import (
-	commonBase "agile-proxy/modules/base"
 	"agile-proxy/modules/client/base"
 	"agile-proxy/modules/dialer"
+	"agile-proxy/modules/plugin"
 	"agile-proxy/pkg/socks5"
 	"context"
 	"encoding/json"
@@ -14,7 +14,7 @@ import (
 
 type Ssl struct {
 	base.Client
-	commonBase.Tls
+	plugin.Tls
 	socks5Client *socks5.Client
 	authMode     int
 }
@@ -76,9 +76,9 @@ func (s *Ssl) Close() (err error) {
 	return
 }
 
-func New(strConfig json.RawMessage) (obj *Ssl, err error) {
+func New(jsonConfig json.RawMessage) (obj *Ssl, err error) {
 	var config Config
-	err = json.Unmarshal(strConfig, &config)
+	err = json.Unmarshal(jsonConfig, &config)
 	if err != nil {
 		err = errors.Wrap(err, "new")
 		return
@@ -86,22 +86,22 @@ func New(strConfig json.RawMessage) (obj *Ssl, err error) {
 
 	obj = &Ssl{
 		Client: base.Client{
-			NetInfo: commonBase.NetInfo{
+			NetInfo: plugin.NetInfo{
 				Host:     config.Ip,
 				Port:     config.Port,
 				Username: config.Username,
 				Password: config.Password,
 			},
-			IdentInfo: commonBase.IdentInfo{
+			IdentInfo: plugin.IdentInfo{
 				ModuleName: config.Name,
 				ModuleType: config.Type,
 			},
-			OutputMsg: commonBase.OutputMsg{
-				OutputMsgCh: commonBase.OutputCh,
+			OutputMsg: plugin.OutputMsg{
+				OutputMsgCh: plugin.OutputCh,
 			},
 			Mode: config.Mode,
 		},
-		Tls: commonBase.Tls{
+		Tls: plugin.Tls{
 			CrtPath: config.CrtPath,
 			KeyPath: config.KeyPath,
 		},

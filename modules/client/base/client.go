@@ -2,8 +2,8 @@ package base
 
 import (
 	"agile-proxy/helper/log"
-	"agile-proxy/modules/base"
 	"agile-proxy/modules/dialer"
+	"agile-proxy/modules/plugin"
 	"github.com/pkg/errors"
 	"net"
 	"strconv"
@@ -11,9 +11,9 @@ import (
 )
 
 type Client struct {
-	base.NetInfo
-	base.IdentInfo
-	base.OutputMsg
+	plugin.NetInfo
+	plugin.IdentInfo
+	plugin.OutputMsg
 	Dialer dialer.Dialer
 	Mode   int // 0-降级模式（如果有配置连接器且连接器无法使用会走默认网络，默认为降级模式） 1-严格模式（如果有配置连接器且连接器无法使用则直接返回失败）
 }

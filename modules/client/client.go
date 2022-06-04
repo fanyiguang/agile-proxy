@@ -3,6 +3,8 @@ package client
 import (
 	globalConfig "agile-proxy/config"
 	"agile-proxy/helper/log"
+	"agile-proxy/modules/client/http"
+	"agile-proxy/modules/client/https"
 	"agile-proxy/modules/client/socks5"
 	"agile-proxy/modules/client/ssh"
 	"agile-proxy/modules/client/ssl"
@@ -30,6 +32,10 @@ func Factory(configs []sysJson.RawMessage) {
 			client, err = ssl.New(config)
 		case globalConfig.Ssh:
 			client, err = ssh.New(config)
+		case globalConfig.Https:
+			client, err = https.New(config)
+		case globalConfig.Http:
+			client, err = http.New(config)
 		default:
 			err = errors.New("type is invalid")
 		}

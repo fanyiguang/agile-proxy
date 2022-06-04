@@ -1,4 +1,4 @@
-package base
+package plugin
 
 var (
 	OutputCh = make(chan outputMsg)

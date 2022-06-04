@@ -2,8 +2,11 @@ package http
 
 import (
 	"agile-proxy/modules/client/base"
+	"agile-proxy/modules/dialer"
+	"agile-proxy/modules/plugin"
 	"agile-proxy/pkg/https"
-	sysTls "crypto/tls"
+	"encoding/json"
+	"github.com/pkg/errors"
 	"net"
 	"time"
 )
@@ -11,7 +14,6 @@ import (
 type Http struct {
 	base.Client
 	httpsClient *https.Client
-	tlsConfig   *sysTls.Config
 }
 
 func (h *Http) Dial(network string, host, port []byte) (conn net.Conn, err error) {
@@ -41,5 +43,40 @@ func (h *Http) DialTimeout(network string, host, port []byte, timeout time.Durat
 }
 
 func (h *Http) Close() (err error) {
+	return
+}
+
+func New(jsonConfig json.RawMessage) (obj *Http, err error) {
+	var config Config
+	err = json.Unmarshal(jsonConfig, &config)
+	if err != nil {
+		err = errors.Wrap(err, "new")
+		return
+	}
+
+	obj = &Http{
+		Client: base.Client{
+			NetInfo: plugin.NetInfo{
+				Host:     config.Ip,
+				Port:     config.Port,
+				Username: config.Username,
+				Password: config.Password,
+			},
+			IdentInfo: plugin.IdentInfo{
+				ModuleName: config.Name,
+				ModuleType: config.Type,
+			},
+			OutputMsg: plugin.OutputMsg{
+				OutputMsgCh: plugin.OutputCh,
+			},
+			Mode: config.Mode,
+		},
+	}
+
+	if config.DialerName != "" {
+		obj.Client.Dialer = dialer.GetDialer(config.DialerName)
+	}
+	obj.httpsClient = https.New(config.Username, config.Password)
+
 	return
 }
