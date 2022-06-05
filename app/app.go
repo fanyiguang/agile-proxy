@@ -4,6 +4,7 @@ import (
 	"agile-proxy/helper/log"
 	"agile-proxy/modules/client"
 	"agile-proxy/modules/dialer"
+	"agile-proxy/modules/ipc"
 	"agile-proxy/modules/parser"
 	"agile-proxy/modules/server"
 	"agile-proxy/modules/transport"
@@ -32,10 +33,19 @@ func App(configPath string) (err error) {
 	log.New(proxyConfig.LogPath, proxyConfig.LogLevel)
 
 	// 固定初始化顺序无法改变
-	// 依赖关系：server -> transport -> client-> dialer
+	// 依赖关系：server -> transport -> client -> dialer
 	dialer.Factory(proxyConfig.DialerConfig)
 	client.Factory(proxyConfig.ClientConfig)
 	transport.Factory(proxyConfig.TransportConfig)
+	ipc, err := ipc.Factory(proxyConfig.IpcConfig)
+	if err != nil {
+		log.WarnF("ipc factory failed: %+v", err)
+	} else {
+		err = ipc.Run()
+		if err != nil {
+			log.WarnF("ipc run failed: %+v", err)
+		}
+	}
 	servers := server.Factory(proxyConfig.ServerConfig)
 	for _, s := range servers {
 		err := s.Run()

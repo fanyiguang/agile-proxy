@@ -49,3 +49,10 @@ func IntToBytes(n int, b byte) ([]byte, error) {
 	}
 	return nil, fmt.Errorf("IntToBytes b param is invaild")
 }
+
+func CopyBytes(des []byte) []byte {
+	clone := make([]byte, len(des))
+	copy(clone, des)
+	des = clone
+	return des
+}

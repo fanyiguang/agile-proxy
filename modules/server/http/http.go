@@ -204,8 +204,8 @@ func New(jsonConfig json.RawMessage) (obj *Http, err error) {
 				ModuleName: config.Name,
 				ModuleType: config.Type,
 			},
-			OutputMsg: plugin.OutputMsg{
-				OutputMsgCh: plugin.OutputCh,
+			OutMsg: plugin.PipelineOutput{
+				Ch: plugin.PipelineOutputCh,
 			},
 			DoneCh: make(chan struct{}),
 		},

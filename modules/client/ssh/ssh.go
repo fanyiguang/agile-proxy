@@ -170,8 +170,8 @@ func New(jsonConfig json.RawMessage) (obj *Ssh, err error) {
 				ModuleName: _config.Name,
 				ModuleType: _config.Type,
 			},
-			OutputMsg: plugin.OutputMsg{
-				OutputMsgCh: plugin.OutputCh,
+			OutMsg: plugin.PipelineOutput{
+				Ch: plugin.PipelineOutputCh,
 			},
 			Mode: _config.Mode,
 		},

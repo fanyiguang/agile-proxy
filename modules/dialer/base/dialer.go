@@ -9,8 +9,8 @@ import (
 
 type Dialer struct {
 	plugin.IdentInfo
-	plugin.OutputMsg
-	IFace string
+	OutMsg plugin.PipelineOutput
+	IFace  string
 }
 
 func (d *Dialer) BaseDial(network string, host, port string) (conn net.Conn, err error) {

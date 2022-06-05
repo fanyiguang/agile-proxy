@@ -1,9 +1,11 @@
 package base
 
 import (
+	"agile-proxy/helper/Go"
 	"agile-proxy/helper/common"
 	"agile-proxy/helper/dns"
 	"agile-proxy/helper/log"
+	"agile-proxy/modules/plugin"
 	"agile-proxy/modules/transport/model"
 	"github.com/pkg/errors"
 	"io"
@@ -12,9 +14,25 @@ import (
 )
 
 type Transport struct {
-	TransportType string
-	TransportName string
-	DnsInfo       model.DnsInfo
+	plugin.IdentInfo
+	OutMsg  plugin.PipelineOutput
+	DnsInfo model.DnsInfo
+}
+
+func (t *Transport) AsyncSendMsg(msg string) {
+	// 异步对外发送消息，减少对主流程的影响
+	// 对外保持0信任原则，设置超时时间如果
+	// 外部阻塞就不会协程泄漏。
+	Go.Go(func() {
+		select {
+		case t.OutMsg.Ch <- plugin.OutputMsg{
+			Content: msg,
+			Module:  t.Type(),
+		}:
+		case <-time.After(time.Second):
+			log.InfoF("pipeline message lock: %v %v", msg, t.Name())
+		}
+	})
 }
 
 func (t *Transport) GetHost(host []byte) (newHost []byte, err error) {

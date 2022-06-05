@@ -1,6 +1,7 @@
 package socks5
 
 import (
+	"agile-proxy/helper/common"
 	"fmt"
 	"github.com/pkg/errors"
 	"net"
@@ -171,12 +172,17 @@ func (s *Server) readReqInfo(conn net.Conn) (desHost, desPort []byte, err error)
 	}
 	switch buffer[1] {
 	case tcp:
-		desHost, desPort, err = s.handlerTcp(buffer)
+		desHost, desPort, err = s.handlerTcp(buffer, n)
 	case udp:
-		desHost, desPort, err = s.handlerUdp(buffer)
+		desHost, desPort, err = s.handlerUdp(buffer, n)
 	default:
 		err = errors.New("unsupported transport layer protocol")
 	}
+
+	// 因为使用了buffer复用并且传递的是切片，会有脏数据的问题。
+	// 所以需要复制一份 host and port，彻底与原来的底层数组
+	// 脱离关系。
+	desHost, desPort = common.CopyBytes(desHost), common.CopyBytes(desPort)
 
 	// 正常应该返回连接远程对应的ip类型+ip+port，偷懒了，直接固定参数返回了
 	responseMsg := successfulFirst
@@ -193,8 +199,7 @@ func (s *Server) readReqInfo(conn net.Conn) (desHost, desPort []byte, err error)
 	return
 }
 
-func (s *Server) handlerTcp(buffer []byte) (desHost, desPort []byte, err error) {
-	n := len(buffer)
+func (s *Server) handlerTcp(buffer []byte, n int) (desHost, desPort []byte, err error) {
 	switch buffer[3] {
 	case ipv4:
 		hostEndPos := 4 + net.IPv4len
@@ -224,7 +229,7 @@ func (s *Server) handlerTcp(buffer []byte) (desHost, desPort []byte, err error) 
 }
 
 //TODO UDP流量实现
-func (s *Server) handlerUdp(buffer []byte) (desHost, desPort []byte, err error) {
+func (s *Server) handlerUdp(buffer []byte, n int) (desHost, desPort []byte, err error) {
 	err = errors.New("UDP is not supported temporarily")
 	return
 }

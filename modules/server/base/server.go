@@ -9,7 +9,7 @@ import (
 type Server struct {
 	plugin.NetInfo
 	plugin.IdentInfo
-	plugin.OutputMsg
+	OutMsg      plugin.PipelineOutput
 	DoneCh      chan struct{}
 	Listen      net.Listener
 	Transmitter transport.Transport

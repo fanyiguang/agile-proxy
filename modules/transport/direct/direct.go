@@ -1,9 +1,12 @@
 package direct
 
 import (
+	"agile-proxy/helper/common"
 	"agile-proxy/modules/client"
+	"agile-proxy/modules/plugin"
 	"agile-proxy/modules/transport/base"
 	"encoding/json"
+	"fmt"
 	"github.com/pkg/errors"
 	"net"
 )
@@ -31,6 +34,7 @@ func (d *Direct) Transport(cConn net.Conn, host, port []byte) (err error) {
 		}
 
 		defer sConn.Close()
+		d.baseTransport.AsyncSendMsg(fmt.Sprintf("%v handshark success", common.BytesToStr(host)))
 		d.baseTransport.MyCopy(sConn, cConn)
 	} else {
 		err = errors.New("Client is nil")
@@ -48,9 +52,14 @@ func New(jsonConfig json.RawMessage) (obj *Direct, err error) {
 
 	obj = &Direct{
 		baseTransport: base.Transport{
-			TransportType: config.Type,
-			TransportName: config.Name,
-			DnsInfo:       config.DnsInfo,
+			IdentInfo: plugin.IdentInfo{
+				ModuleName: config.Name,
+				ModuleType: config.Type,
+			},
+			OutMsg: plugin.PipelineOutput{
+				Ch: plugin.PipelineOutputCh,
+			},
+			DnsInfo: config.DnsInfo,
 		},
 	}
 

@@ -91,8 +91,8 @@ func New(jsonConfig json.RawMessage) (obj *Ssl, err error) {
 				ModuleName: config.Name,
 				ModuleType: config.Type,
 			},
-			OutputMsg: plugin.OutputMsg{
-				OutputMsgCh: plugin.OutputCh,
+			OutMsg: plugin.PipelineOutput{
+				Ch: plugin.PipelineOutputCh,
 			},
 		},
 		Tls: plugin.Tls{
