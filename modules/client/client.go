@@ -36,6 +36,8 @@ func Factory(configs []sysJson.RawMessage) {
 			client, err = https.New(config)
 		case globalConfig.Http:
 			client, err = http.New(config)
+		case globalConfig.Direct:
+			client, err = http.New(config)
 		default:
 			err = errors.New("type is invalid")
 		}

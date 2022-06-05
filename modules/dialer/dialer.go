@@ -4,6 +4,10 @@ import (
 	pConfig "agile-proxy/config"
 	"agile-proxy/helper/log"
 	"agile-proxy/modules/dialer/direct"
+	"agile-proxy/modules/dialer/http"
+	"agile-proxy/modules/dialer/https"
+	"agile-proxy/modules/dialer/socks5"
+	"agile-proxy/modules/dialer/ssh"
 	sysJson "encoding/json"
 	"github.com/pkg/errors"
 	"net"
@@ -22,7 +26,13 @@ func Factory(configs []sysJson.RawMessage) {
 		var dialer Dialer
 		switch strings.ToLower(json.Get(config, "type").ToString()) {
 		case pConfig.Socks5:
+			dialer, err = socks5.New(config)
 		case pConfig.Ssh:
+			dialer, err = ssh.New(config)
+		case pConfig.Https:
+			dialer, err = https.New(config)
+		case pConfig.Http:
+			dialer, err = http.New(config)
 		case pConfig.Direct:
 			dialer, err = direct.New(config)
 		default:
@@ -33,7 +43,7 @@ func Factory(configs []sysJson.RawMessage) {
 			continue
 		}
 
-		dialerName := json.Get([]byte(config), "name").ToString()
+		dialerName := json.Get(config, "name").ToString()
 		if dialerName != "" {
 			dialers[dialerName] = dialer
 		}

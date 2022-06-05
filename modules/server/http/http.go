@@ -4,7 +4,7 @@ import (
 	"agile-proxy/helper/Go"
 	"agile-proxy/helper/common"
 	"agile-proxy/helper/log"
-	commonBase "agile-proxy/modules/base"
+	"agile-proxy/modules/plugin"
 	"agile-proxy/modules/server/base"
 	"agile-proxy/modules/transport"
 	"encoding/base64"
@@ -194,18 +194,18 @@ func New(jsonConfig json.RawMessage) (obj *Http, err error) {
 
 	obj = &Http{
 		Server: base.Server{
-			NetInfo: commonBase.NetInfo{
+			NetInfo: plugin.NetInfo{
 				Host:     config.Ip,
 				Port:     config.Port,
 				Username: config.Username,
 				Password: config.Password,
 			},
-			IdentInfo: commonBase.IdentInfo{
+			IdentInfo: plugin.IdentInfo{
 				ModuleName: config.Name,
 				ModuleType: config.Type,
 			},
-			OutputMsg: commonBase.OutputMsg{
-				OutputMsgCh: commonBase.OutputCh,
+			OutputMsg: plugin.OutputMsg{
+				OutputMsgCh: plugin.OutputCh,
 			},
 			DoneCh: make(chan struct{}),
 		},

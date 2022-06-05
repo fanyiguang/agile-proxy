@@ -37,7 +37,7 @@
       "name": "direct",
       "client_name": "socks5",
       "dns": {
-        "local_dns": true,
+        "local_dns": false,
         "server": "114.114.114.114"
       }
     }
