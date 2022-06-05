@@ -44,10 +44,12 @@ func (s *Socks5) accept() {
 				log.WarnF("s.Listen.accept failed: %v", err)
 				continue
 			}
-			err = s.handler(conn)
-			if err != nil {
-				log.WarnF("server: %v, handler failed: %+v", s.Name(), err)
-			}
+			Go.Go(func() {
+				err = s.handler(conn)
+				if err != nil {
+					log.WarnF("server: %v, handler failed: %+v", s.Name(), err)
+				}
+			})
 		}
 	}
 }
