@@ -93,6 +93,7 @@ func (s *Ssh) connect() (err error) {
 		return
 	}
 
+	common.CloseChan(s.initSuccessfulCh)
 	Go.Go(func() {
 		s.keepAlive()
 	})

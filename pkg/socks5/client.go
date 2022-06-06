@@ -38,6 +38,10 @@ func NewClient(operates ...ClientOperation) *Client {
 	for _, operate := range operates {
 		operate(client)
 	}
+	// 账号或者密码为空时自动改为noAuth模式
+	if client.username == "" || client.password == "" {
+		client.authMode = noAuth
+	}
 	return client
 }
 

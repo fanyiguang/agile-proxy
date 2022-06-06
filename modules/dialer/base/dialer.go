@@ -2,6 +2,7 @@ package base
 
 import (
 	"agile-proxy/modules/plugin"
+	"fmt"
 	"github.com/pkg/errors"
 	"net"
 	"time"
@@ -18,7 +19,11 @@ func (d *Dialer) BaseDial(network string, host, port string) (conn net.Conn, err
 		return d.DialByIFace(network, host, port)
 	}
 
-	return net.Dial(network, net.JoinHostPort(host, port))
+	conn, err = net.Dial(network, net.JoinHostPort(host, port))
+	if err != nil {
+		err = errors.Wrap(err, fmt.Sprintf("%v %v", host, port))
+	}
+	return
 }
 
 func (d *Dialer) BaseDialTimeout(network string, host, port string, timeout time.Duration) (conn net.Conn, err error) {

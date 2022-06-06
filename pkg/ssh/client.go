@@ -116,7 +116,7 @@ func (c *Client) HeartBeat() (err error) {
 			continue
 		}
 		conn, err = c.client.Dial("tcp", parse.Host)
-		if _err == nil { // 正常
+		if err == nil { // 正常
 			_ = conn.Close()
 			return
 		}

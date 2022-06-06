@@ -17,7 +17,7 @@ type Http struct {
 }
 
 func (h *Http) Dial(network string, host, port []byte) (conn net.Conn, err error) {
-	conn, err = h.Dialer.Dial(network, h.Host, h.Port)
+	conn, err = h.Client.Dial(network)
 	if err != nil {
 		return
 	}
@@ -30,7 +30,7 @@ func (h *Http) Dial(network string, host, port []byte) (conn net.Conn, err error
 }
 
 func (h *Http) DialTimeout(network string, host, port []byte, timeout time.Duration) (conn net.Conn, err error) {
-	conn, err = h.Dialer.DialTimeout(network, h.Host, h.Port, timeout)
+	conn, err = h.Client.DialTimeout(network, timeout)
 	if err != nil {
 		return
 	}

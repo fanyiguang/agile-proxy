@@ -39,9 +39,7 @@ func (c *Client) Handshake(conn net.Conn, target string) (err error) {
 		err = errors.Wrap(_err, "req.ReadResponse")
 		return
 	}
-	defer func() {
-		_ = resp.Body.Close()
-	}()
+	//defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
 		err = errors.New(fmt.Sprintf("proxy server response code not 200: %v, %v", resp.StatusCode, resp.Status))

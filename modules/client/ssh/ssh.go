@@ -1,7 +1,6 @@
 package ssh
 
 import (
-	"agile-proxy/config"
 	"agile-proxy/helper/Go"
 	"agile-proxy/helper/common"
 	"agile-proxy/helper/log"
@@ -12,7 +11,6 @@ import (
 	"encoding/json"
 	"github.com/pkg/errors"
 	"net"
-	"net/url"
 	"time"
 )
 
@@ -93,6 +91,8 @@ func (s *Ssh) connect() (err error) {
 		return
 	}
 
+	// 初始化成功打开控制阀门
+	common.CloseChan(s.initSuccessfulCh)
 	Go.Go(func() {
 		s.keepAlive()
 	})
@@ -125,26 +125,6 @@ func (s *Ssh) keepAlive() {
 	}
 }
 
-func (s *Ssh) heartBeat() (err error) {
-	var conn net.Conn
-	for key, _url := range config.GetIpUrls() {
-		parse, _err := url.Parse(_url)
-		if _err != nil {
-			log.WarnF("url: %v url.Parse failed: %v", _url, _err)
-			continue
-		}
-		conn, err = s.client.Dial("tcp", parse.Host)
-		if _err == nil { // 正常
-			_ = conn.Close()
-			return
-		}
-		if key > 1 { // 三次失败判定为长连接故障
-			break
-		}
-	}
-	return
-}
-
 func (s *Ssh) reconnect() (err error) {
 	err = s.client.Connect()
 	return
@@ -175,9 +155,14 @@ func New(jsonConfig json.RawMessage) (obj *Ssh, err error) {
 			},
 			Mode: _config.Mode,
 		},
-		rsaPath: _config.RsaPath,
+		rsaPath:          _config.RsaPath,
+		initSuccessfulCh: make(chan struct{}),
+		initFailedCh:     make(chan struct{}),
+		doneCh:           make(chan struct{}),
+		initWorkerCh:     make(chan uint8, 1),
 	}
-
+	// 添加初始化的令牌，只有一个请求会进入SSH初始化逻辑
+	obj.initWorkerCh <- 1
 	if _config.DialerName != "" {
 		obj.Client.Dialer = dialer.GetDialer(_config.DialerName)
 	}

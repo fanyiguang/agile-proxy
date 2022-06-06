@@ -3,6 +3,7 @@ package client
 import (
 	globalConfig "agile-proxy/config"
 	"agile-proxy/helper/log"
+	"agile-proxy/modules/client/direct"
 	"agile-proxy/modules/client/http"
 	"agile-proxy/modules/client/https"
 	"agile-proxy/modules/client/socks5"
@@ -37,7 +38,7 @@ func Factory(configs []sysJson.RawMessage) {
 		case globalConfig.Http:
 			client, err = http.New(config)
 		case globalConfig.Direct:
-			client, err = http.New(config)
+			client, err = direct.New(config)
 		default:
 			err = errors.New("type is invalid")
 		}
