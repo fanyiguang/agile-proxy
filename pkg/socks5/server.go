@@ -183,7 +183,7 @@ func (s *Server) readReqInfo(conn net.Conn) (desHost, desPort []byte, err error)
 	}
 
 	// 因为使用了buffer复用并且传递的是切片，会有脏数据的问题。
-	// 所以需要复制一份 host and port，彻底与原来的底层数组
+	// 所以需要复制一份 host 和 port，彻底与原来的底层数组
 	// 脱离关系。
 	desHost, desPort = common.CopyBytes(desHost), common.CopyBytes(desPort)
 
@@ -211,6 +211,7 @@ func (s *Server) handlerTcp(buffer []byte, n int) (desHost, desPort []byte, err 
 			return
 		}
 		desHost, desPort = buffer[4:hostEndPos], buffer[hostEndPos:hostEndPos+2]
+		desHost = common.StrToBytes(net.IP(desHost).String())
 	case domain:
 		domainEndPos := 5 + buffer[4]
 		if n < int(domainEndPos)+2 {
@@ -225,6 +226,7 @@ func (s *Server) handlerTcp(buffer []byte, n int) (desHost, desPort []byte, err 
 			return
 		}
 		desHost, desPort = buffer[4:hostEndPos], buffer[hostEndPos:hostEndPos+2]
+		desHost = common.StrToBytes(net.IP(desHost).String())
 	default:
 		err = aTYPError
 	}

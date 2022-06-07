@@ -28,7 +28,7 @@ func (d *Direct) Dial(network string, host, port []byte) (conn net.Conn, err err
 		}
 	}
 
-	conn, err = net.Dial(network, net.JoinHostPort(common.BytesToStr(host), common.BytesToStr(port)))
+	conn, err = net.Dial(network, net.JoinHostPort(common.BytesToStr(host), d.GetStrPort(port)))
 	if err != nil {
 		err = errors.Wrap(err, "direct Dial")
 	}
@@ -37,7 +37,7 @@ func (d *Direct) Dial(network string, host, port []byte) (conn net.Conn, err err
 
 func (d *Direct) DialTimeout(network string, host, port []byte, timeout time.Duration) (conn net.Conn, err error) {
 	if d.Dialer != nil {
-		conn, err = d.Dialer.DialTimeout(network, common.BytesToStr(host), common.BytesToStr(port), timeout)
+		conn, err = d.Dialer.DialTimeout(network, common.BytesToStr(host), d.GetStrPort(port), timeout)
 		if err == nil || d.Mode == 1 { // mode=1 严格模式
 			return
 		}
@@ -47,7 +47,7 @@ func (d *Direct) DialTimeout(network string, host, port []byte, timeout time.Dur
 		}
 	}
 
-	conn, err = net.Dial(network, net.JoinHostPort(common.BytesToStr(host), common.BytesToStr(port)))
+	conn, err = net.Dial(network, net.JoinHostPort(common.BytesToStr(host), d.GetStrPort(port)))
 	if err != nil {
 		err = errors.Wrap(err, "direct Dial")
 	}

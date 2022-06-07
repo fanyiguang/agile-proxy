@@ -8,5 +8,5 @@ type Config struct {
 	Type          string `json:"type"`
 	Name          string `json:"name"`
 	TransportName string `json:"transport_name"`
-	AuthMode      int    `json:"auth_mode"` // 认证模式 0-允许匿名模式 1-不允许匿名模式
+	AuthMode      int    `json:"auth_mode"` // 认证模式 0-不允许匿名模式 1-允许匿名模式
 }

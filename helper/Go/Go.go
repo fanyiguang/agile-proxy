@@ -12,7 +12,7 @@ func Go(fun func()) {
 		defer func() {
 			if err := recover(); err != nil {
 				log.Error(strings.Repeat("+", 15))
-				log.Error(fmt.Sprintf("%s", debug.Stack()))
+				log.Error(fmt.Sprintf("%v %s", err, debug.Stack()))
 			}
 		}()
 

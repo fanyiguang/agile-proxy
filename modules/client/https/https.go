@@ -1,6 +1,7 @@
 package https
 
 import (
+	"agile-proxy/helper/common"
 	"agile-proxy/modules/client/base"
 	"agile-proxy/modules/dialer"
 	"agile-proxy/modules/plugin"
@@ -36,7 +37,7 @@ func (h *Https) Dial(network string, host, port []byte) (conn net.Conn, err erro
 		return
 	}
 
-	err = h.httpsClient.Handshake(conn, net.JoinHostPort(string(host), h.GetStrPort(port)))
+	err = h.httpsClient.Handshake(conn, net.JoinHostPort(common.BytesToStr(host), h.GetStrPort(port)))
 	if err != nil {
 		_ = conn.Close()
 	}
@@ -63,7 +64,7 @@ func (h *Https) DialTimeout(network string, host, port []byte, timeout time.Dura
 		return
 	}
 
-	err = h.httpsClient.Handshake(conn, net.JoinHostPort(string(host), h.GetStrPort(port)))
+	err = h.httpsClient.Handshake(conn, net.JoinHostPort(common.BytesToStr(host), h.GetStrPort(port)))
 	if err != nil {
 		_ = conn.Close()
 	}

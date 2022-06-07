@@ -32,7 +32,7 @@ func (s *Ssh) Dial(network string, host, port []byte) (conn net.Conn, err error)
 		return
 	}
 
-	conn, err = s.client.Dial(network, net.JoinHostPort(string(host), s.GetStrPort(port)))
+	conn, err = s.client.Dial(network, net.JoinHostPort(common.BytesToStr(host), s.GetStrPort(port)))
 	if err != nil {
 		err = errors.Wrap(err, "s.client.Dial")
 	}
@@ -47,7 +47,7 @@ func (s *Ssh) DialTimeout(network string, host, port []byte, timeout time.Durati
 
 	resCh := make(chan struct{})
 	Go.Go(func() {
-		conn, err = s.client.Dial(network, net.JoinHostPort(string(host), s.GetStrPort(port)))
+		conn, err = s.client.Dial(network, net.JoinHostPort(common.BytesToStr(host), s.GetStrPort(port)))
 		if err != nil {
 			err = errors.Wrap(err, "s.client.Dial")
 		}
