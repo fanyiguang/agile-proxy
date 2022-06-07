@@ -8,6 +8,7 @@ import (
 	"agile-proxy/modules/server/base"
 	"agile-proxy/modules/transport"
 	"encoding/json"
+	"fmt"
 	"github.com/gliderlabs/ssh"
 	"github.com/pkg/errors"
 	sysSsh "golang.org/x/crypto/ssh"
@@ -104,8 +105,7 @@ func (s *Ssh) handleDirectRequest(srv *ssh.Server, conn *sysSsh.ServerConn, newC
 	Go.Go(func() {
 		sysSsh.DiscardRequests(reqs)
 	})
-	desPort, _ := common.IntToBytes(int(d.DesPort), 2)
-	err = s.transport(sshConn, []byte(d.DesAddr), desPort)
+	err = s.transport(sshConn, common.StrToBytes(d.DesAddr), common.StrToBytes(fmt.Sprintf("%v", d.DesPort)))
 	if err != nil {
 		log.WarnF("s.transport %+v", err)
 		return

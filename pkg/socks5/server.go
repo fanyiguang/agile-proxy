@@ -182,10 +182,8 @@ func (s *Server) readReqInfo(conn net.Conn) (desHost, desPort []byte, err error)
 		err = errors.New("unsupported transport layer protocol")
 	}
 
-	// 因为使用了buffer复用并且传递的是切片，会有脏数据的问题。
-	// 所以需要复制一份 host 和 port，彻底与原来的底层数组
-	// 脱离关系。
-	desHost, desPort = common.CopyBytes(desHost), common.CopyBytes(desPort)
+	// 与client输入的port格式对应，协议需要的格式转换包内自己解决，不影响外界
+	desPort = []byte(ChangeStrPort(desPort))
 
 	// 正常应该返回连接远程对应的ip类型+ip+port，偷懒了，直接固定参数返回了
 	responseMsg := successfulFirst
@@ -219,6 +217,9 @@ func (s *Server) handlerTcp(buffer []byte, n int) (desHost, desPort []byte, err 
 			return
 		}
 		desHost, desPort = buffer[5:domainEndPos], buffer[domainEndPos:domainEndPos+2]
+		// 因为使用了buffer复用并且传递的是切片，会有脏数据的问题。
+		// 所以需要复制一份 host，彻底与原来的底层数组脱离关系。
+		desHost = common.CopyBytes(desHost)
 	case ipv6:
 		hostEndPos := 4 + net.IPv6len
 		if n < hostEndPos+2 {

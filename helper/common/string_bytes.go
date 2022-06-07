@@ -3,9 +3,6 @@ package common
 // https://github.com/qcrao/Go-Questions/issues/7
 
 import (
-	"bytes"
-	"encoding/binary"
-	"fmt"
 	"reflect"
 	"unsafe"
 )
@@ -27,27 +24,6 @@ func StrToBytes(str string) []byte {
 
 func GetBytesLen(b []byte) int {
 	return (*reflect.SliceHeader)(unsafe.Pointer(&b)).Len
-}
-
-func IntToBytes(n int, b byte) ([]byte, error) {
-	switch b {
-	case 1:
-		tmp := int8(n)
-		bytesBuffer := bytes.NewBuffer([]byte{})
-		binary.Write(bytesBuffer, binary.BigEndian, &tmp)
-		return bytesBuffer.Bytes(), nil
-	case 2:
-		tmp := int16(n)
-		bytesBuffer := bytes.NewBuffer([]byte{})
-		binary.Write(bytesBuffer, binary.BigEndian, &tmp)
-		return bytesBuffer.Bytes(), nil
-	case 3, 4:
-		tmp := int32(n)
-		bytesBuffer := bytes.NewBuffer([]byte{})
-		binary.Write(bytesBuffer, binary.BigEndian, &tmp)
-		return bytesBuffer.Bytes(), nil
-	}
-	return nil, fmt.Errorf("IntToBytes b param is invaild")
 }
 
 func CopyBytes(des []byte) []byte {

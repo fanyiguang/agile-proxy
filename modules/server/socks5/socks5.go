@@ -100,7 +100,7 @@ func (s *Socks5) handler(conn net.Conn) (err error) {
 		return
 	}
 
-	log.DebugF("des host: %v port: %v", string(host), port)
+	log.DebugF("des host: %v port: %v", string(host), string(port))
 	return s.transport(conn, host, port)
 }
 

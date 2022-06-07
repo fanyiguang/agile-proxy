@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/pkg/errors"
 	"net"
+	"strconv"
 )
 
 type Client struct {
@@ -143,11 +144,24 @@ func (c *Client) authentication(conn net.Conn) (err error) {
 func (c *Client) sendReqInfo(conn net.Conn, desHost, desPort []byte) (err error) {
 	reqBuffer := []byte{0x05, 0x01, 0x00}
 	if ip := net.ParseIP(common.BytesToStr(desHost)); ip != nil {
-		reqBuffer = append(reqBuffer, 0x01)
+		if pv4 := ip.To4(); pv4 == nil { // ipv6
+			reqBuffer = append(reqBuffer, 0x04)
+			desHost = ip.To16()
+		} else { // ipv4
+			reqBuffer = append(reqBuffer, 0x01)
+			desHost = pv4
+		}
 	} else {
 		reqBuffer = append(reqBuffer, 0x03)
 		reqBuffer = append(reqBuffer, byte(common.GetBytesLen(desHost)))
 	}
+	// 与server输出的port格式对应，协议需要的格式转换包内自己解决，不影响外界
+	desPort, err = c.changePortFormat(desPort)
+	if err != nil {
+		err = errors.Wrap(err, "changePortFormat")
+		return
+	}
+
 	reqBuffer = append(reqBuffer, desHost...)
 	reqBuffer = append(reqBuffer, desPort...)
 	_, err = conn.Write(reqBuffer)
@@ -171,5 +185,16 @@ func (c *Client) sendReqInfo(conn net.Conn, desHost, desPort []byte) (err error)
 	if resBuffer[1] != 0 {
 		err = errors.New(fmt.Sprintf("client.sendReqInfo send failed. buffur: %#v", resBuffer))
 	}
+	return
+}
+
+func (c *Client) changePortFormat(port []byte) (newPort []byte, err error) {
+	iPort, _err := strconv.Atoi(string(port))
+	if _err != nil {
+		err = _err
+		return
+	}
+
+	newPort, err = IntToBytes(iPort, 2)
 	return
 }

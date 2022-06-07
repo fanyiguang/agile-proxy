@@ -5,6 +5,7 @@ import (
 	"agile-proxy/modules/plugin"
 	"agile-proxy/pkg/https"
 	"context"
+	sysTls "crypto/tls"
 	"encoding/json"
 	"github.com/pkg/errors"
 	"net"
@@ -30,11 +31,13 @@ func (h *Https) Dial(network string, host, port string) (conn net.Conn, err erro
 		return
 	}
 
-	conn, err = h.Handshake(context.Background(), conn, config)
+	tlsConn := sysTls.Client(conn, config)
+	err = tlsConn.Handshake()
 	if err != nil {
 		_ = conn.Close()
 		return
 	}
+	conn = tlsConn
 
 	err = h.httpsClient.Handshake(conn, net.JoinHostPort(host, port))
 	if err != nil {

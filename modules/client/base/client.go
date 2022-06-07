@@ -1,12 +1,12 @@
 package base
 
 import (
+	"agile-proxy/helper/common"
 	"agile-proxy/helper/log"
 	"agile-proxy/modules/dialer"
 	"agile-proxy/modules/plugin"
 	"github.com/pkg/errors"
 	"net"
-	"strconv"
 	"time"
 )
 
@@ -57,8 +57,5 @@ func (s *Client) DialTimeout(network string, timeout time.Duration) (conn net.Co
 }
 
 func (s *Client) GetStrPort(bPort []byte) string {
-	if len(bPort) < 2 {
-		return ""
-	}
-	return strconv.Itoa(int(bPort[0])<<8 | int(bPort[1]))
+	return common.BytesToStr(bPort)
 }

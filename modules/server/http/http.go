@@ -13,7 +13,6 @@ import (
 	"github.com/pkg/errors"
 	"net"
 	"net/http"
-	"strconv"
 	"strings"
 	"time"
 )
@@ -162,19 +161,9 @@ func (h *Http) GetHostAndPort(host string) (newHost, newPort []byte, err error) 
 		_host = host[:index]
 		_port = host[index+1:]
 	}
-	iPort, _err := strconv.Atoi(_port)
-	if _err != nil {
-		err = errors.Wrap(_err, "port to string failed")
-		return
-	}
-
-	newPort, err = common.IntToBytes(iPort, 2)
-	if err != nil {
-		err = errors.Wrap(err, "port to string failed")
-		return
-	}
 
 	newHost = common.StrToBytes(_host)
+	newPort = common.StrToBytes(_port)
 	return
 }
 
