@@ -78,8 +78,8 @@ func (t *Transport) MyCopy(sConn net.Conn, cConn net.Conn) {
 
 func (t *Transport) myCopyN(det net.Conn, src net.Conn, done chan struct{}) {
 	for {
-		_ = src.SetReadDeadline(time.Now().Add(time.Minute))
-		_ = det.SetWriteDeadline(time.Now().Add(time.Minute))
+		_ = src.SetReadDeadline(time.Now().Add(3 * time.Minute))
+		_ = det.SetWriteDeadline(time.Now().Add(3 * time.Minute))
 		_, err := io.CopyN(det, src, 1024*32)
 		if err == io.EOF {
 			break

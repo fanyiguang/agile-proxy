@@ -4,7 +4,6 @@ import (
 	"agile-proxy/helper/Go"
 	"agile-proxy/helper/common"
 	"agile-proxy/helper/log"
-	"agile-proxy/helper/tls"
 	"agile-proxy/modules/plugin"
 	"agile-proxy/modules/server/base"
 	"agile-proxy/modules/transport"
@@ -17,9 +16,8 @@ import (
 
 type Ssl struct {
 	base.Server
+	plugin.Tls
 	socks5Server *socks5.Server
-	crtPath      string
-	keyPath      string
 	authMode     int
 }
 
@@ -51,7 +49,7 @@ func (s *Ssl) listen() (err error) {
 		return
 	}
 
-	tlsConfig, err := tls.CreateConfig(s.crtPath, s.keyPath)
+	tlsConfig, err := s.CreateTlsConfig()
 	if err != nil {
 		return
 	}
@@ -138,8 +136,10 @@ func New(jsonConfig json.RawMessage) (obj *Ssl, err error) {
 			},
 			DoneCh: make(chan struct{}),
 		},
-		crtPath:  config.CrtPath,
-		keyPath:  config.KeyPath,
+		Tls: plugin.Tls{
+			CrtPath: config.CrtPath,
+			KeyPath: config.KeyPath,
+		},
 		authMode: config.AuthMode,
 	}
 

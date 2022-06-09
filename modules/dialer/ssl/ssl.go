@@ -26,7 +26,7 @@ func (s *Ssl) Dial(network string, host, port string) (conn net.Conn, err error)
 		return
 	}
 
-	config, err := s.CreateTlsConfig(s.Host)
+	config, err := s.CreateTlsConfig()
 	if err != nil {
 		_ = conn.Close()
 		return
@@ -51,7 +51,7 @@ func (s *Ssl) DialTimeout(network string, host, port string, timeout time.Durati
 		return
 	}
 
-	config, err := s.CreateTlsConfig(s.Host)
+	config, err := s.CreateTlsConfig()
 	if err != nil {
 		_ = conn.Close()
 		return

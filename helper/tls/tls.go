@@ -1,51 +1,48 @@
 package tls
 
 import (
-	"context"
+	"agile-proxy/helper/log"
 	"crypto/tls"
 	"crypto/x509"
 	"github.com/pkg/errors"
 	"io/ioutil"
-	"net"
 )
 
-func CreateConfig(crtPath, keyPath string) (tlsConfig *tls.Config, err error) {
-	var bytes []byte
-	pool := x509.NewCertPool()
+func CreateConfig(crtPath, keyPath, caPath string) (tlsConfig *tls.Config, err error) {
 	if crtPath == "" || keyPath == "" { // 忽略证书
 		tlsConfig = &tls.Config{
-			RootCAs: pool,
+			InsecureSkipVerify: true,
 		}
-		tlsConfig.InsecureSkipVerify = true
 		return
 	}
 
-	bytes, err = ioutil.ReadFile(crtPath)
-	if err != nil {
-		err = errors.Wrap(err, "ReadFile")
-		return
-	}
-
-	pool.AppendCertsFromPEM(bytes)
-	tlsConfig = &tls.Config{
-		RootCAs: pool,
-	}
-	var certificate tls.Certificate
-	certificate, err = tls.LoadX509KeyPair(crtPath, keyPath)
-	if err != nil {
-		err = errors.Wrap(err, "tls.LoadX509KeyPair")
+	certificate, _err := tls.LoadX509KeyPair(crtPath, keyPath)
+	if _err != nil {
+		err = errors.Wrap(_err, "tls.LoadX509KeyPair")
 		return
 	}
 
 	tlsConfig.Certificates = []tls.Certificate{certificate}
+	if caPath != "" {
+		pool, err := loadCa(caPath)
+		if err != nil {
+			log.WarnF("load ca failed: %v", err)
+			return
+		}
+		tlsConfig.RootCAs = pool
+		tlsConfig.ClientAuth = tls.RequireAndVerifyClientCert
+	}
 	return
 }
 
-func Handshake(ctx context.Context, rawConn net.Conn, config *tls.Config) (conn *tls.Conn, err error) {
-	conn = tls.Client(rawConn, config)
-	if err = conn.HandshakeContext(ctx); err != nil {
-		rawConn.Close()
-		return nil, errors.Wrap(err, "conn.HandshakeContext")
+func loadCa(caPath string) (cp *x509.CertPool, err error) {
+	cp = x509.NewCertPool()
+	data, err := ioutil.ReadFile(caPath)
+	if err != nil {
+		return nil, err
 	}
-	return conn, nil
+	if !cp.AppendCertsFromPEM(data) {
+		return nil, errors.New("AppendCertsFromPEM failed")
+	}
+	return
 }

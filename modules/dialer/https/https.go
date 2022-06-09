@@ -5,7 +5,6 @@ import (
 	"agile-proxy/modules/plugin"
 	"agile-proxy/pkg/https"
 	"context"
-	sysTls "crypto/tls"
 	"encoding/json"
 	"github.com/pkg/errors"
 	"net"
@@ -25,19 +24,17 @@ func (h *Https) Dial(network string, host, port string) (conn net.Conn, err erro
 		return
 	}
 
-	config, err := h.CreateTlsConfig(h.Host)
+	config, err := h.CreateTlsConfig()
 	if err != nil {
 		_ = conn.Close()
 		return
 	}
 
-	tlsConn := sysTls.Client(conn, config)
-	err = tlsConn.Handshake()
+	conn, err = h.Handshake(context.Background(), conn, config)
 	if err != nil {
 		_ = conn.Close()
 		return
 	}
-	conn = tlsConn
 
 	err = h.httpsClient.Handshake(conn, net.JoinHostPort(host, port))
 	if err != nil {
@@ -52,7 +49,7 @@ func (h *Https) DialTimeout(network string, host, port string, timeout time.Dura
 		return
 	}
 
-	config, err := h.CreateTlsConfig(h.Host)
+	config, err := h.CreateTlsConfig()
 	if err != nil {
 		_ = conn.Close()
 		return

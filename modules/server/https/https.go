@@ -4,7 +4,6 @@ import (
 	"agile-proxy/helper/Go"
 	"agile-proxy/helper/common"
 	"agile-proxy/helper/log"
-	"agile-proxy/helper/tls"
 	"agile-proxy/modules/plugin"
 	"agile-proxy/modules/server/base"
 	"agile-proxy/modules/transport"
@@ -20,9 +19,8 @@ import (
 
 type Https struct {
 	base.Server
+	plugin.Tls
 	basicToken string
-	crtPath    string
-	keyPath    string
 	//readTimeout  int
 	//writeTimeout int
 }
@@ -41,7 +39,7 @@ func (h *Https) Close() (err error) {
 }
 
 func (h *Https) listen() (err error) {
-	tlsConfig, err := tls.CreateConfig(h.crtPath, h.keyPath)
+	tlsConfig, err := h.CreateTlsConfig()
 	if err != nil {
 		return err
 	}
@@ -209,8 +207,10 @@ func New(jsonConfig json.RawMessage) (obj *Https, err error) {
 			},
 			DoneCh: make(chan struct{}),
 		},
-		crtPath: config.CrtPath,
-		keyPath: config.KeyPath,
+		Tls: plugin.Tls{
+			CrtPath: config.CrtPath,
+			KeyPath: config.KeyPath,
+		},
 	}
 
 	if len(config.TransportName) > 0 {
