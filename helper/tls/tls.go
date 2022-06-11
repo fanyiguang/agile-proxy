@@ -27,10 +27,10 @@ func CreateConfig(crtPath, keyPath, caPath string) (tlsConfig *tls.Config, err e
 		pool, err := loadCa(caPath)
 		if err != nil {
 			log.WarnF("load ca failed: %v", err)
-			return
+		} else {
+			tlsConfig.RootCAs = pool
+			tlsConfig.ClientAuth = tls.RequireAndVerifyClientCert
 		}
-		tlsConfig.RootCAs = pool
-		tlsConfig.ClientAuth = tls.RequireAndVerifyClientCert
 	}
 	return
 }

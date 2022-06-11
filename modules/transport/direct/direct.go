@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"github.com/pkg/errors"
 	"net"
+	"sync"
 )
 
 type Direct struct {
@@ -35,7 +36,7 @@ func (d *Direct) Transport(cConn net.Conn, host, port []byte) (err error) {
 
 		defer sConn.Close()
 		d.baseTransport.AsyncSendMsg(fmt.Sprintf("%v handshark success", common.BytesToStr(host)))
-		d.baseTransport.MyCopy(sConn, cConn)
+		d.baseTransport.Copy(sConn, cConn)
 	} else {
 		err = errors.New("Client is nil")
 	}
@@ -60,6 +61,11 @@ func New(jsonConfig json.RawMessage) (obj *Direct, err error) {
 				Ch: plugin.PipelineOutputCh,
 			},
 			DnsInfo: config.DnsInfo,
+			BufferPool: sync.Pool{
+				New: func() any {
+					return make([]byte, 1024*32)
+				},
+			},
 		},
 	}
 

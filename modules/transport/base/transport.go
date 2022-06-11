@@ -10,13 +10,15 @@ import (
 	"github.com/pkg/errors"
 	"io"
 	"net"
+	"sync"
 	"time"
 )
 
 type Transport struct {
 	plugin.Identity
-	OutMsg  plugin.PipelineOutput
-	DnsInfo model.DnsInfo
+	OutMsg     plugin.PipelineOutput
+	DnsInfo    model.DnsInfo
+	BufferPool sync.Pool
 }
 
 func (t *Transport) AsyncSendMsg(msg string) {
@@ -69,28 +71,23 @@ func (t *Transport) GetHost(host []byte) (newHost []byte, err error) {
 	return
 }
 
-func (t *Transport) MyCopy(sConn net.Conn, cConn net.Conn) {
-	cDoneCh, sDoneCh := make(chan struct{}), make(chan struct{})
-	go t.myCopyN(sConn, cConn, cDoneCh)
-	go t.myCopyN(cConn, sConn, sDoneCh)
-	t.wait(cDoneCh, sDoneCh)
+func (t *Transport) Copy(sConn net.Conn, cConn net.Conn) {
+	errCh := make(chan error, 1)
+	go t.copyBuffer(sConn, cConn, errCh)
+	go t.copyBuffer(cConn, sConn, errCh)
+	t.wait(errCh)
 }
 
-func (t *Transport) myCopyN(det net.Conn, src net.Conn, done chan struct{}) {
-	for {
-		_ = src.SetReadDeadline(time.Now().Add(3 * time.Minute))
-		_ = det.SetWriteDeadline(time.Now().Add(3 * time.Minute))
-		_, err := io.CopyN(det, src, 1024*32)
-		if err == io.EOF {
-			break
-		} else if err != nil {
-			break
-		}
+func (t *Transport) copyBuffer(det net.Conn, src net.Conn, errCh chan error) {
+	buffer := t.BufferPool.Get().([]byte)
+	defer t.BufferPool.Put(buffer)
+	_, err := io.CopyBuffer(det, src, buffer)
+	errCh <- err
+}
+
+func (t *Transport) wait(errCh chan error) {
+	err := <-errCh
+	if err != nil && err != io.EOF {
+		log.WarnF("wait failed：%v", err)
 	}
-	close(done)
-}
-
-func (t *Transport) wait(cDoneCh, sDoneCh chan struct{}) {
-	<-cDoneCh
-	<-sDoneCh
 }

@@ -104,6 +104,7 @@ func New(jsonConfig json.RawMessage) (obj *Ssl, err error) {
 		Tls: plugin.Tls{
 			CrtPath: config.CrtPath,
 			KeyPath: config.KeyPath,
+			CaPath:  config.CaPath,
 		},
 		authMode: config.AuthMode,
 	}

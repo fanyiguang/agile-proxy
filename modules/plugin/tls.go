@@ -12,6 +12,7 @@ type Tls struct {
 	TlsConfig *sysTls.Config
 	CrtPath   string
 	KeyPath   string
+	CaPath    string
 }
 
 func (t *Tls) CreateTlsConfig() (tlsConfig *sysTls.Config, err error) {
@@ -19,7 +20,7 @@ func (t *Tls) CreateTlsConfig() (tlsConfig *sysTls.Config, err error) {
 		return t.TlsConfig, nil
 	}
 
-	tlsConfig, err = tls.CreateConfig(t.CrtPath, t.KeyPath, "")
+	tlsConfig, err = tls.CreateConfig(t.CrtPath, t.KeyPath, t.CaPath)
 	if err != nil {
 		return
 	}

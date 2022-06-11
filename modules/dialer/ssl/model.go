@@ -9,5 +9,6 @@ type Config struct {
 	Name     string `json:"name"`
 	CrtPath  string `json:"crt_path"`
 	KeyPath  string `json:"key_path"`
+	CaPath   string `json:"ca_path"`
 	AuthMode int    `json:"auth_mode"`
 }
