@@ -7,5 +7,5 @@ type Config struct {
 	Password string `json:"password"`
 	Type     string `json:"type"`
 	Name     string `json:"name"`
-	RsaPath  string `json:"rsa_path"`
+	KeyPath  string `json:"key_path"`
 }

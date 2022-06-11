@@ -22,7 +22,9 @@ func CreateConfig(crtPath, keyPath, caPath string) (tlsConfig *tls.Config, err e
 		return
 	}
 
-	tlsConfig.Certificates = []tls.Certificate{certificate}
+	tlsConfig = &tls.Config{
+		Certificates: []tls.Certificate{certificate},
+	}
 	if caPath != "" {
 		pool, err := loadCa(caPath)
 		if err != nil {

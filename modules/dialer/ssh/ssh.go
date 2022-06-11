@@ -23,7 +23,7 @@ type Ssh struct {
 	initFailedCh     chan struct{}
 	doneCh           chan struct{}
 	initWorkerCh     chan uint8
-	rsaPath          string
+	keyPath          string
 	network          string
 	timeout          int
 }
@@ -112,11 +112,10 @@ func (s *Ssh) keepAlive() {
 				err = s.reconnect()
 				if err != nil {
 					log.WarnF("reconnect failed: %+v", err)
-					return
+					continue
 				}
 
 				common.CloseChan(s.initSuccessfulCh)
-				return
 			}
 
 		case <-s.doneCh:
@@ -175,10 +174,10 @@ func New(jsonConfig json.RawMessage) (obj *Ssh, err error) {
 			Username: _config.Username,
 			Password: _config.Password,
 		},
-		rsaPath: _config.RsaPath,
+		keyPath: _config.KeyPath,
 	}
 
-	obj.client = pkgSsh.New(_config.Ip, _config.Port, pkgSsh.SetUsername(_config.Username), pkgSsh.SetPassword(_config.Password), pkgSsh.SetRsaPath(_config.RsaPath), pkgSsh.SetDialFunc(func(network string, host, port string, timeout time.Duration) (conn net.Conn, err error) {
+	obj.client = pkgSsh.New(_config.Ip, _config.Port, pkgSsh.SetUsername(_config.Username), pkgSsh.SetPassword(_config.Password), pkgSsh.SetPublicKeyPath(_config.KeyPath), pkgSsh.SetDialFunc(func(network string, host, port string, timeout time.Duration) (conn net.Conn, err error) {
 		return obj.DialByIFace(network, host, port)
 	}))
 	return

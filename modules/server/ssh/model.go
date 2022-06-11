@@ -16,5 +16,5 @@ type Config struct {
 	Type          string `json:"type"`
 	Name          string `json:"name"`
 	TransportName string `json:"transport_name"`
-	RsaPath       string `json:"rsa_path"`
+	KeyPath       string `json:"key_path"`
 }

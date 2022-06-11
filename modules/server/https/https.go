@@ -155,6 +155,7 @@ func (h *Https) authentication(r *http.Request) (err error) {
 }
 
 func (h *Https) handleNormal(w http.ResponseWriter, r *http.Request) (err error) {
+	// TODO 兼容http模式的代理
 	http.Error(w, "normal proxy not supported", http.StatusServiceUnavailable)
 	log.Warn("normal proxy not supported")
 	return

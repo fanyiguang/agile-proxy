@@ -21,7 +21,7 @@ type Client struct {
 	port       string
 	username   string
 	password   string
-	rsaPath    string
+	keyPath    string
 	network    string
 	timeout    int
 }
@@ -31,7 +31,12 @@ func (c *Client) Dial(network string, addr string) (conn net.Conn, err error) {
 }
 
 func (c *Client) Connect() (err error) {
-	c.client, err = c.connect()
+	client, err := c.connect()
+	if err != nil {
+		return err
+	}
+
+	c.client = client
 	return
 }
 
@@ -58,7 +63,7 @@ func (c *Client) connect() (client *ssh.Client, err error) {
 	sshConn, chans, reqs, _err := ssh.NewClientConn(conn, net.JoinHostPort(c.host, c.port), sshConfig)
 	if _err != nil {
 		_ = conn.Close()
-		_ = errors.Wrap(_err, "ssh.NewClientConn")
+		err = errors.Wrap(_err, net.JoinHostPort(c.host, c.port))
 		return
 	}
 
@@ -86,10 +91,10 @@ func (c *Client) createConfig() (sshConfig *ssh.ClientConfig, err error) {
 	}
 
 	// 其次密钥认证
-	if c.rsaPath != "" {
-		buffer, _err := ioutil.ReadFile(c.rsaPath)
+	if c.keyPath != "" {
+		buffer, _err := ioutil.ReadFile(c.keyPath)
 		if _err != nil {
-			err = errors.Wrap(_err, "ioutil.ReadFile")
+			err = errors.Wrap(_err, c.keyPath)
 			return
 		}
 
@@ -103,7 +108,7 @@ func (c *Client) createConfig() (sshConfig *ssh.ClientConfig, err error) {
 		return
 	}
 
-	err = errors.New("password or rsaPath is nil")
+	err = errors.New("password or keyPath is nil")
 	return
 }
 
@@ -115,11 +120,19 @@ func (c *Client) HeartBeat() (err error) {
 			log.WarnF("url: %v url.Parse failed: %v", _url, _err)
 			continue
 		}
-		conn, err = c.client.Dial("tcp", parse.Host)
+
+		port := HttpDefaultPort(parse.Scheme)
+		if port == "" {
+			log.WarnF("url: %v scheme failed", _url)
+			continue
+		}
+
+		conn, err = c.client.Dial("tcp", net.JoinHostPort(parse.Host, port))
 		if err == nil { // 正常
 			_ = conn.Close()
 			return
 		}
+
 		if key > 1 { // 三次失败判定为长连接故障
 			break
 		}
@@ -146,9 +159,9 @@ func SetPassword(password string) Operation {
 	}
 }
 
-func SetRsaPath(rsaPath string) Operation {
+func SetPublicKeyPath(rsaPath string) Operation {
 	return func(client *Client) {
-		client.rsaPath = rsaPath
+		client.keyPath = rsaPath
 	}
 }
 

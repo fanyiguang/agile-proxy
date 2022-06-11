@@ -21,7 +21,7 @@ type Ssh struct {
 	initFailedCh     chan struct{}
 	doneCh           chan struct{}
 	initWorkerCh     chan uint8
-	rsaPath          string
+	keyPath          string
 	network          string
 	timeout          int
 }
@@ -34,7 +34,7 @@ func (s *Ssh) Dial(network string, host, port []byte) (conn net.Conn, err error)
 
 	conn, err = s.client.Dial(network, net.JoinHostPort(common.BytesToStr(host), s.GetStrPort(port)))
 	if err != nil {
-		err = errors.Wrap(err, "s.client.Dial")
+		err = errors.Wrap(err, net.JoinHostPort(common.BytesToStr(host), s.GetStrPort(port)))
 	}
 	return
 }
@@ -111,11 +111,10 @@ func (s *Ssh) keepAlive() {
 				err = s.reconnect()
 				if err != nil {
 					log.WarnF("reconnect failed: %+v", err)
-					return
+					continue
 				}
 
 				common.CloseChan(s.initSuccessfulCh)
-				return
 			}
 
 		case <-s.doneCh:
@@ -155,7 +154,7 @@ func New(jsonConfig json.RawMessage) (obj *Ssh, err error) {
 			},
 			Mode: _config.Mode,
 		},
-		rsaPath:          _config.RsaPath,
+		keyPath:          _config.KeyPath,
 		initSuccessfulCh: make(chan struct{}),
 		initFailedCh:     make(chan struct{}),
 		doneCh:           make(chan struct{}),
@@ -167,7 +166,7 @@ func New(jsonConfig json.RawMessage) (obj *Ssh, err error) {
 		obj.Client.Dialer = dialer.GetDialer(_config.DialerName)
 	}
 	// 初始化ssh客户端
-	obj.client = pkgSsh.New(_config.Ip, _config.Port, pkgSsh.SetUsername(_config.Username), pkgSsh.SetPassword(_config.Password), pkgSsh.SetRsaPath(_config.RsaPath), pkgSsh.SetDialFunc(func(network string, host, port string, timeout time.Duration) (conn net.Conn, err error) {
+	obj.client = pkgSsh.New(_config.Ip, _config.Port, pkgSsh.SetUsername(_config.Username), pkgSsh.SetPassword(_config.Password), pkgSsh.SetPublicKeyPath(_config.KeyPath), pkgSsh.SetDialFunc(func(network string, host, port string, timeout time.Duration) (conn net.Conn, err error) {
 		return obj.Dialer.DialTimeout(network, host, port, timeout)
 	}))
 

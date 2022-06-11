@@ -19,7 +19,7 @@ import (
 
 type Ssh struct {
 	base.Server
-	rsaPath string
+	keyPath string
 }
 
 func (s *Ssh) Run() (err error) {
@@ -42,8 +42,8 @@ func (s *Ssh) listen() (err error) {
 		},
 	}
 	_ = server.SetOption(ssh.PasswordAuth(s.userInfoAuth()))
-	if s.rsaPath != "" {
-		_ = server.SetOption(ssh.PublicKeyAuth(s.rsaKeyAuth()))
+	if s.keyPath != "" {
+		_ = server.SetOption(ssh.PublicKeyAuth(s.publicKeyAuth()))
 	}
 	server.ChannelHandlers = map[string]ssh.ChannelHandler{
 		"direct-tcpip": func(srv *ssh.Server, conn *sysSsh.ServerConn, newChan sysSsh.NewChannel, ctx ssh.Context) {
@@ -137,9 +137,9 @@ func (s *Ssh) userInfoAuth() ssh.PasswordHandler {
 	}
 }
 
-func (s *Ssh) rsaKeyAuth() ssh.PublicKeyHandler {
+func (s *Ssh) publicKeyAuth() ssh.PublicKeyHandler {
 	return func(ctx ssh.Context, key ssh.PublicKey) bool {
-		data, _ := ioutil.ReadFile(s.rsaPath)
+		data, _ := ioutil.ReadFile(s.keyPath)
 		allowed, _, _, _, err := ssh.ParseAuthorizedKey(data)
 		if err != nil {
 			log.WarnF("ssh.ParseAuthorizedKey failed: %v", err)
@@ -173,10 +173,10 @@ func New(jsonConfig json.RawMessage) (obj *Ssh, err error) {
 			},
 			DoneCh: make(chan struct{}),
 		},
-		rsaPath: config.RsaPath,
+		keyPath: config.KeyPath,
 	}
 
-	if len(config.TransportName) > 0 {
+	if config.TransportName != "" {
 		obj.Transmitter = transport.GetTransport(config.TransportName)
 	}
 
