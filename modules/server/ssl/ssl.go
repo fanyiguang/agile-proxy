@@ -121,13 +121,13 @@ func New(jsonConfig json.RawMessage) (obj *Ssl, err error) {
 
 	obj = &Ssl{
 		Server: base.Server{
-			NetInfo: plugin.NetInfo{
+			Net: plugin.Net{
 				Host:     config.Ip,
 				Port:     config.Port,
 				Username: config.Username,
 				Password: config.Password,
 			},
-			IdentInfo: plugin.IdentInfo{
+			Identity: plugin.Identity{
 				ModuleName: config.Name,
 				ModuleType: config.Type,
 			},

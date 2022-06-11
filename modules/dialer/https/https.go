@@ -14,7 +14,7 @@ import (
 type Https struct {
 	base.Dialer
 	plugin.Tls
-	plugin.NetInfo
+	plugin.Net
 	httpsClient *https.Client
 }
 
@@ -84,7 +84,7 @@ func New(jsonConfig json.RawMessage) (obj *Https, err error) {
 
 	obj = &Https{
 		Dialer: base.Dialer{
-			IdentInfo: plugin.IdentInfo{
+			Identity: plugin.Identity{
 				ModuleName: config.Name,
 				ModuleType: config.Type,
 			},
@@ -96,7 +96,7 @@ func New(jsonConfig json.RawMessage) (obj *Https, err error) {
 			CrtPath: config.CrtPath,
 			KeyPath: config.KeyPath,
 		},
-		NetInfo: plugin.NetInfo{
+		Net: plugin.Net{
 			Host:     config.Ip,
 			Port:     config.Port,
 			Username: config.Username,

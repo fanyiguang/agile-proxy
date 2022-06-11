@@ -68,7 +68,7 @@ func New(jsonConfig json.RawMessage) (obj *Direct, err error) {
 
 	obj = &Direct{
 		Client: base.Client{
-			IdentInfo: plugin.IdentInfo{
+			Identity: plugin.Identity{
 				ModuleName: config.Name,
 				ModuleType: config.Type,
 			},

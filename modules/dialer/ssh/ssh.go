@@ -17,7 +17,7 @@ import (
 
 type Ssh struct {
 	base.Dialer
-	plugin.NetInfo
+	plugin.Net
 	client           *pkgSsh.Client
 	initSuccessfulCh chan struct{}
 	initFailedCh     chan struct{}
@@ -161,7 +161,7 @@ func New(jsonConfig json.RawMessage) (obj *Ssh, err error) {
 
 	obj = &Ssh{
 		Dialer: base.Dialer{
-			IdentInfo: plugin.IdentInfo{
+			Identity: plugin.Identity{
 				ModuleName: _config.Name,
 				ModuleType: _config.Type,
 			},
@@ -169,7 +169,7 @@ func New(jsonConfig json.RawMessage) (obj *Ssh, err error) {
 				Ch: plugin.PipelineOutputCh,
 			},
 		},
-		NetInfo: plugin.NetInfo{
+		Net: plugin.Net{
 			Host:     _config.Ip,
 			Port:     _config.Port,
 			Username: _config.Username,

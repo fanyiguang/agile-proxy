@@ -52,7 +52,7 @@ func New(jsonConfig json.RawMessage) (obj *Direct, err error) {
 
 	obj = &Direct{
 		baseTransport: base.Transport{
-			IdentInfo: plugin.IdentInfo{
+			Identity: plugin.Identity{
 				ModuleName: config.Name,
 				ModuleType: config.Type,
 			},

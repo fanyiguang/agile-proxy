@@ -6,8 +6,8 @@ var (
 )
 
 type OutputMsg struct {
-	Content string
-	Module  string
+	Content    string
+	ModuleName string
 }
 
 type PipelineOutput struct {

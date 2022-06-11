@@ -85,13 +85,13 @@ func New(jsonConfig json.RawMessage) (obj *Https, err error) {
 
 	obj = &Https{
 		Client: base.Client{
-			NetInfo: plugin.NetInfo{
+			Net: plugin.Net{
 				Host:     config.Ip,
 				Port:     config.Port,
 				Username: config.Username,
 				Password: config.Password,
 			},
-			IdentInfo: plugin.IdentInfo{
+			Identity: plugin.Identity{
 				ModuleName: config.Name,
 				ModuleType: config.Type,
 			},

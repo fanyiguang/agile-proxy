@@ -140,13 +140,13 @@ func New(jsonConfig json.RawMessage) (obj *Ssh, err error) {
 
 	obj = &Ssh{
 		Client: base.Client{
-			NetInfo: plugin.NetInfo{
+			Net: plugin.Net{
 				Host:     _config.Ip,
 				Port:     _config.Port,
 				Username: _config.Username,
 				Password: _config.Password,
 			},
-			IdentInfo: plugin.IdentInfo{
+			Identity: plugin.Identity{
 				ModuleName: _config.Name,
 				ModuleType: _config.Type,
 			},

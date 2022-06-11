@@ -9,7 +9,7 @@ import (
 )
 
 func CreateConfig(crtPath, keyPath, caPath string) (tlsConfig *tls.Config, err error) {
-	if crtPath == "" || keyPath == "" { // 忽略证书
+	if crtPath == "" || keyPath == "" { // 跳过认证
 		tlsConfig = &tls.Config{
 			InsecureSkipVerify: true,
 		}

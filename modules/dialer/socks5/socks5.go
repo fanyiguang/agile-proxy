@@ -13,7 +13,7 @@ import (
 
 type Socks5 struct {
 	base.Dialer
-	plugin.NetInfo
+	plugin.Net
 	socks5Client *socks5.Client
 	authMode     int
 }
@@ -58,7 +58,7 @@ func New(jsonConfig json.RawMessage) (obj *Socks5, err error) {
 
 	obj = &Socks5{
 		Dialer: base.Dialer{
-			IdentInfo: plugin.IdentInfo{
+			Identity: plugin.Identity{
 				ModuleName: config.Name,
 				ModuleType: config.Type,
 			},
@@ -66,7 +66,7 @@ func New(jsonConfig json.RawMessage) (obj *Socks5, err error) {
 				Ch: plugin.PipelineOutputCh,
 			},
 		},
-		NetInfo: plugin.NetInfo{
+		Net: plugin.Net{
 			Host:     config.Ip,
 			Port:     config.Port,
 			Username: config.Username,

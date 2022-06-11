@@ -25,7 +25,7 @@ func (o *OutputLog) accept() {
 	for {
 		select {
 		case msg = <-o.OutMsg.Ch:
-			log.InfoF("ipc accept module message: %v %v", msg.Module, msg.Content)
+			log.InfoF("ipc accept module message: %v %v", msg.ModuleName, msg.Content)
 		case <-o.doneCh:
 			log.InfoF("ipc close")
 			return

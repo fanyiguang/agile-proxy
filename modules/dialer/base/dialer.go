@@ -9,7 +9,7 @@ import (
 )
 
 type Dialer struct {
-	plugin.IdentInfo
+	plugin.Identity
 	OutMsg plugin.PipelineOutput
 	IFace  string
 }

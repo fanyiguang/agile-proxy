@@ -37,11 +37,11 @@ func App(configPath string) (err error) {
 	dialer.Factory(proxyConfig.DialerConfig)
 	client.Factory(proxyConfig.ClientConfig)
 	transport.Factory(proxyConfig.TransportConfig)
-	ipc, err := ipc.Factory(proxyConfig.IpcConfig)
+	_ipc, err := ipc.Factory(proxyConfig.IpcConfig)
 	if err != nil {
 		log.WarnF("ipc factory failed: %+v", err)
 	} else {
-		err = ipc.Run()
+		err = _ipc.Run()
 		if err != nil {
 			log.WarnF("ipc run failed: %+v", err)
 		}

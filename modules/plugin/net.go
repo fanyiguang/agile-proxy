@@ -1,6 +1,6 @@
 package plugin
 
-type NetInfo struct {
+type Net struct {
 	Host     string
 	Port     string
 	Username string

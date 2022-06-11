@@ -15,7 +15,7 @@ import (
 type Ssl struct {
 	base.Dialer
 	plugin.Tls
-	plugin.NetInfo
+	plugin.Net
 	socks5Client *socks5.Client
 	authMode     int
 }
@@ -87,7 +87,7 @@ func New(jsonConfig json.RawMessage) (obj *Ssl, err error) {
 
 	obj = &Ssl{
 		Dialer: base.Dialer{
-			IdentInfo: plugin.IdentInfo{
+			Identity: plugin.Identity{
 				ModuleName: config.Name,
 				ModuleType: config.Type,
 			},
@@ -99,7 +99,7 @@ func New(jsonConfig json.RawMessage) (obj *Ssl, err error) {
 			CrtPath: config.CrtPath,
 			KeyPath: config.KeyPath,
 		},
-		NetInfo: plugin.NetInfo{
+		Net: plugin.Net{
 			Host:     config.Ip,
 			Port:     config.Port,
 			Username: config.Username,

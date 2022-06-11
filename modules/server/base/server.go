@@ -7,8 +7,8 @@ import (
 )
 
 type Server struct {
-	plugin.NetInfo
-	plugin.IdentInfo
+	plugin.Net
+	plugin.Identity
 	OutMsg      plugin.PipelineOutput
 	DoneCh      chan struct{}
 	Listen      net.Listener

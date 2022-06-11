@@ -1,14 +1,14 @@
 package plugin
 
-type IdentInfo struct {
+type Identity struct {
 	ModuleName string
 	ModuleType string
 }
 
-func (i IdentInfo) Name() string {
+func (i Identity) Name() string {
 	return i.ModuleName
 }
 
-func (i IdentInfo) Type() string {
+func (i Identity) Type() string {
 	return i.ModuleType
 }

@@ -12,7 +12,7 @@ import (
 
 type Http struct {
 	base.Dialer
-	plugin.NetInfo
+	plugin.Net
 	httpsClient *https.Client
 }
 
@@ -56,7 +56,7 @@ func New(jsonConfig json.RawMessage) (obj *Http, err error) {
 
 	obj = &Http{
 		Dialer: base.Dialer{
-			IdentInfo: plugin.IdentInfo{
+			Identity: plugin.Identity{
 				ModuleName: config.Name,
 				ModuleType: config.Type,
 			},
@@ -64,7 +64,7 @@ func New(jsonConfig json.RawMessage) (obj *Http, err error) {
 				Ch: plugin.PipelineOutputCh,
 			},
 		},
-		NetInfo: plugin.NetInfo{
+		Net: plugin.Net{
 			Host:     config.Ip,
 			Port:     config.Port,
 			Username: config.Username,

@@ -14,7 +14,7 @@ import (
 )
 
 type Transport struct {
-	plugin.IdentInfo
+	plugin.Identity
 	OutMsg  plugin.PipelineOutput
 	DnsInfo model.DnsInfo
 }
@@ -22,12 +22,12 @@ type Transport struct {
 func (t *Transport) AsyncSendMsg(msg string) {
 	// 异步对外发送消息，减少对主流程的影响
 	// 对外保持0信任原则，设置超时时间如果
-	// 外部阻塞就不会协程泄漏。
+	// 外部阻塞也不会导致协程泄漏。
 	Go.Go(func() {
 		select {
 		case t.OutMsg.Ch <- plugin.OutputMsg{
-			Content: msg,
-			Module:  t.Type(),
+			Content:    msg,
+			ModuleName: t.Name(),
 		}:
 		case <-time.After(time.Second):
 			log.InfoF("pipeline message lock: %v %v", msg, t.Name())
