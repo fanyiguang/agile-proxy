@@ -13,7 +13,7 @@ import (
 	"time"
 )
 
-type Ssl struct {
+type ssl struct {
 	base.Dialer
 	plugin.Tls
 	plugin.Net
@@ -21,7 +21,7 @@ type Ssl struct {
 	authMode     int
 }
 
-func (s *Ssl) Dial(network string, host, port string) (conn net.Conn, err error) {
+func (s *ssl) Dial(network string, host, port string) (conn net.Conn, err error) {
 	conn, err = s.BaseDial(network, s.Host, s.Port)
 	if err != nil {
 		return
@@ -47,7 +47,7 @@ func (s *Ssl) Dial(network string, host, port string) (conn net.Conn, err error)
 	return
 }
 
-func (s *Ssl) DialTimeout(network string, host, port string, timeout time.Duration) (conn net.Conn, err error) {
+func (s *ssl) DialTimeout(network string, host, port string, timeout time.Duration) (conn net.Conn, err error) {
 	conn, err = s.BaseDialTimeout(network, s.Host, s.Port, timeout)
 	if err != nil {
 		return
@@ -75,11 +75,11 @@ func (s *Ssl) DialTimeout(network string, host, port string, timeout time.Durati
 	return
 }
 
-func (s *Ssl) Close() (err error) {
+func (s *ssl) Close() (err error) {
 	return
 }
 
-func New(jsonConfig json.RawMessage) (obj *Ssl, err error) {
+func New(jsonConfig json.RawMessage) (obj *ssl, err error) {
 	var config Config
 	err = json.Unmarshal(jsonConfig, &config)
 	if err != nil {
@@ -87,7 +87,7 @@ func New(jsonConfig json.RawMessage) (obj *Ssl, err error) {
 		return
 	}
 
-	obj = &Ssl{
+	obj = &ssl{
 		Dialer: base.Dialer{
 			Identity: plugin.Identity{
 				ModuleName: config.Name,

@@ -14,14 +14,14 @@ import (
 	"net"
 )
 
-type Ssl struct {
+type ssl struct {
 	base.Server
 	plugin.Tls
 	socks5Server *socks5.Server
 	authMode     int
 }
 
-func (s *Ssl) Run() (err error) {
+func (s *ssl) Run() (err error) {
 	s.init()
 	err = s.listen()
 	if err != nil {
@@ -35,7 +35,7 @@ func (s *Ssl) Run() (err error) {
 	return
 }
 
-func (s *Ssl) Close() (err error) {
+func (s *ssl) Close() (err error) {
 	common.CloseChan(s.DoneCh)
 	if s.Listen != nil {
 		err = s.Listen.Close()
@@ -43,7 +43,7 @@ func (s *Ssl) Close() (err error) {
 	return
 }
 
-func (s *Ssl) listen() (err error) {
+func (s *ssl) listen() (err error) {
 	if s.Port == "" {
 		err = errors.New("server port is nil")
 		return
@@ -65,7 +65,7 @@ func (s *Ssl) listen() (err error) {
 	return
 }
 
-func (s *Ssl) accept() {
+func (s *ssl) accept() {
 	for {
 		select {
 		case <-s.DoneCh:
@@ -86,7 +86,7 @@ func (s *Ssl) accept() {
 	}
 }
 
-func (s *Ssl) handler(conn net.Conn) (err error) {
+func (s *ssl) handler(conn net.Conn) (err error) {
 	defer func() {
 		_ = conn.Close()
 	}()
@@ -100,7 +100,7 @@ func (s *Ssl) handler(conn net.Conn) (err error) {
 	return s.transport(conn, host, port)
 }
 
-func (s *Ssl) transport(conn net.Conn, desHost, desPort []byte) (err error) {
+func (s *ssl) transport(conn net.Conn, desHost, desPort []byte) (err error) {
 	if s.Transmitter != nil {
 		err = s.Transmitter.Transport(conn, desHost, desPort)
 	} else {
@@ -109,11 +109,11 @@ func (s *Ssl) transport(conn net.Conn, desHost, desPort []byte) (err error) {
 	return
 }
 
-func (s *Ssl) init() {
+func (s *ssl) init() {
 	s.socks5Server = socks5.NewServer(socks5.SetServerAuth(s.authMode), socks5.SetServerUsername(s.Username), socks5.SetServerPassword(s.Password))
 }
 
-func New(jsonConfig json.RawMessage) (obj *Ssl, err error) {
+func New(jsonConfig json.RawMessage) (obj *ssl, err error) {
 	var config Config
 	err = json.Unmarshal(jsonConfig, &config)
 	if err != nil {
@@ -121,7 +121,7 @@ func New(jsonConfig json.RawMessage) (obj *Ssl, err error) {
 		return
 	}
 
-	obj = &Ssl{
+	obj = &ssl{
 		Server: base.Server{
 			Net: plugin.Net{
 				Host:     config.Ip,

@@ -12,16 +12,16 @@ import (
 	"sync"
 )
 
-type Direct struct {
+type direct struct {
 	baseTransport base.Transport
 	Client        client.Client // 传输器可以使用的客户端
 }
 
-func (d *Direct) Close() (err error) {
+func (d *direct) Close() (err error) {
 	return nil
 }
 
-func (d *Direct) Transport(cConn net.Conn, host, port []byte) (err error) {
+func (d *direct) Transport(cConn net.Conn, host, port []byte) (err error) {
 	if d.Client != nil {
 		host, err = d.baseTransport.GetHost(host)
 		if err != nil {
@@ -35,7 +35,7 @@ func (d *Direct) Transport(cConn net.Conn, host, port []byte) (err error) {
 		}
 
 		defer sConn.Close()
-		d.baseTransport.AsyncSendMsg(fmt.Sprintf("%v handshark success", common.BytesToStr(host)))
+		d.baseTransport.AsyncSendMsgToIpc(fmt.Sprintf("%v handshark success", common.BytesToStr(host)))
 		d.baseTransport.Copy(sConn, cConn)
 	} else {
 		err = errors.New("Client is nil")
@@ -43,7 +43,7 @@ func (d *Direct) Transport(cConn net.Conn, host, port []byte) (err error) {
 	return
 }
 
-func New(jsonConfig json.RawMessage) (obj *Direct, err error) {
+func New(jsonConfig json.RawMessage) (obj *direct, err error) {
 	var config Config
 	err = json.Unmarshal(jsonConfig, &config)
 	if err != nil {
@@ -51,7 +51,7 @@ func New(jsonConfig json.RawMessage) (obj *Direct, err error) {
 		return
 	}
 
-	obj = &Direct{
+	obj = &direct{
 		baseTransport: base.Transport{
 			Identity: plugin.Identity{
 				ModuleName: config.Name,

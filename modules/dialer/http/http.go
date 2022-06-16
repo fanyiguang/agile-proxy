@@ -11,13 +11,13 @@ import (
 	"time"
 )
 
-type Http struct {
+type http struct {
 	base.Dialer
 	plugin.Net
 	httpsClient *https.Client
 }
 
-func (h *Http) Dial(network string, host, port string) (conn net.Conn, err error) {
+func (h *http) Dial(network string, host, port string) (conn net.Conn, err error) {
 	conn, err = h.BaseDial(network, h.Host, h.Port)
 	if err != nil {
 		return
@@ -31,7 +31,7 @@ func (h *Http) Dial(network string, host, port string) (conn net.Conn, err error
 	return
 }
 
-func (h *Http) DialTimeout(network string, host, port string, timeout time.Duration) (conn net.Conn, err error) {
+func (h *http) DialTimeout(network string, host, port string, timeout time.Duration) (conn net.Conn, err error) {
 	conn, err = h.BaseDialTimeout(network, h.Host, h.Port, timeout)
 	if err != nil {
 		return
@@ -45,11 +45,11 @@ func (h *Http) DialTimeout(network string, host, port string, timeout time.Durat
 	return
 }
 
-func (h *Http) Close() (err error) {
+func (h *http) Close() (err error) {
 	return
 }
 
-func New(jsonConfig json.RawMessage) (obj *Http, err error) {
+func New(jsonConfig json.RawMessage) (obj *http, err error) {
 	var config Config
 	err = json.Unmarshal(jsonConfig, &config)
 	if err != nil {
@@ -57,7 +57,7 @@ func New(jsonConfig json.RawMessage) (obj *Http, err error) {
 		return
 	}
 
-	obj = &Http{
+	obj = &http{
 		Dialer: base.Dialer{
 			Identity: plugin.Identity{
 				ModuleName: config.Name,

@@ -12,33 +12,33 @@ import (
 	"fmt"
 	"github.com/pkg/errors"
 	"net"
-	"net/http"
+	sysHttp "net/http"
 	"strings"
 	"time"
 )
 
-type Http struct {
+type http struct {
 	base.Server
 	basicToken string
 }
 
-func (h *Http) Run() (err error) {
+func (h *http) Run() (err error) {
 	h.init()
 	err = h.listen()
 	return
 }
 
-func (h *Http) Close() (err error) {
+func (h *http) Close() (err error) {
 	if h.Listen != nil {
 		err = h.Listen.Close()
 	}
 	return
 }
 
-func (h *Http) listen() (err error) {
-	server := &http.Server{
+func (h *http) listen() (err error) {
+	server := &sysHttp.Server{
 		Addr: net.JoinHostPort(h.Host, h.Port),
-		Handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		Handler: sysHttp.HandlerFunc(func(w sysHttp.ResponseWriter, r *sysHttp.Request) {
 			h.proxy(w, r)
 		}),
 	}
@@ -71,8 +71,8 @@ func (h *Http) listen() (err error) {
 	return
 }
 
-func (h *Http) proxy(w http.ResponseWriter, r *http.Request) {
-	if r.Method == http.MethodConnect {
+func (h *http) proxy(w sysHttp.ResponseWriter, r *sysHttp.Request) {
+	if r.Method == sysHttp.MethodConnect {
 		err := h.handleConnect(w, r)
 		if err != nil {
 			log.WarnF("%+v", err)
@@ -85,38 +85,38 @@ func (h *Http) proxy(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (h *Http) handleConnect(w http.ResponseWriter, r *http.Request) (err error) {
+func (h *http) handleConnect(w sysHttp.ResponseWriter, r *sysHttp.Request) (err error) {
 	err = h.authentication(r)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusUnauthorized)
+		sysHttp.Error(w, err.Error(), sysHttp.StatusUnauthorized)
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
-	hijacker, ok := w.(http.Hijacker)
+	w.WriteHeader(sysHttp.StatusOK)
+	hijacker, ok := w.(sysHttp.Hijacker)
 	if !ok {
-		http.Error(w, "Hijacking not supported", http.StatusInternalServerError)
+		sysHttp.Error(w, "Hijacking not supported", sysHttp.StatusInternalServerError)
 		err = errors.New("Hijacking not supported")
 		return
 	}
 
 	conn, _, _err := hijacker.Hijack()
 	if _err != nil {
-		http.Error(w, err.Error(), http.StatusServiceUnavailable)
+		sysHttp.Error(w, err.Error(), sysHttp.StatusServiceUnavailable)
 		err = errors.Wrap(_err, "hijacker.Hijack failed")
 		return
 	}
 
 	host, port, err := h.GetHostAndPort(r.Host)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		sysHttp.Error(w, err.Error(), sysHttp.StatusInternalServerError)
 		return err
 	}
 
 	return h.transport(conn, host, port)
 }
 
-func (h *Http) transport(conn net.Conn, desHost, desPort []byte) (err error) {
+func (h *http) transport(conn net.Conn, desHost, desPort []byte) (err error) {
 	if h.Transmitter != nil {
 		err = h.Transmitter.Transport(conn, desHost, desPort)
 	} else {
@@ -125,7 +125,7 @@ func (h *Http) transport(conn net.Conn, desHost, desPort []byte) (err error) {
 	return
 }
 
-func (h *Http) authentication(r *http.Request) (err error) {
+func (h *http) authentication(r *sysHttp.Request) (err error) {
 	if h.Username == "" && h.Password == "" { // no auth
 		return
 	}
@@ -145,13 +145,13 @@ func (h *Http) authentication(r *http.Request) (err error) {
 	return
 }
 
-func (h *Http) handleNormal(w http.ResponseWriter, r *http.Request) (err error) {
-	http.Error(w, "normal proxy not supported", http.StatusServiceUnavailable)
+func (h *http) handleNormal(w sysHttp.ResponseWriter, r *sysHttp.Request) (err error) {
+	sysHttp.Error(w, "normal proxy not supported", sysHttp.StatusServiceUnavailable)
 	log.Warn("normal proxy not supported")
 	return
 }
 
-func (h *Http) GetHostAndPort(host string) (newHost, newPort []byte, err error) {
+func (h *http) GetHostAndPort(host string) (newHost, newPort []byte, err error) {
 	var _host, _port string
 	index := strings.Index(host, ":")
 	if index == -1 {
@@ -167,13 +167,13 @@ func (h *Http) GetHostAndPort(host string) (newHost, newPort []byte, err error) 
 	return
 }
 
-func (h *Http) init() {
+func (h *http) init() {
 	if h.Username != "" && h.Password != "" {
 		h.basicToken = fmt.Sprintf("Basic %v", base64.StdEncoding.EncodeToString([]byte(h.Username+":"+h.Password)))
 	}
 }
 
-func New(jsonConfig json.RawMessage) (obj *Http, err error) {
+func New(jsonConfig json.RawMessage) (obj *http, err error) {
 	var config Config
 	err = json.Unmarshal(jsonConfig, &config)
 	if err != nil {
@@ -181,7 +181,7 @@ func New(jsonConfig json.RawMessage) (obj *Http, err error) {
 		return
 	}
 
-	obj = &Http{
+	obj = &http{
 		Server: base.Server{
 			Net: plugin.Net{
 				Host:     config.Ip,

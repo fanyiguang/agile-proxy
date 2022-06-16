@@ -21,7 +21,7 @@ type Transport struct {
 	BufferPool sync.Pool
 }
 
-func (t *Transport) AsyncSendMsg(msg string) {
+func (t *Transport) AsyncSendMsgToIpc(msg string) {
 	// 异步对外发送消息，减少对主流程的影响
 	// 对外保持0信任原则，设置超时时间如果
 	// 外部阻塞也不会导致协程泄漏。

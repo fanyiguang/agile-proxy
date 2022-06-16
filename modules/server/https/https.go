@@ -17,7 +17,7 @@ import (
 	"time"
 )
 
-type Https struct {
+type https struct {
 	base.Server
 	plugin.Tls
 	basicToken string
@@ -25,20 +25,20 @@ type Https struct {
 	//writeTimeout int
 }
 
-func (h *Https) Run() (err error) {
+func (h *https) Run() (err error) {
 	h.init()
 	err = h.listen()
 	return
 }
 
-func (h *Https) Close() (err error) {
+func (h *https) Close() (err error) {
 	if h.Listen != nil {
 		err = h.Listen.Close()
 	}
 	return
 }
 
-func (h *Https) listen() (err error) {
+func (h *https) listen() (err error) {
 	tlsConfig, err := h.CreateServerTlsConfig()
 	if err != nil {
 		return err
@@ -80,7 +80,7 @@ func (h *Https) listen() (err error) {
 	return
 }
 
-func (h *Https) proxy(w http.ResponseWriter, r *http.Request) {
+func (h *https) proxy(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodConnect {
 		err := h.handleConnect(w, r)
 		if err != nil {
@@ -94,7 +94,7 @@ func (h *Https) proxy(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (h *Https) handleConnect(w http.ResponseWriter, r *http.Request) (err error) {
+func (h *https) handleConnect(w http.ResponseWriter, r *http.Request) (err error) {
 	err = h.authentication(r)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusUnauthorized)
@@ -125,7 +125,7 @@ func (h *Https) handleConnect(w http.ResponseWriter, r *http.Request) (err error
 	return h.transport(conn, host, port)
 }
 
-func (h *Https) transport(conn net.Conn, desHost, desPort []byte) (err error) {
+func (h *https) transport(conn net.Conn, desHost, desPort []byte) (err error) {
 	if h.Transmitter != nil {
 		err = h.Transmitter.Transport(conn, desHost, desPort)
 	} else {
@@ -134,7 +134,7 @@ func (h *Https) transport(conn net.Conn, desHost, desPort []byte) (err error) {
 	return
 }
 
-func (h *Https) authentication(r *http.Request) (err error) {
+func (h *https) authentication(r *http.Request) (err error) {
 	if h.Username == "" && h.Password == "" { // no auth
 		return
 	}
@@ -154,14 +154,14 @@ func (h *Https) authentication(r *http.Request) (err error) {
 	return
 }
 
-func (h *Https) handleNormal(w http.ResponseWriter, r *http.Request) (err error) {
+func (h *https) handleNormal(w http.ResponseWriter, r *http.Request) (err error) {
 	// TODO 兼容http模式的代理
 	http.Error(w, "normal proxy not supported", http.StatusServiceUnavailable)
 	log.Warn("normal proxy not supported")
 	return
 }
 
-func (h *Https) GetHostAndPort(host string) (newHost, newPort []byte, err error) {
+func (h *https) GetHostAndPort(host string) (newHost, newPort []byte, err error) {
 	var _host, _port string
 	index := strings.Index(host, ":")
 	if index == -1 {
@@ -177,13 +177,13 @@ func (h *Https) GetHostAndPort(host string) (newHost, newPort []byte, err error)
 	return
 }
 
-func (h *Https) init() {
+func (h *https) init() {
 	if h.Username != "" && h.Password != "" {
 		h.basicToken = fmt.Sprintf("Basic %v", base64.StdEncoding.EncodeToString([]byte(h.Username+":"+h.Password)))
 	}
 }
 
-func New(jsonConfig json.RawMessage) (obj *Https, err error) {
+func New(jsonConfig json.RawMessage) (obj *https, err error) {
 	var config Config
 	err = json.Unmarshal(jsonConfig, &config)
 	if err != nil {
@@ -191,7 +191,7 @@ func New(jsonConfig json.RawMessage) (obj *Https, err error) {
 		return
 	}
 
-	obj = &Https{
+	obj = &https{
 		Server: base.Server{
 			Net: plugin.Net{
 				Host:     config.Ip,

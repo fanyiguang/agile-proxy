@@ -4,7 +4,7 @@ import (
 	"agile-proxy/helper/log"
 	"agile-proxy/modules/dialer/base"
 	"agile-proxy/modules/plugin"
-	"agile-proxy/pkg/https"
+	pkgHttps "agile-proxy/pkg/https"
 	"context"
 	"encoding/json"
 	"github.com/pkg/errors"
@@ -12,14 +12,14 @@ import (
 	"time"
 )
 
-type Https struct {
+type https struct {
 	base.Dialer
 	plugin.Tls
 	plugin.Net
-	httpsClient *https.Client
+	httpsClient *pkgHttps.Client
 }
 
-func (h *Https) Dial(network string, host, port string) (conn net.Conn, err error) {
+func (h *https) Dial(network string, host, port string) (conn net.Conn, err error) {
 	conn, err = h.BaseDial(network, h.Host, h.Port)
 	if err != nil {
 		return
@@ -45,7 +45,7 @@ func (h *Https) Dial(network string, host, port string) (conn net.Conn, err erro
 	return
 }
 
-func (h *Https) DialTimeout(network string, host, port string, timeout time.Duration) (conn net.Conn, err error) {
+func (h *https) DialTimeout(network string, host, port string, timeout time.Duration) (conn net.Conn, err error) {
 	conn, err = h.BaseDialTimeout(network, h.Host, h.Port, timeout)
 	if err != nil {
 		return
@@ -73,11 +73,11 @@ func (h *Https) DialTimeout(network string, host, port string, timeout time.Dura
 	return
 }
 
-func (h *Https) Close() (err error) {
+func (h *https) Close() (err error) {
 	return
 }
 
-func New(jsonConfig json.RawMessage) (obj *Https, err error) {
+func New(jsonConfig json.RawMessage) (obj *https, err error) {
 	var config Config
 	err = json.Unmarshal(jsonConfig, &config)
 	if err != nil {
@@ -85,7 +85,7 @@ func New(jsonConfig json.RawMessage) (obj *Https, err error) {
 		return
 	}
 
-	obj = &Https{
+	obj = &https{
 		Dialer: base.Dialer{
 			Identity: plugin.Identity{
 				ModuleName: config.Name,
@@ -109,7 +109,7 @@ func New(jsonConfig json.RawMessage) (obj *Https, err error) {
 		},
 	}
 
-	obj.httpsClient = https.New(config.Username, config.Password)
+	obj.httpsClient = pkgHttps.New(config.Username, config.Password)
 
 	return
 }

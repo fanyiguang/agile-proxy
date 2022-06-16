@@ -9,7 +9,7 @@ import (
 	"agile-proxy/modules/transport"
 	"encoding/json"
 	"fmt"
-	"github.com/gliderlabs/ssh"
+	gSsh "github.com/gliderlabs/ssh"
 	"github.com/pkg/errors"
 	sysSsh "golang.org/x/crypto/ssh"
 	"io/ioutil"
@@ -17,36 +17,36 @@ import (
 	"time"
 )
 
-type Ssh struct {
+type ssh struct {
 	base.Server
 	keyPath string
 }
 
-func (s *Ssh) Run() (err error) {
+func (s *ssh) Run() (err error) {
 	err = s.listen()
 	return
 }
 
-func (s *Ssh) Close() (err error) {
+func (s *ssh) Close() (err error) {
 	if s.Listen != nil {
 		err = s.Listen.Close()
 	}
 	return
 }
 
-func (s *Ssh) listen() (err error) {
-	server := ssh.Server{
+func (s *ssh) listen() (err error) {
+	server := gSsh.Server{
 		Addr: net.JoinHostPort(s.Host, s.Port),
-		LocalPortForwardingCallback: func(ctx ssh.Context, destinationHost string, destinationPort uint32) bool {
+		LocalPortForwardingCallback: func(ctx gSsh.Context, destinationHost string, destinationPort uint32) bool {
 			return true
 		},
 	}
-	_ = server.SetOption(ssh.PasswordAuth(s.userInfoAuth()))
+	_ = server.SetOption(gSsh.PasswordAuth(s.userInfoAuth()))
 	if s.keyPath != "" {
-		_ = server.SetOption(ssh.PublicKeyAuth(s.publicKeyAuth()))
+		_ = server.SetOption(gSsh.PublicKeyAuth(s.publicKeyAuth()))
 	}
-	server.ChannelHandlers = map[string]ssh.ChannelHandler{
-		"direct-tcpip": func(srv *ssh.Server, conn *sysSsh.ServerConn, newChan sysSsh.NewChannel, ctx ssh.Context) {
+	server.ChannelHandlers = map[string]gSsh.ChannelHandler{
+		"direct-tcpip": func(srv *gSsh.Server, conn *sysSsh.ServerConn, newChan sysSsh.NewChannel, ctx gSsh.Context) {
 			s.handleDirectRequest(srv, conn, newChan, ctx)
 		},
 	}
@@ -79,7 +79,7 @@ func (s *Ssh) listen() (err error) {
 	return
 }
 
-func (s *Ssh) handleDirectRequest(srv *ssh.Server, conn *sysSsh.ServerConn, newChan sysSsh.NewChannel, ctx ssh.Context) {
+func (s *ssh) handleDirectRequest(srv *gSsh.Server, conn *sysSsh.ServerConn, newChan sysSsh.NewChannel, ctx gSsh.Context) {
 	d := DirectForward{}
 	if err := sysSsh.Unmarshal(newChan.ExtraData(), &d); err != nil {
 		log.WarnF("sysSsh.Unmarshal failed: %v", err)
@@ -112,7 +112,7 @@ func (s *Ssh) handleDirectRequest(srv *ssh.Server, conn *sysSsh.ServerConn, newC
 	}
 }
 
-func (s *Ssh) transport(conn net.Conn, desHost, desPort []byte) (err error) {
+func (s *ssh) transport(conn net.Conn, desHost, desPort []byte) (err error) {
 	if s.Transmitter != nil {
 		err = s.Transmitter.Transport(conn, desHost, desPort)
 	} else {
@@ -121,8 +121,8 @@ func (s *Ssh) transport(conn net.Conn, desHost, desPort []byte) (err error) {
 	return
 }
 
-func (s *Ssh) userInfoAuth() ssh.PasswordHandler {
-	return func(ctx ssh.Context, password string) bool {
+func (s *ssh) userInfoAuth() gSsh.PasswordHandler {
+	return func(ctx gSsh.Context, password string) bool {
 		if ctx.User() != s.Username {
 			log.WarnF("server: %v userInfoAuth failed username error", s.Name())
 			return false
@@ -137,18 +137,18 @@ func (s *Ssh) userInfoAuth() ssh.PasswordHandler {
 	}
 }
 
-func (s *Ssh) publicKeyAuth() ssh.PublicKeyHandler {
-	return func(ctx ssh.Context, key ssh.PublicKey) bool {
+func (s *ssh) publicKeyAuth() gSsh.PublicKeyHandler {
+	return func(ctx gSsh.Context, key gSsh.PublicKey) bool {
 		data, _ := ioutil.ReadFile(s.keyPath)
-		allowed, _, _, _, err := ssh.ParseAuthorizedKey(data)
+		allowed, _, _, _, err := gSsh.ParseAuthorizedKey(data)
 		if err != nil {
 			log.WarnF("ssh.ParseAuthorizedKey failed: %v", err)
 		}
-		return ssh.KeysEqual(key, allowed)
+		return gSsh.KeysEqual(key, allowed)
 	}
 }
 
-func New(jsonConfig json.RawMessage) (obj *Ssh, err error) {
+func New(jsonConfig json.RawMessage) (obj *ssh, err error) {
 	var config Config
 	err = json.Unmarshal(jsonConfig, &config)
 	if err != nil {
@@ -156,7 +156,7 @@ func New(jsonConfig json.RawMessage) (obj *Ssh, err error) {
 		return
 	}
 
-	obj = &Ssh{
+	obj = &ssh{
 		Server: base.Server{
 			Net: plugin.Net{
 				Host:     config.Ip,

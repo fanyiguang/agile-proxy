@@ -7,19 +7,19 @@ import (
 	"agile-proxy/modules/plugin"
 	"agile-proxy/modules/server/base"
 	"agile-proxy/modules/transport"
-	"agile-proxy/pkg/socks5"
+	pkgSocks5 "agile-proxy/pkg/socks5"
 	"encoding/json"
 	"github.com/pkg/errors"
 	"net"
 )
 
-type Socks5 struct {
+type socks5 struct {
 	base.Server
-	socks5Server *socks5.Server
+	socks5Server *pkgSocks5.Server
 	authMode     int
 }
 
-func (s *Socks5) Run() (err error) {
+func (s *socks5) Run() (err error) {
 	s.init()
 	err = s.listen()
 	if err != nil {
@@ -33,7 +33,7 @@ func (s *Socks5) Run() (err error) {
 	return
 }
 
-func (s *Socks5) accept() {
+func (s *socks5) accept() {
 	for {
 		select {
 		case <-s.DoneCh:
@@ -54,7 +54,7 @@ func (s *Socks5) accept() {
 	}
 }
 
-func (s *Socks5) transport(conn net.Conn, desHost, desPort []byte) (err error) {
+func (s *socks5) transport(conn net.Conn, desHost, desPort []byte) (err error) {
 	if s.Transmitter != nil {
 		err = s.Transmitter.Transport(conn, desHost, desPort)
 	} else {
@@ -63,7 +63,7 @@ func (s *Socks5) transport(conn net.Conn, desHost, desPort []byte) (err error) {
 	return
 }
 
-func (s *Socks5) Close() (err error) {
+func (s *socks5) Close() (err error) {
 	common.CloseChan(s.DoneCh)
 	if s.Listen != nil {
 		err = s.Listen.Close()
@@ -71,7 +71,7 @@ func (s *Socks5) Close() (err error) {
 	return
 }
 
-func (s *Socks5) listen() (err error) {
+func (s *socks5) listen() (err error) {
 	// 可预知的错误，可以通过自定义的错误信息
 	// 找到错误位置。所以无需使用wrap。
 	if s.Port == "" {
@@ -90,7 +90,7 @@ func (s *Socks5) listen() (err error) {
 	return
 }
 
-func (s *Socks5) handler(conn net.Conn) (err error) {
+func (s *socks5) handler(conn net.Conn) (err error) {
 	defer func() {
 		_ = conn.Close()
 	}()
@@ -104,11 +104,11 @@ func (s *Socks5) handler(conn net.Conn) (err error) {
 	return s.transport(conn, host, port)
 }
 
-func (s *Socks5) init() {
-	s.socks5Server = socks5.NewServer(socks5.SetServerAuth(s.authMode), socks5.SetServerUsername(s.Username), socks5.SetServerPassword(s.Password))
+func (s *socks5) init() {
+	s.socks5Server = pkgSocks5.NewServer(pkgSocks5.SetServerAuth(s.authMode), pkgSocks5.SetServerUsername(s.Username), pkgSocks5.SetServerPassword(s.Password))
 }
 
-func New(jsonConfig json.RawMessage) (obj *Socks5, err error) {
+func New(jsonConfig json.RawMessage) (obj *socks5, err error) {
 	var config Config
 	err = json.Unmarshal(jsonConfig, &config)
 	if err != nil {
@@ -116,7 +116,7 @@ func New(jsonConfig json.RawMessage) (obj *Socks5, err error) {
 		return
 	}
 
-	obj = &Socks5{
+	obj = &socks5{
 		Server: base.Server{
 			Net: plugin.Net{
 				Host:     config.Ip,

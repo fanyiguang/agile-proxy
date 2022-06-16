@@ -15,7 +15,7 @@ import (
 	"time"
 )
 
-type Ssh struct {
+type ssh struct {
 	base.Dialer
 	plugin.Net
 	client           *pkgSsh.Client
@@ -28,7 +28,7 @@ type Ssh struct {
 	timeout          int
 }
 
-func (s *Ssh) Dial(network string, host, port string) (conn net.Conn, err error) {
+func (s *ssh) Dial(network string, host, port string) (conn net.Conn, err error) {
 	err = s.controlCenter()
 	if err != nil {
 		return
@@ -42,7 +42,7 @@ func (s *Ssh) Dial(network string, host, port string) (conn net.Conn, err error)
 	return
 }
 
-func (s *Ssh) DialTimeout(network string, host, port string, timeout time.Duration) (conn net.Conn, err error) {
+func (s *ssh) DialTimeout(network string, host, port string, timeout time.Duration) (conn net.Conn, err error) {
 	err = s.controlCenter()
 	if err != nil {
 		return
@@ -66,7 +66,7 @@ func (s *Ssh) DialTimeout(network string, host, port string, timeout time.Durati
 	return
 }
 
-func (s *Ssh) Close() (err error) {
+func (s *ssh) Close() (err error) {
 	common.CloseChan(s.doneCh)
 	if s.client != nil {
 		err = s.client.Close()
@@ -74,7 +74,7 @@ func (s *Ssh) Close() (err error) {
 	return
 }
 
-func (s *Ssh) controlCenter() (err error) {
+func (s *ssh) controlCenter() (err error) {
 	select {
 	case <-s.initWorkerCh: // 只会有一个请求进去初始化
 		err = s.connect()
@@ -88,7 +88,7 @@ func (s *Ssh) controlCenter() (err error) {
 	return
 }
 
-func (s *Ssh) connect() (err error) {
+func (s *ssh) connect() (err error) {
 	err = s.client.Connect()
 	if err != nil {
 		common.CloseChan(s.initFailedCh) // 快速失败
@@ -102,7 +102,7 @@ func (s *Ssh) connect() (err error) {
 	return
 }
 
-func (s *Ssh) keepAlive() {
+func (s *ssh) keepAlive() {
 	ticker := time.NewTicker(30 * time.Second)
 	for {
 		select {
@@ -127,7 +127,7 @@ func (s *Ssh) keepAlive() {
 	}
 }
 
-func (s *Ssh) heartBeat() (err error) {
+func (s *ssh) heartBeat() (err error) {
 	var conn net.Conn
 	for key, _url := range config.GetIpUrls() {
 		parse, _err := url.Parse(_url)
@@ -147,12 +147,12 @@ func (s *Ssh) heartBeat() (err error) {
 	return
 }
 
-func (s *Ssh) reconnect() (err error) {
+func (s *ssh) reconnect() (err error) {
 	err = s.client.Connect()
 	return
 }
 
-func New(jsonConfig json.RawMessage) (obj *Ssh, err error) {
+func New(jsonConfig json.RawMessage) (obj *ssh, err error) {
 	var _config Config
 	err = json.Unmarshal(jsonConfig, &_config)
 	if err != nil {
@@ -160,7 +160,7 @@ func New(jsonConfig json.RawMessage) (obj *Ssh, err error) {
 		return
 	}
 
-	obj = &Ssh{
+	obj = &ssh{
 		Dialer: base.Dialer{
 			Identity: plugin.Identity{
 				ModuleName: _config.Name,

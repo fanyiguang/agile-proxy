@@ -8,19 +8,19 @@ import (
 	"agile-proxy/modules/plugin"
 )
 
-type OutputLog struct {
+type outputLog struct {
 	base.Ipc
 	doneCh chan struct{}
 }
 
-func (o *OutputLog) Run() (err error) {
+func (o *outputLog) Run() (err error) {
 	Go.Go(func() {
 		o.accept()
 	})
 	return
 }
 
-func (o *OutputLog) accept() {
+func (o *outputLog) accept() {
 	var msg plugin.OutputMsg
 	for {
 		select {
@@ -33,15 +33,15 @@ func (o *OutputLog) accept() {
 	}
 }
 
-func (o *OutputLog) Close() (err error) {
+func (o *outputLog) Close() (err error) {
 	if o.doneCh != nil {
 		common.CloseChan(o.doneCh)
 	}
 	return
 }
 
-func New() (obj *OutputLog, err error) {
-	obj = &OutputLog{
+func New() (obj *outputLog, err error) {
+	obj = &outputLog{
 		Ipc: base.Ipc{
 			OutMsg: plugin.PipelineOutput{
 				Ch: plugin.PipelineOutputCh,

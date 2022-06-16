@@ -5,21 +5,21 @@ import (
 	"agile-proxy/helper/log"
 	"agile-proxy/modules/dialer/base"
 	"agile-proxy/modules/plugin"
-	"agile-proxy/pkg/socks5"
+	pkgSocks5 "agile-proxy/pkg/socks5"
 	"encoding/json"
 	"github.com/pkg/errors"
 	"net"
 	"time"
 )
 
-type Socks5 struct {
+type socks5 struct {
 	base.Dialer
 	plugin.Net
-	socks5Client *socks5.Client
+	socks5Client *pkgSocks5.Client
 	authMode     int
 }
 
-func (s *Socks5) Dial(network string, host, port string) (conn net.Conn, err error) {
+func (s *socks5) Dial(network string, host, port string) (conn net.Conn, err error) {
 	conn, err = s.BaseDial(network, s.Host, s.Port)
 	if err != nil {
 		return
@@ -33,7 +33,7 @@ func (s *Socks5) Dial(network string, host, port string) (conn net.Conn, err err
 	return
 }
 
-func (s *Socks5) DialTimeout(network string, host, port string, timeout time.Duration) (conn net.Conn, err error) {
+func (s *socks5) DialTimeout(network string, host, port string, timeout time.Duration) (conn net.Conn, err error) {
 	conn, err = s.BaseDialTimeout(network, s.Host, s.Port, timeout)
 	if err != nil {
 		return
@@ -46,11 +46,11 @@ func (s *Socks5) DialTimeout(network string, host, port string, timeout time.Dur
 	return
 }
 
-func (s *Socks5) Close() (err error) {
+func (s *socks5) Close() (err error) {
 	return
 }
 
-func New(jsonConfig json.RawMessage) (obj *Socks5, err error) {
+func New(jsonConfig json.RawMessage) (obj *socks5, err error) {
 	var config Config
 	err = json.Unmarshal(jsonConfig, &config)
 	if err != nil {
@@ -58,7 +58,7 @@ func New(jsonConfig json.RawMessage) (obj *Socks5, err error) {
 		return
 	}
 
-	obj = &Socks5{
+	obj = &socks5{
 		Dialer: base.Dialer{
 			Identity: plugin.Identity{
 				ModuleName: config.Name,
@@ -77,7 +77,7 @@ func New(jsonConfig json.RawMessage) (obj *Socks5, err error) {
 		authMode: config.AuthMode,
 	}
 
-	obj.socks5Client = socks5.NewClient(socks5.SetClientAuth(obj.authMode), socks5.SetClientUsername(obj.Username), socks5.SetClientPassword(obj.Password))
+	obj.socks5Client = pkgSocks5.NewClient(pkgSocks5.SetClientAuth(obj.authMode), pkgSocks5.SetClientUsername(obj.Username), pkgSocks5.SetClientPassword(obj.Password))
 
 	return
 }

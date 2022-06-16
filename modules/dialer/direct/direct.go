@@ -9,19 +9,19 @@ import (
 	"time"
 )
 
-type Direct struct {
+type direct struct {
 	base.Dialer
 }
 
-func (d *Direct) Dial(network string, host, port string) (conn net.Conn, err error) {
+func (d *direct) Dial(network string, host, port string) (conn net.Conn, err error) {
 	return d.BaseDial(network, host, port)
 }
 
-func (d *Direct) DialTimeout(network string, host, port string, timeout time.Duration) (conn net.Conn, err error) {
+func (d *direct) DialTimeout(network string, host, port string, timeout time.Duration) (conn net.Conn, err error) {
 	return d.BaseDialTimeout(network, host, port, timeout)
 }
 
-func New(jsonConfig json.RawMessage) (obj *Direct, err error) {
+func New(jsonConfig json.RawMessage) (obj *direct, err error) {
 	var config Config
 	err = json.Unmarshal(jsonConfig, &config)
 	if err != nil {
@@ -29,7 +29,7 @@ func New(jsonConfig json.RawMessage) (obj *Direct, err error) {
 		return
 	}
 
-	obj = &Direct{
+	obj = &direct{
 		Dialer: base.Dialer{
 			Identity: plugin.Identity{
 				ModuleName: config.Name,
