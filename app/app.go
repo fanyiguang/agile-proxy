@@ -1,6 +1,7 @@
 package app
 
 import (
+	"agile-proxy/helper/Go"
 	"agile-proxy/helper/log"
 	"agile-proxy/modules/client"
 	"agile-proxy/modules/dialer"
@@ -48,10 +49,14 @@ func App(configPath string) (err error) {
 	}
 	servers := server.Factory(proxyConfig.ServerConfig)
 	for _, s := range servers {
-		err := s.Run()
-		if err != nil {
-			log.WarnF("%v(%v) run failed: %v", s.Name(), s.Type(), err)
-		}
+		_s := s
+		Go.Go(func() {
+			err := _s.Run()
+			if err != nil {
+				log.WarnF("%v(%v) run failed: %v", _s.Name(), _s.Type(), err)
+			}
+		})
+
 	}
 
 	select {}

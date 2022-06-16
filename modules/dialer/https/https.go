@@ -1,6 +1,7 @@
 package https
 
 import (
+	"agile-proxy/helper/log"
 	"agile-proxy/modules/dialer/base"
 	"agile-proxy/modules/plugin"
 	"agile-proxy/pkg/https"
@@ -24,7 +25,7 @@ func (h *Https) Dial(network string, host, port string) (conn net.Conn, err erro
 		return
 	}
 
-	config, err := h.CreateTlsConfig()
+	config, err := h.CreateClientTlsConfig()
 	if err != nil {
 		_ = conn.Close()
 		return
@@ -40,6 +41,7 @@ func (h *Https) Dial(network string, host, port string) (conn net.Conn, err erro
 	if err != nil {
 		_ = conn.Close()
 	}
+	log.DebugF("https dialer link status: %v %v", err, net.JoinHostPort(host, port))
 	return
 }
 
@@ -49,7 +51,7 @@ func (h *Https) DialTimeout(network string, host, port string, timeout time.Dura
 		return
 	}
 
-	config, err := h.CreateTlsConfig()
+	config, err := h.CreateClientTlsConfig()
 	if err != nil {
 		_ = conn.Close()
 		return
@@ -67,6 +69,7 @@ func (h *Https) DialTimeout(network string, host, port string, timeout time.Dura
 	if err != nil {
 		_ = conn.Close()
 	}
+	log.DebugF("https dialer link status: %v %v", err, net.JoinHostPort(host, port))
 	return
 }
 
@@ -93,8 +96,10 @@ func New(jsonConfig json.RawMessage) (obj *Https, err error) {
 			},
 		},
 		Tls: plugin.Tls{
-			CrtPath: config.CrtPath,
-			KeyPath: config.KeyPath,
+			CrtPath:    config.CrtPath,
+			KeyPath:    config.KeyPath,
+			CaPath:     config.CaPath,
+			ServerName: config.ServerName,
 		},
 		Net: plugin.Net{
 			Host:     config.Ip,

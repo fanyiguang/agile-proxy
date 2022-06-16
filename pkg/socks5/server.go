@@ -73,10 +73,8 @@ func (s *Server) verCheck(t byte) bool {
 
 func (s *Server) handShake(conn net.Conn) (usedAuthMode uint8, err error) {
 	// 理论最大值为1+1+255，但是一般不会到那么大
-	// 为了节省空间设置为8，有特殊情况再做修改
-	buffer := make([]byte, 8)
-	//buffer := s.bufferPool.Get().([]byte)
-	//defer s.bufferPool.Put(buffer)
+	buffer := s.bufferPool.Get().([]byte)
+	defer s.bufferPool.Put(buffer)
 	n, err := conn.Read(buffer)
 	if err != nil {
 		err = errors.Wrap(err, "reader.Read")

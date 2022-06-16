@@ -8,6 +8,7 @@ import (
 	"agile-proxy/modules/dialer/https"
 	"agile-proxy/modules/dialer/socks5"
 	"agile-proxy/modules/dialer/ssh"
+	"agile-proxy/modules/dialer/ssl"
 	sysJson "encoding/json"
 	"github.com/pkg/errors"
 	"net"
@@ -27,6 +28,8 @@ func Factory(configs []sysJson.RawMessage) {
 		switch strings.ToLower(json.Get(config, "type").ToString()) {
 		case pConfig.Socks5:
 			dialer, err = socks5.New(config)
+		case pConfig.Ssl:
+			dialer, err = ssl.New(config)
 		case pConfig.Ssh:
 			dialer, err = ssh.New(config)
 		case pConfig.Https:
@@ -39,7 +42,7 @@ func Factory(configs []sysJson.RawMessage) {
 			err = errors.New("type is invalid")
 		}
 		if err != nil {
-			log.WarnF("server init failed: %v", err)
+			log.WarnF("server init failed: %v %v", err, json.Get(config, "type").ToString())
 			continue
 		}
 

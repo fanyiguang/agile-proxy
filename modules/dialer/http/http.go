@@ -1,6 +1,7 @@
 package http
 
 import (
+	"agile-proxy/helper/log"
 	"agile-proxy/modules/dialer/base"
 	"agile-proxy/modules/plugin"
 	"agile-proxy/pkg/https"
@@ -26,6 +27,7 @@ func (h *Http) Dial(network string, host, port string) (conn net.Conn, err error
 	if err != nil {
 		_ = conn.Close()
 	}
+	log.DebugF("http dialer link status: %v %v", err, net.JoinHostPort(host, port))
 	return
 }
 
@@ -39,6 +41,7 @@ func (h *Http) DialTimeout(network string, host, port string, timeout time.Durat
 	if err != nil {
 		_ = conn.Close()
 	}
+	log.DebugF("http dialer link status: %v %v", err, net.JoinHostPort(host, port))
 	return
 }
 

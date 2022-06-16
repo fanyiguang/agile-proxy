@@ -49,7 +49,7 @@ func (s *Ssl) listen() (err error) {
 		return
 	}
 
-	tlsConfig, err := s.CreateTlsConfig()
+	tlsConfig, err := s.CreateServerTlsConfig()
 	if err != nil {
 		return
 	}
@@ -96,7 +96,7 @@ func (s *Ssl) handler(conn net.Conn) (err error) {
 		return
 	}
 
-	log.DebugF("des host: %v port: %v", string(host), port)
+	log.DebugF("des host: %v port: %v", string(host), string(port))
 	return s.transport(conn, host, port)
 }
 

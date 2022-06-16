@@ -71,7 +71,7 @@ func (c *Client) handShake(conn net.Conn) (usedAuthMode uint8, err error) {
 	case modePass:
 		_, err = conn.Write(supportPassAuthRequest)
 	default:
-		err = errors.New("invalid auth_type")
+		err = errors.New(fmt.Sprintf("invalid auth_type %v", c.authMode))
 	}
 	if err != nil {
 		err = errors.Wrap(err, "")

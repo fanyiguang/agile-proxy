@@ -2,6 +2,7 @@ package ssl
 
 import (
 	"agile-proxy/helper/common"
+	"agile-proxy/helper/log"
 	"agile-proxy/modules/dialer/base"
 	"agile-proxy/modules/plugin"
 	"agile-proxy/pkg/socks5"
@@ -26,7 +27,7 @@ func (s *Ssl) Dial(network string, host, port string) (conn net.Conn, err error)
 		return
 	}
 
-	config, err := s.CreateTlsConfig()
+	config, err := s.CreateClientTlsConfig()
 	if err != nil {
 		_ = conn.Close()
 		return
@@ -42,6 +43,7 @@ func (s *Ssl) Dial(network string, host, port string) (conn net.Conn, err error)
 	if err != nil {
 		_ = conn.Close()
 	}
+	log.DebugF("ssl dialer link status: %v %v", err, net.JoinHostPort(host, port))
 	return
 }
 
@@ -51,7 +53,7 @@ func (s *Ssl) DialTimeout(network string, host, port string, timeout time.Durati
 		return
 	}
 
-	config, err := s.CreateTlsConfig()
+	config, err := s.CreateClientTlsConfig()
 	if err != nil {
 		_ = conn.Close()
 		return
@@ -96,9 +98,10 @@ func New(jsonConfig json.RawMessage) (obj *Ssl, err error) {
 			},
 		},
 		Tls: plugin.Tls{
-			CrtPath: config.CrtPath,
-			KeyPath: config.KeyPath,
-			CaPath:  config.CaPath,
+			CrtPath:    config.CrtPath,
+			KeyPath:    config.KeyPath,
+			CaPath:     config.CaPath,
+			ServerName: config.ServerName,
 		},
 		Net: plugin.Net{
 			Host:     config.Ip,

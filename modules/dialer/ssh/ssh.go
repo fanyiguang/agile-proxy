@@ -38,6 +38,7 @@ func (s *Ssh) Dial(network string, host, port string) (conn net.Conn, err error)
 	if err != nil {
 		err = errors.Wrap(err, "s.client.Dial")
 	}
+	log.DebugF("ssh dialer link status: %v %v", err, net.JoinHostPort(host, port))
 	return
 }
 
@@ -58,6 +59,7 @@ func (s *Ssh) DialTimeout(network string, host, port string, timeout time.Durati
 
 	select {
 	case <-resCh:
+		log.DebugF("ssh dialer link status: %v %v", err, net.JoinHostPort(host, port))
 	case <-time.After(timeout):
 		err = dialTimeoutError
 	}
@@ -174,8 +176,13 @@ func New(jsonConfig json.RawMessage) (obj *Ssh, err error) {
 			Username: _config.Username,
 			Password: _config.Password,
 		},
-		keyPath: _config.KeyPath,
+		keyPath:          _config.KeyPath,
+		initSuccessfulCh: make(chan struct{}),
+		initFailedCh:     make(chan struct{}),
+		doneCh:           make(chan struct{}),
+		initWorkerCh:     make(chan uint8, 1),
 	}
+	obj.initWorkerCh <- 1
 
 	obj.client = pkgSsh.New(_config.Ip, _config.Port, pkgSsh.SetUsername(_config.Username), pkgSsh.SetPassword(_config.Password), pkgSsh.SetPublicKeyPath(_config.KeyPath), pkgSsh.SetDialFunc(func(network string, host, port string, timeout time.Duration) (conn net.Conn, err error) {
 		return obj.DialByIFace(network, host, port)

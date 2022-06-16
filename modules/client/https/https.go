@@ -25,7 +25,7 @@ func (h *Https) Dial(network string, host, port []byte) (conn net.Conn, err erro
 		return
 	}
 
-	config, err := h.CreateTlsConfig()
+	config, err := h.CreateClientTlsConfig()
 	if err != nil {
 		_ = conn.Close()
 		return
@@ -50,7 +50,7 @@ func (h *Https) DialTimeout(network string, host, port []byte, timeout time.Dura
 		return
 	}
 
-	config, err := h.CreateTlsConfig()
+	config, err := h.CreateClientTlsConfig()
 	if err != nil {
 		_ = conn.Close()
 		return
@@ -101,8 +101,10 @@ func New(jsonConfig json.RawMessage) (obj *Https, err error) {
 			Mode: config.Mode,
 		},
 		Tls: plugin.Tls{
-			CrtPath: config.CrtPath,
-			KeyPath: config.KeyPath,
+			ServerName: config.ServerName,
+			CrtPath:    config.CrtPath,
+			KeyPath:    config.KeyPath,
+			CaPath:     config.CaPath,
 		},
 	}
 

@@ -4,27 +4,27 @@ import (
 	"agile-proxy/helper/log"
 	"crypto/tls"
 	"crypto/x509"
+	"fmt"
 	"github.com/pkg/errors"
 	"io/ioutil"
 )
 
-func CreateConfig(crtPath, keyPath, caPath string) (tlsConfig *tls.Config, err error) {
-	if crtPath == "" || keyPath == "" { // 跳过认证
-		tlsConfig = &tls.Config{
-			InsecureSkipVerify: true,
+func CreateServerConfig(crtPath, keyPath, caPath string) (tlsConfig *tls.Config, err error) {
+	var certificate tls.Certificate
+	if crtPath == "" || keyPath == "" { // 使用默认证书
+		certificate, err = tls.X509KeyPair(DefaultServerCrt(), DefaultServerKey())
+	} else {
+		certificate, err = tls.LoadX509KeyPair(crtPath, keyPath)
+		if err != nil {
+			err = errors.Wrap(err, fmt.Sprintf("%v %v", crtPath, keyPath))
+			return
 		}
-		return
-	}
-
-	certificate, _err := tls.LoadX509KeyPair(crtPath, keyPath)
-	if _err != nil {
-		err = errors.Wrap(_err, "tls.LoadX509KeyPair")
-		return
 	}
 
 	tlsConfig = &tls.Config{
 		Certificates: []tls.Certificate{certificate},
 	}
+
 	if caPath != "" {
 		pool, err := loadCa(caPath)
 		if err != nil {
@@ -32,6 +32,41 @@ func CreateConfig(crtPath, keyPath, caPath string) (tlsConfig *tls.Config, err e
 		} else {
 			tlsConfig.RootCAs = pool
 			tlsConfig.ClientAuth = tls.RequireAndVerifyClientCert
+		}
+	}
+	return
+}
+
+func CreateClientConfig(crtPath, keyPath, caPath, host string) (tlsConfig *tls.Config, err error) {
+	if host == "" {
+		tlsConfig = &tls.Config{
+			InsecureSkipVerify: true,
+		}
+		return
+	}
+
+	var certificate tls.Certificate
+	if crtPath == "" || keyPath == "" { // 使用默认证书
+		certificate, err = tls.X509KeyPair(DefaultServerCrt(), DefaultServerKey())
+	} else {
+		certificate, err = tls.LoadX509KeyPair(crtPath, keyPath)
+		if err != nil {
+			err = errors.Wrap(err, fmt.Sprintf("%v %v", crtPath, keyPath))
+			return
+		}
+	}
+
+	tlsConfig = &tls.Config{
+		Certificates: []tls.Certificate{certificate},
+		ServerName:   host,
+	}
+
+	if caPath != "" {
+		pool, err := loadCa(caPath)
+		if err != nil {
+			log.WarnF("load ca failed: %v", err)
+		} else {
+			tlsConfig.RootCAs = pool
 		}
 	}
 	return

@@ -2,6 +2,7 @@ package socks5
 
 import (
 	"agile-proxy/helper/common"
+	"agile-proxy/helper/log"
 	"agile-proxy/modules/dialer/base"
 	"agile-proxy/modules/plugin"
 	"agile-proxy/pkg/socks5"
@@ -28,6 +29,7 @@ func (s *Socks5) Dial(network string, host, port string) (conn net.Conn, err err
 	if err != nil {
 		_ = conn.Close()
 	}
+	log.DebugF("socks5 dialer link status: %v %v", err, net.JoinHostPort(host, port))
 	return
 }
 
