@@ -10,6 +10,7 @@ import (
 	"agile-proxy/modules/client/ssh"
 	"agile-proxy/modules/client/ssl"
 	sysJson "encoding/json"
+	"fmt"
 	"github.com/pkg/errors"
 	"net"
 	"strings"
@@ -40,7 +41,7 @@ func Factory(configs []sysJson.RawMessage) {
 		case globalConfig.Direct:
 			client, err = direct.New(config)
 		default:
-			err = errors.New("type is invalid")
+			err = errors.New(fmt.Sprintf("type is invalid %v", strings.ToLower(json.Get(config, "type").ToString())))
 		}
 		if err != nil {
 			log.WarnF("%#v", err)

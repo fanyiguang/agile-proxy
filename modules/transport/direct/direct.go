@@ -18,7 +18,10 @@ type direct struct {
 }
 
 func (d *direct) Close() (err error) {
-	return nil
+	if d.Client != nil {
+		err = d.Client.Close()
+	}
+	return
 }
 
 func (d *direct) Transport(cConn net.Conn, host, port []byte) (err error) {
@@ -47,7 +50,8 @@ func New(jsonConfig json.RawMessage) (obj *direct, err error) {
 	var config Config
 	err = json.Unmarshal(jsonConfig, &config)
 	if err != nil {
-		err = errors.Wrap(err, "direct new")
+		marshalJSON, _ := jsonConfig.MarshalJSON()
+		err = errors.Wrap(err, common.BytesToStr(marshalJSON))
 		return
 	}
 
