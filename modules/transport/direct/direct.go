@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"github.com/pkg/errors"
 	"net"
+	"strings"
 	"sync"
 )
 
@@ -26,7 +27,7 @@ func (d *direct) Close() (err error) {
 
 func (d *direct) Transport(cConn net.Conn, host, port []byte) (err error) {
 	if d.Client != nil {
-		host, err = d.baseTransport.GetHost(host)
+		host, err = d.baseTransport.Dns.GetHost(host)
 		if err != nil {
 			return
 		}
@@ -55,6 +56,10 @@ func New(jsonConfig json.RawMessage) (obj *direct, err error) {
 		return
 	}
 
+	if !strings.Contains(config.DnsInfo.Server, ":") {
+		config.DnsInfo.Server = net.JoinHostPort(config.DnsInfo.Server, "53")
+	}
+
 	obj = &direct{
 		baseTransport: base.Transport{
 			Identity: plugin.Identity{
@@ -64,7 +69,10 @@ func New(jsonConfig json.RawMessage) (obj *direct, err error) {
 			OutMsg: plugin.PipelineOutput{
 				Ch: plugin.PipelineOutputCh,
 			},
-			DnsInfo: config.DnsInfo,
+			Dns: plugin.Dns{
+				Server:   config.DnsInfo.Server,
+				LocalDns: config.DnsInfo.LocalDns,
+			},
 			BufferPool: sync.Pool{
 				New: func() any {
 					return make([]byte, 1024*32)

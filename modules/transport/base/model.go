@@ -1,4 +1,4 @@
-package model
+package base
 
 type DnsInfo struct {
 	Server   string `json:"server"`

@@ -7,6 +7,7 @@ import (
 	"agile-proxy/modules/transport/dynamic"
 	sysJson "encoding/json"
 	"errors"
+	"fmt"
 	"net"
 	"strings"
 )
@@ -26,7 +27,7 @@ func Factory(configs []sysJson.RawMessage) {
 		case pubConfig.Dynamic:
 			transport, err = dynamic.New(config)
 		default:
-			err = errors.New("type is invalid")
+			err = errors.New(fmt.Sprintf("type is invalid %v", json.Get(config, "type").ToString()))
 		}
 		if err != nil {
 			log.WarnF("%#v", err)

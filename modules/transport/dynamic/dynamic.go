@@ -24,7 +24,7 @@ type dynamic struct {
 
 func (d *dynamic) Transport(cConn net.Conn, host, port []byte) (err error) {
 	if d.clients != nil {
-		host, err = d.baseTransport.GetHost(host)
+		host, err = d.baseTransport.Dns.GetHost(host)
 		if err != nil {
 			return
 		}
@@ -67,6 +67,10 @@ func New(jsonConfig json.RawMessage) (obj *dynamic, err error) {
 		return
 	}
 
+	if !strings.Contains(config.DnsInfo.Server, ":") {
+		config.DnsInfo.Server = net.JoinHostPort(config.DnsInfo.Server, "53")
+	}
+
 	obj = &dynamic{
 		baseTransport: base.Transport{
 			Identity: plugin.Identity{
@@ -76,7 +80,10 @@ func New(jsonConfig json.RawMessage) (obj *dynamic, err error) {
 			OutMsg: plugin.PipelineOutput{
 				Ch: plugin.PipelineOutputCh,
 			},
-			DnsInfo: config.DnsInfo,
+			Dns: plugin.Dns{
+				Server:   config.DnsInfo.Server,
+				LocalDns: config.DnsInfo.LocalDns,
+			},
 			BufferPool: sync.Pool{
 				New: func() any {
 					return make([]byte, 1024*32)
