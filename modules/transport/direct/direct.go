@@ -19,9 +19,6 @@ type direct struct {
 }
 
 func (d *direct) Close() (err error) {
-	if d.Client != nil {
-		err = d.Client.Close()
-	}
 	return
 }
 

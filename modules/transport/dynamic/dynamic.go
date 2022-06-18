@@ -2,7 +2,6 @@ package dynamic
 
 import (
 	"agile-proxy/helper/common"
-	"agile-proxy/helper/log"
 	"agile-proxy/modules/client"
 	"agile-proxy/modules/plugin"
 	"agile-proxy/modules/transport/base"
@@ -45,12 +44,6 @@ func (d *dynamic) Transport(cConn net.Conn, host, port []byte) (err error) {
 }
 
 func (d *dynamic) Close() (err error) {
-	for key, _client := range d.clients {
-		if _client != nil {
-			err = _client.Close()
-			log.DebugF("dynamic close failed: %v %v", err, key)
-		}
-	}
 	return
 }
 

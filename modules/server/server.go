@@ -23,7 +23,7 @@ type Server interface {
 	Close() (err error)
 }
 
-func Factory(configs []sysJson.RawMessage) (servers []Server) {
+func Factory(configs []sysJson.RawMessage) []Server {
 	for _, config := range configs {
 		var err error
 		var server Server
@@ -48,5 +48,5 @@ func Factory(configs []sysJson.RawMessage) (servers []Server) {
 
 		servers = append(servers, server)
 	}
-	return
+	return servers
 }

@@ -11,6 +11,8 @@ import (
 	"agile-proxy/modules/transport"
 	"io"
 	"os"
+	"os/signal"
+	"syscall"
 )
 
 func App(configPath string) (err error) {
@@ -59,5 +61,20 @@ func App(configPath string) (err error) {
 
 	}
 
-	select {}
+	wait()
+	return
+}
+
+func wait() {
+	doneCh := make(chan os.Signal, 1)
+	signal.Notify(doneCh, syscall.SIGTERM, syscall.SIGQUIT, syscall.SIGINT)
+	<-doneCh
+	closeResources()
+}
+
+func closeResources() {
+	server.CloseAllServers()
+	transport.CloseAllTransports()
+	client.CloseAllClients()
+	dialer.CloseAllDialer()
 }

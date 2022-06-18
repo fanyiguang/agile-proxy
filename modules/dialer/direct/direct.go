@@ -13,6 +13,10 @@ type direct struct {
 	base.Dialer
 }
 
+func (d *direct) Close() (err error) {
+	return
+}
+
 func (d *direct) Dial(network string, host, port string) (conn net.Conn, err error) {
 	return d.BaseDial(network, host, port)
 }

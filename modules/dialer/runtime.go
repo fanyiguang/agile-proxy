@@ -14,3 +14,11 @@ func GetDialer(name string) Dialer {
 func GetAllDialer() map[string]Dialer {
 	return dialers
 }
+
+func CloseAllDialer() {
+	for _, dialer := range dialers {
+		if dialer != nil {
+			_ = dialer.Close()
+		}
+	}
+}

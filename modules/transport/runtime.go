@@ -11,6 +11,14 @@ func GetTransport(name string) (t Transport) {
 	return transports[name]
 }
 
-func GetAllTransports() map[string]Transport {
+func GetAllTransport() map[string]Transport {
 	return transports
+}
+
+func CloseAllTransports() {
+	for _, transport := range transports {
+		if transport != nil {
+			_ = transport.Close()
+		}
+	}
 }

@@ -14,3 +14,11 @@ func GetClient(name string) (t Client) {
 func GetAllClients() map[string]Client {
 	return clients
 }
+
+func CloseAllClients() {
+	for _, client := range clients {
+		if client != nil {
+			_ = client.Close()
+		}
+	}
+}
