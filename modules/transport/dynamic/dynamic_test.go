@@ -22,13 +22,13 @@ func TestGetClientIndex(t *testing.T) {
 	for _, meta := range metas {
 		d := dynamic{
 			baseTransport: base.Transport{},
-			clientLen:     meta.clientLen,
+			clientsLen:    meta.clientLen,
 		}
 
 		d.rule, _ = rule.Factory(rule.Timestamp)
 		for i := 0; i < meta.rangeLoop; i++ {
 			index := d.getClientIndex()
-			if index >= d.clientLen {
+			if index >= d.clientsLen {
 				t.Error("out of range")
 				return
 			}

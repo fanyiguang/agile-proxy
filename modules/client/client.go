@@ -18,6 +18,7 @@ import (
 )
 
 type Client interface {
+	Name() string
 	Dial(network string, host, port []byte) (conn net.Conn, err error)
 	DialTimeout(network string, host, port []byte, timeout time.Duration) (conn net.Conn, err error)
 	Close() (err error)

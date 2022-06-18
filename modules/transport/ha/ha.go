@@ -1,57 +1,80 @@
-package dynamic
+package ha
 
 import (
+	"agile-proxy/helper/Go"
 	"agile-proxy/helper/common"
+	"agile-proxy/helper/log"
 	"agile-proxy/modules/client"
 	"agile-proxy/modules/plugin"
 	"agile-proxy/modules/transport/base"
-	"agile-proxy/modules/transport/dynamic/rule"
 	"encoding/json"
 	"fmt"
 	"github.com/pkg/errors"
 	"net"
 	"strings"
 	"sync"
+	"time"
 )
 
-type dynamic struct {
+type ha struct {
 	baseTransport base.Transport
-	clients       []client.Client // 动态类型的传输器客户端可以为多个
-	rule          rule.Rule
-	clientsLen    int
+	clients       []client.Client
 }
 
-func (d *dynamic) Transport(cConn net.Conn, host, port []byte) (err error) {
-	if d.clients != nil {
-		host, err = d.baseTransport.Dns.GetHost(host)
+func (h *ha) Transport(cConn net.Conn, host, port []byte) (err error) {
+	if h.clients != nil {
+		host, err = h.baseTransport.Dns.GetHost(host)
 		if err != nil {
 			return
 		}
 
-		var sConn net.Conn
-		sConn, err = d.clients[d.getClientIndex()].Dial("tcp", host, port)
+		sConn, err := h.getConn(host, port)
 		if err != nil {
-			return
+			return err
 		}
 
 		defer sConn.Close()
-		d.baseTransport.AsyncSendMsgToIpc(fmt.Sprintf("%v handshark success", common.BytesToStr(host)))
-		d.baseTransport.Copy(sConn, cConn)
+		h.baseTransport.AsyncSendMsgToIpc(fmt.Sprintf("%v handshark success", common.BytesToStr(host)))
+		h.baseTransport.Copy(sConn, cConn)
 	} else {
-		err = errors.New("Client is nil")
+		err = errors.New("client is nil")
 	}
 	return
 }
 
-func (d *dynamic) Close() (err error) {
+func (h *ha) Close() (err error) {
 	return
 }
 
-func (d *dynamic) getClientIndex() (idx int) {
-	return d.rule.Intn(d.clientsLen)
+func (h *ha) getConn(host, port []byte) (conn net.Conn, err error) {
+	connCh := make(chan net.Conn)
+	for _, c := range h.clients {
+		_client := c
+		Go.Go(func() {
+			var sConn net.Conn
+			sConn, err = _client.Dial("tcp", host, port)
+			if err != nil {
+				log.DebugF("ha client dial failed: %v %v %v %v", err, host, port, _client.Name())
+				return
+			}
+
+			select {
+			case connCh <- sConn:
+			default:
+				_ = sConn.Close()
+			}
+		})
+	}
+
+	select {
+	case conn = <-connCh:
+	case <-time.After(time.Second * 15):
+		err = errors.New("get conn timeout")
+	}
+	return
 }
 
-func New(jsonConfig json.RawMessage) (obj *dynamic, err error) {
+func New(jsonConfig json.RawMessage) (obj *ha, err error) {
 	var config Config
 	err = json.Unmarshal(jsonConfig, &config)
 	if err != nil {
@@ -64,7 +87,7 @@ func New(jsonConfig json.RawMessage) (obj *dynamic, err error) {
 		config.DnsInfo.Server = net.JoinHostPort(config.DnsInfo.Server, "53")
 	}
 
-	obj = &dynamic{
+	obj = &ha{
 		baseTransport: base.Transport{
 			Identity: plugin.Identity{
 				ModuleName: config.Name,
@@ -85,17 +108,6 @@ func New(jsonConfig json.RawMessage) (obj *dynamic, err error) {
 		},
 	}
 
-	if config.RandRule == "" {
-		config.RandRule = rule.Timestamp
-	}
-
-	rand, err := rule.Factory(config.RandRule)
-	if err != nil {
-		return nil, err
-	}
-
-	obj.rule = rand
-
 	if config.ClientNames != "" {
 		clientNames := strings.Split(config.ClientNames, ",")
 		for _, clientName := range clientNames {
@@ -105,8 +117,6 @@ func New(jsonConfig json.RawMessage) (obj *dynamic, err error) {
 			}
 		}
 	}
-
-	obj.clientsLen = len(obj.clients)
 
 	return
 }

@@ -38,6 +38,7 @@ func (s *socks5) accept() {
 		select {
 		case <-s.DoneCh:
 			log.InfoF("server: %v accept end", s.Name())
+			return
 		default:
 			conn, err := s.Listen.Accept()
 			if err != nil {

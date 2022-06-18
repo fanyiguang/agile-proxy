@@ -5,6 +5,7 @@ import (
 	"agile-proxy/helper/log"
 	"agile-proxy/modules/transport/direct"
 	"agile-proxy/modules/transport/dynamic"
+	"agile-proxy/modules/transport/ha"
 	sysJson "encoding/json"
 	"errors"
 	"fmt"
@@ -26,6 +27,8 @@ func Factory(configs []sysJson.RawMessage) {
 			transport, err = direct.New(config)
 		case pubConfig.Dynamic:
 			transport, err = dynamic.New(config)
+		case pubConfig.Ha:
+			transport, err = ha.New(config)
 		default:
 			err = errors.New(fmt.Sprintf("type is invalid %v", json.Get(config, "type").ToString()))
 		}
