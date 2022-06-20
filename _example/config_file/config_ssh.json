@@ -1,0 +1,90 @@
+{
+  "server": [
+    {
+      "ip": "127.0.0.1",
+      "port": "7890",
+      "username": "admin",
+      "password": "123",
+      "type": "socks5",
+      "name": "socks5-server",
+      "auth_mode": 1,
+      "transport_name": "ssh-transport"
+    },
+    {
+      "ip": "127.0.0.1",
+      "port": "7891",
+      "username": "root",
+      "password": "123",
+      "type": "ssh",
+      "name": "ssh-server-1",
+      "transport_name": "direct-transport"
+    },
+    {
+      "ip": "127.0.0.1",
+      "port": "7892",
+      "username": "root",
+      "password": "123",
+      "type": "ssh",
+      "name": "ssh-server-2",
+      "transport_name": "direct-transport"
+    }
+  ],
+  "transport": [
+    {
+      "type": "direct",
+      "name": "ssh-transport",
+      "client_name": "ssh-client",
+      "dns": {
+        "local_dns": false,
+        "server": "114.114.114.114"
+      }
+    },
+    {
+      "type": "direct",
+      "name": "direct-transport",
+      "client_name": "direct-client",
+      "dns": {
+        "local_dns": false,
+        "server": "114.114.114.114"
+      }
+    }
+  ],
+  "client": [
+    {
+      "ip": "127.0.0.1",
+      "port": "7891",
+      "username": "root",
+      "password": "123",
+      "type": "ssh",
+      "name": "ssh-client",
+      "dialer_name": "ssh-dialer",
+      "mode": 0
+    },
+    {
+      "type": "direct",
+      "name": "direct-client",
+      "dialer_name": "direct-dialer",
+      "mode": 0
+    }
+  ],
+  "dialer": [
+    {
+      "type": "direct",
+      "name": "direct-dialer",
+      "interface": ""
+    },
+    {
+      "ip": "127.0.0.1",
+      "port": "7892",
+      "username": "root",
+      "password": "123",
+      "type": "ssh",
+      "name": "ssh-dialer"
+    }
+  ],
+  "msg": {
+    "type": "log"
+  },
+  "log_path": "./agile-proxy.log",
+  "log_level": "debug"
+}

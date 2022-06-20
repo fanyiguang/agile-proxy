@@ -1,0 +1,103 @@
+{
+  "server": [
+    {
+      "ip": "127.0.0.1",
+      "port": "7890",
+      "username": "admin",
+      "password": "123",
+      "type": "socks5",
+      "name": "socks5-1",
+      "auth_mode": 1,
+      "transport_name": "direct"
+    },
+    {
+      "ip": "127.0.0.1",
+      "port": "7891",
+      "username": "admin",
+      "password": "123",
+      "type": "socks5",
+      "name": "socks5-2",
+      "auth_mode": 1,
+      "transport_name": "direct-1"
+    },
+    {
+      "ip": "127.0.0.1",
+      "port": "7892",
+      "username": "admin",
+      "password": "123",
+      "type": "socks5",
+      "name": "socks5-3",
+      "auth_mode": 1,
+      "transport_name": "direct-2"
+    }
+  ],
+  "transport": [
+    {
+      "type": "direct",
+      "name": "direct",
+      "client_name": "socks5",
+      "dns": {
+        "local_dns": false,
+        "server": "114.114.114.114"
+      }
+    },
+    {
+      "type": "direct",
+      "name": "direct-1",
+      "client_name": "direct",
+      "dns": {
+        "local_dns": false,
+        "server": "114.114.114.114"
+      }
+    },
+    {
+      "type": "direct",
+      "name": "direct-2",
+      "client_name": "direct",
+      "dns": {
+        "local_dns": false,
+        "server": "114.114.114.114"
+      }
+    }
+  ],
+  "client": [
+    {
+      "ip": "127.0.0.1",
+      "port": "7892",
+      "username": "admin",
+      "password": "123",
+      "type": "socks5",
+      "name": "socks5",
+      "auth_mode": 1,
+      "dialer_name": "direct",
+      "mode": 0
+    },
+    {
+      "type": "direct",
+      "name": "direct",
+      "dialer_name": "direct",
+      "mode": 0
+    }
+  ],
+  "dialer": [
+    {
+      "type": "direct",
+      "name": "direct",
+      "interface": ""
+    },
+    {
+      "ip": "127.0.0.1",
+      "port": "7891",
+      "username": "admin",
+      "password": "123",
+      "type": "socks5",
+      "name": "socks5",
+      "auth_mode": 1
+    }
+  ],
+  "msg": {
+    "type": "log"
+  },
+  "log_path": "./agile-proxy.log",
+  "log_level": "debug"
+}

@@ -1,0 +1,61 @@
+{
+  "server": [
+    {
+      "ip": "127.0.0.1",
+      "port": "7890",
+      "username": "admin",
+      "password": "123",
+      "type": "socks5",
+      "name": "socks5-server",
+      "auth_mode": 1,
+      "transport_name": "ha"
+    }
+  ],
+  "transport": [
+    {
+      "type": "ha",
+      "name": "ha",
+      "client_names": "socks5-client-1,socks5-client-2,test",
+      "dns": {
+        "local_dns": false,
+        "server": "114.114.114.114"
+      }
+    }
+  ],
+  "client": [
+    {
+      "ip": "1.13.171.193",
+      "port": "6380",
+      "username": "admin",
+      "password": "123",
+      "type": "socks5",
+      "name": "socks5-client-1",
+      "auth_mode": 1,
+      "dialer_name": "direct",
+      "mode": 0
+    },
+    {
+      "ip": "116.62.240.85",
+      "port": "7890",
+      "username": "admin",
+      "password": "123",
+      "type": "socks5",
+      "name": "socks5-client-2",
+      "auth_mode": 1,
+      "dialer_name": "direct",
+      "mode": 0
+    }
+  ],
+  "dialer": [
+    {
+      "type": "direct",
+      "name": "direct",
+      "interface": ""
+    }
+  ],
+  "msg": {
+    "type": "log"
+  },
+  "log_path": "./agile-proxy.log",
+  "log_level": "debug"
+}

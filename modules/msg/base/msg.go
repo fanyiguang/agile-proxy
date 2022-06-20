@@ -3,6 +3,7 @@ package base
 import "agile-proxy/modules/plugin"
 
 type Msg struct {
+	plugin.Identity
 	OutMsg   plugin.PipelineOutput
 	InputMsg plugin.PipelineInput
 }

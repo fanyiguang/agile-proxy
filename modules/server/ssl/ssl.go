@@ -97,7 +97,7 @@ func (s *ssl) handler(conn net.Conn) (err error) {
 		return
 	}
 
-	log.DebugF("des host: %v port: %v", string(host), string(port))
+	//log.DebugF("des host: %v port: %v", string(host), string(port))
 	return s.transport(conn, host, port)
 }
 
@@ -142,7 +142,6 @@ func New(jsonConfig json.RawMessage) (obj *ssl, err error) {
 		Tls: plugin.Tls{
 			CrtPath: config.CrtPath,
 			KeyPath: config.KeyPath,
-			CaPath:  config.CaPath,
 		},
 		authMode: config.AuthMode,
 	}

@@ -1,0 +1,45 @@
+{
+  "server": [
+    {
+      "ip": "127.0.0.1",
+      "port": "7891",
+      "username": "root",
+      "password": "123",
+      "key_path": "",
+      "type": "ssh",
+      "name": "ssh-server",
+      "transport_name": "direct-transport"
+    }
+  ],
+  "transport": [
+    {
+      "type": "direct",
+      "name": "direct-transport",
+      "client_name": "direct-client",
+      "dns": {
+        "local_dns": false,
+        "server": "114.114.114.114"
+      }
+    }
+  ],
+  "client": [
+    {
+      "type": "direct",
+      "name": "direct-client",
+      "dialer_name": "direct-dialer",
+      "mode": 0
+    }
+  ],
+  "dialer": [
+    {
+      "type": "direct",
+      "name": "direct-dialer",
+      "interface": ""
+    }
+  ],
+  "msg": {
+    "type": "log"
+  },
+  "log_path": "./agile-proxy.log",
+  "log_level": "debug"
+}

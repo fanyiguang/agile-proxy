@@ -1,7 +1,7 @@
 package plugin
 
 var (
-	PipelineOutputCh = make(chan OutputMsg)
+	PipelineOutputCh = make(chan OutputMsg, 100)
 	PipelineInputCh  = make(chan InputMsg)
 )
 

@@ -1,5 +1,7 @@
 package tls
 
+//default server_name=localhost
+
 func DefaultClientKey() []byte {
 	clientKey := `-----BEGIN EC PARAMETERS-----
 BgUrgQQAIg==

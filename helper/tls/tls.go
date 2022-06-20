@@ -47,7 +47,7 @@ func CreateClientConfig(crtPath, keyPath, caPath, host string) (tlsConfig *tls.C
 
 	var certificate tls.Certificate
 	if crtPath == "" || keyPath == "" { // 使用默认证书
-		certificate, err = tls.X509KeyPair(DefaultServerCrt(), DefaultServerKey())
+		certificate, err = tls.X509KeyPair(DefaultClientCrt(), DefaultClientKey())
 	} else {
 		certificate, err = tls.LoadX509KeyPair(crtPath, keyPath)
 		if err != nil {
@@ -68,6 +68,13 @@ func CreateClientConfig(crtPath, keyPath, caPath, host string) (tlsConfig *tls.C
 		} else {
 			tlsConfig.RootCAs = pool
 		}
+	} else if crtPath == "" || keyPath == "" { // 走程序默认ca
+		pool, err := loadDefaultCa()
+		if err != nil {
+			log.WarnF("load default ca failed: %v", err)
+		} else {
+			tlsConfig.RootCAs = pool
+		}
 	}
 	return
 }
@@ -79,6 +86,14 @@ func loadCa(caPath string) (cp *x509.CertPool, err error) {
 		return nil, err
 	}
 	if !cp.AppendCertsFromPEM(data) {
+		return nil, errors.New("AppendCertsFromPEM failed")
+	}
+	return
+}
+
+func loadDefaultCa() (cp *x509.CertPool, err error) {
+	cp = x509.NewCertPool()
+	if !cp.AppendCertsFromPEM(DefaultCaCrt()) {
 		return nil, errors.New("AppendCertsFromPEM failed")
 	}
 	return

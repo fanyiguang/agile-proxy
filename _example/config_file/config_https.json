@@ -1,0 +1,104 @@
+{
+  "server": [
+    {
+      "ip": "127.0.0.1",
+      "port": "7890",
+      "username": "admin",
+      "password": "123",
+      "type": "socks5",
+      "name": "socks5",
+      "auth_mode": 1,
+      "transport_name": "https-transport"
+    },
+    {
+      "ip": "127.0.0.1",
+      "port": "7891",
+      "username": "admin",
+      "password": "123",
+      "type": "https",
+      "name": "https-server-1",
+      "transport_name": "direct-transport",
+      "crt_path": "",
+      "key_path": "",
+      "ca_path": ""
+    },
+    {
+      "ip": "127.0.0.1",
+      "port": "7892",
+      "username": "admin",
+      "password": "123",
+      "type": "https",
+      "name": "https-server-2",
+      "transport_name": "direct-transport",
+      "crt_path": "",
+      "key_path": "",
+      "ca_path": ""
+    }
+  ],
+  "transport": [
+    {
+      "type": "direct",
+      "name": "direct-transport",
+      "client_name": "direct-client",
+      "dns": {
+        "local_dns": false,
+        "server": "114.114.114.114"
+      }
+    },
+    {
+      "type": "direct",
+      "name": "https-transport",
+      "client_name": "https-client",
+      "dns": {
+        "local_dns": false,
+        "server": "114.114.114.114"
+      }
+    }
+  ],
+  "client": [
+    {
+      "ip": "127.0.0.1",
+      "port": "7891",
+      "username": "admin",
+      "password": "123",
+      "type": "https",
+      "name": "https-client",
+      "dialer_name": "https-dialer",
+      "mode": 0,
+      "crt_path": "",
+      "key_path": "",
+      "ca_path": "",
+      "server_name": "localhost"
+    },
+    {
+      "type": "direct",
+      "name": "direct-client",
+      "dialer_name": "direct-dialer",
+      "mode": 0
+    }
+  ],
+  "dialer": [
+    {
+      "type": "direct",
+      "name": "direct-dialer",
+      "interface": ""
+    },
+    {
+      "ip": "127.0.0.1",
+      "port": "7892",
+      "username": "admin",
+      "password": "123",
+      "type": "https",
+      "name": "https-dialer",
+      "crt_path": "",
+      "key_path": "",
+      "ca_path": "",
+      "server_name": "localhost"
+    }
+  ],
+  "msg": {
+    "type": "log"
+  },
+  "log_path": "./agile-proxy.log",
+  "log_level": "debug"
+}
