@@ -1,7 +1,7 @@
-package ipc
+package msg
 
 import (
-	"agile-proxy/modules/ipc/output_log"
+	"agile-proxy/modules/msg/log"
 	sysJson "encoding/json"
 	jsoniter "github.com/json-iterator/go"
 	"strings"
@@ -11,18 +11,18 @@ var (
 	json = jsoniter.ConfigCompatibleWithStandardLibrary
 )
 
-type Ipc interface {
-	ImplementIpc()
+type Msg interface {
 	Run() (err error)
 	Close() (err error)
+	ImplementMsg()
 }
 
-func Factory(config sysJson.RawMessage) (obj Ipc, err error) {
+func Factory(config sysJson.RawMessage) (obj Msg, err error) {
 	switch strings.ToLower(json.Get(config, "type").ToString()) {
 	case outputLog:
 		fallthrough
 	default:
-		obj, err = output_log.New()
+		obj, err = log.New()
 	}
 	return
 }

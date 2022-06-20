@@ -1,15 +1,15 @@
-package output_log
+package log
 
 import (
 	"agile-proxy/helper/Go"
 	"agile-proxy/helper/common"
 	"agile-proxy/helper/log"
-	"agile-proxy/modules/ipc/base"
+	"agile-proxy/modules/msg/base"
 	"agile-proxy/modules/plugin"
 )
 
 type outputLog struct {
-	base.Ipc
+	base.Msg
 	doneCh chan struct{}
 }
 
@@ -25,9 +25,9 @@ func (o *outputLog) accept() {
 	for {
 		select {
 		case msg = <-o.OutMsg.Ch:
-			log.InfoF("ipc accept module message: %v %v", msg.ModuleName, msg.Content)
+			log.InfoF("msg log accept module message: %v %v", msg.ModuleName, msg.Content)
 		case <-o.doneCh:
-			log.InfoF("ipc close")
+			log.InfoF("msg log close")
 			return
 		}
 	}
@@ -42,7 +42,7 @@ func (o *outputLog) Close() (err error) {
 
 func New() (obj *outputLog, err error) {
 	obj = &outputLog{
-		Ipc: base.Ipc{
+		Msg: base.Msg{
 			OutMsg: plugin.PipelineOutput{
 				Ch: plugin.PipelineOutputCh,
 			},
