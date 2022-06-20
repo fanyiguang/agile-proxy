@@ -22,7 +22,7 @@ import (
 
 func App(configPath string, version bool, pprof int) (err error) {
 	if version {
-		fmt.Printf("agile-proxy v%v", config.Version())
+		fmt.Printf("agile-proxy v%v\n", config.Version())
 		return
 	}
 
