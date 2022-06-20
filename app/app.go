@@ -63,6 +63,7 @@ func App(configPath string, version bool, pprof int) (err error) {
 	}
 
 	wait()
+	closeResources()
 	return
 }
 
@@ -94,7 +95,6 @@ func wait() {
 	doneCh := make(chan os.Signal, 1)
 	signal.Notify(doneCh, syscall.SIGTERM, syscall.SIGQUIT, syscall.SIGINT)
 	<-doneCh
-	closeResources()
 }
 
 func closeResources() {
