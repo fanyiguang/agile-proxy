@@ -77,7 +77,7 @@ aaaaaaaaaaaa
 ```
 
 ##### 更多配置说明
-aaaaaaaaaaaaaa
+https://github.com/fanyiguang/agile-proxy/tree/main/_example/config_description
 
 ### 高级应用
 ***
@@ -108,9 +108,9 @@ aaaaaaaaaaaaaa
 }
 ```
 
-### 更多示例
+### 更多配置示例
 ***
-aaaaaaaaaaaaa
+https://github.com/fanyiguang/agile-proxy/tree/main/_example/config
 
 ### 定制自己的代理
 ***
