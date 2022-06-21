@@ -22,7 +22,7 @@ aaaaaaaaaaaa
 ##### 项目结构
 ![image](https://github.com/fanyiguang/agile-proxy/blob/main/_example/res/agile_proxy.png)
 您可以按照自己的想法随意拼接属于自己的代理链路。  
-图片
+![image](https://github.com/fanyiguang/agile-proxy/blob/main/_example/res/muti_link.png)
 
 ##### 配置SOCKS5服务端
 ```bash
