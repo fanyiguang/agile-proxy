@@ -3,11 +3,11 @@ agile-proxy
 一款灵活，轻量，易于扩展的代理工具。
 
 ### 下载
-======
+***
 https://github.com/fanyiguang/agile-proxy/releases/tag/v1.0.0
 
 ### 功能
-======
+***
 * 支持HTTP/HTTPS/SOCKS5/SSL/SSH代理协议
 * 多种协议端口监听
 * 多协议代理链
@@ -18,7 +18,7 @@ https://github.com/fanyiguang/agile-proxy/releases/tag/v1.0.0
 * 消息处理
 
 ### 快速上手
-======
+***
 ##### 项目架构
 ![image](https://github.com/fanyiguang/agile-proxy/blob/main/_example/res/agile_proxy.png)
 
@@ -82,7 +82,7 @@ https://github.com/fanyiguang/agile-proxy/releases/tag/v1.0.0
 https://github.com/fanyiguang/agile-proxy/tree/main/_example/config_description
 
 ### 高级应用
-======
+***
 ##### 配置动态传输器
 ```bash
 {
@@ -111,11 +111,11 @@ https://github.com/fanyiguang/agile-proxy/tree/main/_example/config_description
 ```
 
 ### 更多配置示例
-======
+***
 https://github.com/fanyiguang/agile-proxy/tree/main/_example/config
 
 ### 定制自己的代理
-======
+***
 个人的力量是微不足道的，群众的力量才是无限的。agile-proxy设计之初的理念就是高扩展性，项目中几乎所有功能都是完全解耦的。您可以很容易的接入开发创造出属于自己的代理。
 
 
