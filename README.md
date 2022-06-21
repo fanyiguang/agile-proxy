@@ -19,12 +19,12 @@ aaaaaaaaaaaa
 
 ### 快速上手
 ***
-##### 项目结构
+##### 项目架构
 ![image](https://github.com/fanyiguang/agile-proxy/blob/main/_example/res/agile_proxy.png)
 
 ##### 自定义链路 
 ![image](https://github.com/fanyiguang/agile-proxy/blob/main/_example/res/muti_link.png)  
-模块下各自的实现像是组件一般，您可以挑选合适的组件来组件属于自己的代理链路。
+每个模块下都有多种实现。它们像组件一般，您可以挑选合适的组件来拼装出属于自己的代理链路。
 
 ##### 配置SOCKS5服务端
 ```bash
