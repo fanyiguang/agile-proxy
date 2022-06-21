@@ -116,7 +116,7 @@ https://github.com/fanyiguang/agile-proxy/tree/main/_example/config
 
 ### 定制自己的代理
 ***
-agile-proxy的一个思想就是高扩展性。项目中几乎所有功能都是高度解耦的，您可以很容易的接入开发创造出属于自己的代理。
+agile-proxy设计之初的理念就是高扩展性。项目中几乎所有功能都是完全解耦的，您可以很容易的接入开发创造出属于自己的代理。
 
 
 
