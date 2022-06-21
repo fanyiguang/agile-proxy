@@ -4,7 +4,7 @@ agile-proxy是一款灵活，轻量，易于扩展的代理工具。
 
 ### 下载
 ***
-aaaaaaaaaaaa
+https://github.com/fanyiguang/agile-proxy/releases/tag/v1.0.0
 
 ### 功能
 ***
