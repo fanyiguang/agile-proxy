@@ -19,7 +19,7 @@ https://github.com/fanyiguang/agile-proxy/releases/tag/v1.0.0
 
 ### 快速上手
 ***
-##### 项目架构
+##### 逻辑结构
 ![image](https://github.com/fanyiguang/agile-proxy/blob/main/_example/res/agile_proxy.png)
 
 ##### 自定义链路 
