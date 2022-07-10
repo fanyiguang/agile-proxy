@@ -116,7 +116,7 @@ https://github.com/fanyiguang/agile-proxy/tree/main/_example/config
 
 ### 定制自己的代理
 ***
-agile-proxy设计之初的理念就是高扩展性，项目中几乎所有功能都是完全解耦的。您可以很容易的接入进行二次开发。
+agile-proxy设计之初的理念就是高扩展性，项目中几乎所有功能都是完全解耦的。可以很容易的接入进行二次开发。
 
 
 
