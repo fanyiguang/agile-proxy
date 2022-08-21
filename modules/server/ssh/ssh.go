@@ -4,9 +4,8 @@ import (
 	"agile-proxy/helper/Go"
 	"agile-proxy/helper/common"
 	"agile-proxy/helper/log"
-	"agile-proxy/modules/plugin"
+	"agile-proxy/modules/assembly"
 	"agile-proxy/modules/server/base"
-	"agile-proxy/modules/transport"
 	"encoding/json"
 	"fmt"
 	gSsh "github.com/gliderlabs/ssh"
@@ -23,6 +22,7 @@ type ssh struct {
 }
 
 func (s *ssh) Run() (err error) {
+	s.Server.Init()
 	err = s.listen()
 	return
 }
@@ -158,26 +158,14 @@ func New(jsonConfig json.RawMessage) (obj *ssh, err error) {
 
 	obj = &ssh{
 		Server: base.Server{
-			Net: plugin.Net{
-				Host:     config.Ip,
-				Port:     config.Port,
-				Username: config.Username,
-				Password: config.Password,
-			},
-			Identity: plugin.Identity{
-				ModuleName: config.Name,
-				ModuleType: config.Type,
-			},
-			OutMsg: plugin.PipelineOutput{
-				Ch: plugin.PipelineOutputCh,
-			},
-			DoneCh: make(chan struct{}),
+			Net:           assembly.CreateNet(config.Ip, config.Port, config.Username, config.Password),
+			Identity:      assembly.CreateIdentity(config.Name, config.Type),
+			Pipeline:      assembly.CreatePipeline(),
+			DoneCh:        make(chan struct{}),
+			TransportName: config.TransportName,
+			PipelineInfos: config.PipelineInfos,
 		},
 		keyPath: config.KeyPath,
-	}
-
-	if config.TransportName != "" {
-		obj.Transmitter = transport.GetTransport(config.TransportName)
 	}
 
 	return

@@ -1,11 +1,12 @@
 package socks5
 
+import "agile-proxy/model"
+
 type Config struct {
-	Ip       string `json:"ip"`
-	Port     string `json:"port"`
-	Username string `json:"username"`
-	Password string `json:"password"`
-	Type     string `json:"type"`
-	Name     string `json:"name"`
-	AuthMode int    `json:"auth_mode"`
+	model.Base
+	model.Net
+	model.Identity
+	model.PipelineInfos
+	AuthMode  int    `json:"auth_mode"`
+	Interface string `json:"interface"`
 }

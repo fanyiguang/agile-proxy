@@ -1,5 +1,5 @@
 package parser
 
 const (
-	Json = iota + 1
+	JsonFile = iota + 1
 )

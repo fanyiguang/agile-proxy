@@ -5,8 +5,8 @@ import (
 	"agile-proxy/helper/Go"
 	"agile-proxy/helper/common"
 	"agile-proxy/helper/log"
+	"agile-proxy/modules/assembly"
 	"agile-proxy/modules/dialer/base"
-	"agile-proxy/modules/plugin"
 	pkgSsh "agile-proxy/pkg/ssh"
 	"encoding/json"
 	"github.com/pkg/errors"
@@ -17,7 +17,7 @@ import (
 
 type ssh struct {
 	base.Dialer
-	plugin.Net
+	assembly.Net
 	client           *pkgSsh.Client
 	initSuccessfulCh chan struct{}
 	initFailedCh     chan struct{}
@@ -66,6 +66,11 @@ func (s *ssh) DialTimeout(network string, host, port string, timeout time.Durati
 	return
 }
 
+func (s *ssh) Run() (err error) {
+	s.init()
+	return
+}
+
 func (s *ssh) Close() (err error) {
 	common.CloseChan(s.doneCh)
 	if s.client != nil {
@@ -91,10 +96,12 @@ func (s *ssh) controlCenter() (err error) {
 func (s *ssh) connect() (err error) {
 	err = s.client.Connect()
 	if err != nil {
-		common.CloseChan(s.initFailedCh) // 快速失败
+		// 初始化ssh失败，重新添加初始化的令牌，
+		common.ReliableChanSend(s.initWorkerCh, 1)
 		return
 	}
 
+	// 初始化成功打开控制阀门
 	common.CloseChan(s.initSuccessfulCh)
 	Go.Go(func() {
 		s.keepAlive()
@@ -152,6 +159,14 @@ func (s *ssh) reconnect() (err error) {
 	return
 }
 
+func (s *ssh) init() {
+	s.initWorkerCh <- 1
+
+	s.client = pkgSsh.New(s.Host, s.Port, pkgSsh.SetUsername(s.Username), pkgSsh.SetPassword(s.Password), pkgSsh.SetPublicKeyPath(s.keyPath), pkgSsh.SetDialFunc(func(network string, host, port string, timeout time.Duration) (conn net.Conn, err error) {
+		return s.DialByIFace(network, host, port)
+	}))
+}
+
 func New(jsonConfig json.RawMessage) (obj *ssh, err error) {
 	var _config Config
 	err = json.Unmarshal(jsonConfig, &_config)
@@ -162,19 +177,11 @@ func New(jsonConfig json.RawMessage) (obj *ssh, err error) {
 
 	obj = &ssh{
 		Dialer: base.Dialer{
-			Identity: plugin.Identity{
-				ModuleName: _config.Name,
-				ModuleType: _config.Type,
-			},
-			OutMsg: plugin.PipelineOutput{
-				Ch: plugin.PipelineOutputCh,
-			},
-		},
-		Net: plugin.Net{
-			Host:     _config.Ip,
-			Port:     _config.Port,
-			Username: _config.Username,
-			Password: _config.Password,
+			Net:           assembly.CreateNet(_config.Ip, _config.Port, _config.Username, _config.Password),
+			Identity:      assembly.CreateIdentity(_config.Name, _config.Type),
+			Pipeline:      assembly.CreatePipeline(),
+			PipelineInfos: _config.PipelineInfos,
+			IFace:         _config.Interface,
 		},
 		keyPath:          _config.KeyPath,
 		initSuccessfulCh: make(chan struct{}),
@@ -182,10 +189,6 @@ func New(jsonConfig json.RawMessage) (obj *ssh, err error) {
 		doneCh:           make(chan struct{}),
 		initWorkerCh:     make(chan uint8, 1),
 	}
-	obj.initWorkerCh <- 1
 
-	obj.client = pkgSsh.New(_config.Ip, _config.Port, pkgSsh.SetUsername(_config.Username), pkgSsh.SetPassword(_config.Password), pkgSsh.SetPublicKeyPath(_config.KeyPath), pkgSsh.SetDialFunc(func(network string, host, port string, timeout time.Duration) (conn net.Conn, err error) {
-		return obj.DialByIFace(network, host, port)
-	}))
 	return
 }

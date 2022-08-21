@@ -1,13 +1,13 @@
 package base
 
-import "agile-proxy/modules/plugin"
+import "agile-proxy/modules/assembly"
 
 type Msg struct {
-	plugin.Identity
-	OutMsg   plugin.PipelineOutput
-	InputMsg plugin.PipelineInput
+	assembly.Identity
+	assembly.Pipeline
+	Level int
 }
 
+// ImplementMsg 没啥实际意义只是为了区分实现
 func (m *Msg) ImplementMsg() {
-	// 没啥实际意义只是为了区分实现
 }

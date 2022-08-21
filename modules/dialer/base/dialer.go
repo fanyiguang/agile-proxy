@@ -1,7 +1,8 @@
 package base
 
 import (
-	"agile-proxy/modules/plugin"
+	"agile-proxy/model"
+	"agile-proxy/modules/assembly"
 	"fmt"
 	"github.com/pkg/errors"
 	"net"
@@ -9,9 +10,11 @@ import (
 )
 
 type Dialer struct {
-	plugin.Identity
-	OutMsg plugin.PipelineOutput
-	IFace  string
+	assembly.Net
+	assembly.Identity
+	assembly.Pipeline
+	model.PipelineInfos
+	IFace string
 }
 
 func (d *Dialer) BaseDial(network string, host, port string) (conn net.Conn, err error) {

@@ -2,8 +2,8 @@ package https
 
 import (
 	"agile-proxy/helper/log"
+	"agile-proxy/modules/assembly"
 	"agile-proxy/modules/dialer/base"
-	"agile-proxy/modules/plugin"
 	pkgHttps "agile-proxy/pkg/https"
 	"context"
 	"encoding/json"
@@ -14,8 +14,7 @@ import (
 
 type https struct {
 	base.Dialer
-	plugin.Tls
-	plugin.Net
+	assembly.Tls
 	httpsClient *pkgHttps.Client
 }
 
@@ -73,7 +72,17 @@ func (h *https) DialTimeout(network string, host, port string, timeout time.Dura
 	return
 }
 
+func (h *https) Run() (err error) {
+	err = h.init()
+	return
+}
+
 func (h *https) Close() (err error) {
+	return
+}
+
+func (h *https) init() (err error) {
+	h.httpsClient = pkgHttps.New(h.Username, h.Password)
 	return
 }
 
@@ -87,29 +96,14 @@ func New(jsonConfig json.RawMessage) (obj *https, err error) {
 
 	obj = &https{
 		Dialer: base.Dialer{
-			Identity: plugin.Identity{
-				ModuleName: config.Name,
-				ModuleType: config.Type,
-			},
-			OutMsg: plugin.PipelineOutput{
-				Ch: plugin.PipelineOutputCh,
-			},
+			Net:           assembly.CreateNet(config.Ip, config.Port, config.Username, config.Password),
+			Identity:      assembly.CreateIdentity(config.Name, config.Type),
+			Pipeline:      assembly.CreatePipeline(),
+			PipelineInfos: config.PipelineInfos,
+			IFace:         config.Interface,
 		},
-		Tls: plugin.Tls{
-			CrtPath:    config.CrtPath,
-			KeyPath:    config.KeyPath,
-			CaPath:     config.CaPath,
-			ServerName: config.ServerName,
-		},
-		Net: plugin.Net{
-			Host:     config.Ip,
-			Port:     config.Port,
-			Username: config.Username,
-			Password: config.Password,
-		},
+		Tls: assembly.CreateTls(config.CrtPath, config.KeyPath, config.CaPath, config.ServerName),
 	}
-
-	obj.httpsClient = pkgHttps.New(config.Username, config.Password)
 
 	return
 }

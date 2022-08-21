@@ -4,9 +4,8 @@ import (
 	"agile-proxy/helper/Go"
 	"agile-proxy/helper/common"
 	"agile-proxy/helper/log"
-	"agile-proxy/modules/plugin"
+	"agile-proxy/modules/assembly"
 	"agile-proxy/modules/server/base"
-	"agile-proxy/modules/transport"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
@@ -168,6 +167,7 @@ func (h *http) GetHostAndPort(host string) (newHost, newPort []byte, err error) 
 }
 
 func (h *http) init() {
+	h.Server.Init()
 	if h.Username != "" && h.Password != "" {
 		h.basicToken = fmt.Sprintf("Basic %v", base64.StdEncoding.EncodeToString([]byte(h.Username+":"+h.Password)))
 	}
@@ -183,25 +183,13 @@ func New(jsonConfig json.RawMessage) (obj *http, err error) {
 
 	obj = &http{
 		Server: base.Server{
-			Net: plugin.Net{
-				Host:     config.Ip,
-				Port:     config.Port,
-				Username: config.Username,
-				Password: config.Password,
-			},
-			Identity: plugin.Identity{
-				ModuleName: config.Name,
-				ModuleType: config.Type,
-			},
-			OutMsg: plugin.PipelineOutput{
-				Ch: plugin.PipelineOutputCh,
-			},
-			DoneCh: make(chan struct{}),
+			Net:           assembly.CreateNet(config.Ip, config.Port, config.Username, config.Password),
+			Identity:      assembly.CreateIdentity(config.Name, config.Type),
+			Pipeline:      assembly.CreatePipeline(),
+			DoneCh:        make(chan struct{}),
+			TransportName: config.TransportName,
+			PipelineInfos: config.PipelineInfos,
 		},
-	}
-
-	if len(config.TransportName) > 0 {
-		obj.Transmitter = transport.GetTransport(config.TransportName)
 	}
 
 	return

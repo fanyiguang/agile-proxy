@@ -17,6 +17,7 @@ import (
 )
 
 type Dialer interface {
+	Run() (err error)
 	Dial(network string, host, port string) (conn net.Conn, err error)
 	DialTimeout(network string, host, port string, timeout time.Duration) (conn net.Conn, err error)
 	Close() (err error)

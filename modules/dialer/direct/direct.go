@@ -1,8 +1,8 @@
 package direct
 
 import (
+	"agile-proxy/modules/assembly"
 	"agile-proxy/modules/dialer/base"
-	"agile-proxy/modules/plugin"
 	"encoding/json"
 	"github.com/pkg/errors"
 	"net"
@@ -11,6 +11,10 @@ import (
 
 type direct struct {
 	base.Dialer
+}
+
+func (d *direct) Run() (err error) {
+	return
 }
 
 func (d *direct) Close() (err error) {
@@ -35,14 +39,11 @@ func New(jsonConfig json.RawMessage) (obj *direct, err error) {
 
 	obj = &direct{
 		Dialer: base.Dialer{
-			Identity: plugin.Identity{
-				ModuleName: config.Name,
-				ModuleType: config.Type,
-			},
-			OutMsg: plugin.PipelineOutput{
-				Ch: plugin.PipelineOutputCh,
-			},
-			IFace: config.Interface,
+			Net:           assembly.CreateNet(config.Ip, config.Port, config.Username, config.Password),
+			Identity:      assembly.CreateIdentity(config.Name, config.Type),
+			Pipeline:      assembly.CreatePipeline(),
+			PipelineInfos: config.PipelineInfos,
+			IFace:         config.Interface,
 		},
 	}
 

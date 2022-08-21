@@ -8,6 +8,13 @@
       "type": "socks5",
       "name": "socks5-1",
       "auth_mode": 1,
+      "msg": [
+        {
+          "name": "log",
+          "type": "log",
+          "level": "real-time"
+        }
+      ],
       "transport_name": "direct"
     },
     {

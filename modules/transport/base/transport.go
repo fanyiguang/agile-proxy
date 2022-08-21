@@ -1,36 +1,22 @@
 package base
 
 import (
-	"agile-proxy/helper/Go"
 	"agile-proxy/helper/log"
-	"agile-proxy/modules/plugin"
+	"agile-proxy/model"
+	"agile-proxy/modules/assembly"
+	"agile-proxy/modules/msg"
 	"io"
 	"net"
+	"strings"
 	"sync"
-	"time"
 )
 
 type Transport struct {
-	plugin.Identity
-	OutMsg     plugin.PipelineOutput
-	Dns        plugin.Dns
+	assembly.Dns
+	assembly.Identity
+	assembly.Pipeline
+	model.PipelineInfos
 	BufferPool sync.Pool
-}
-
-func (t *Transport) AsyncSendMsgToIpc(msg string) {
-	// 异步对外发送消息，减少对主流程的影响
-	// 对外保持0信任原则，设置超时时间如果
-	// 外部阻塞也不会导致协程泄漏。
-	Go.Go(func() {
-		select {
-		case t.OutMsg.Ch <- plugin.OutputMsg{
-			Content:    msg,
-			ModuleName: t.Name(),
-		}:
-		case <-time.After(time.Second):
-			log.InfoF("pipeline message lock: %v %v", msg, t.Name())
-		}
-	})
 }
 
 func (t *Transport) Copy(sConn net.Conn, cConn net.Conn) {
@@ -45,6 +31,22 @@ func (t *Transport) copyBuffer(det net.Conn, src net.Conn, errCh chan error) {
 	defer t.BufferPool.Put(buffer)
 	_, err := io.CopyBuffer(det, src, buffer)
 	errCh <- err
+}
+
+func (t *Transport) Init() {
+	if !strings.Contains(t.Dns.Server, ":") {
+		t.Dns.Server = net.JoinHostPort(t.Dns.Server, "53")
+	}
+
+	for _, pipelineInfo := range t.PipelineInfo {
+		_msg := msg.GetMsg(pipelineInfo.Name)
+		if _msg != nil {
+			msgPipeline, level := _msg.Subscribe(t.Name(), t.Pipeline.PipeCh, pipelineInfo.Level)
+			t.Subscribe(pipelineInfo.Name, msgPipeline, level)
+		} else {
+			log.WarnF("%v transport get msg failed pipeline name: %v", t.Name(), pipelineInfo.Name)
+		}
+	}
 }
 
 func (t *Transport) wait(errCh chan error) {

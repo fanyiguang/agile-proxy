@@ -1,4 +1,4 @@
-package plugin
+package assembly
 
 type Identity struct {
 	ModuleName string
@@ -11,4 +11,11 @@ func (i Identity) Name() string {
 
 func (i Identity) Type() string {
 	return i.ModuleType
+}
+
+func CreateIdentity(name, _type string) Identity {
+	return Identity{
+		ModuleName: name,
+		ModuleType: _type,
+	}
 }

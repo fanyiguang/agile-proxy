@@ -1,4 +1,4 @@
-package plugin
+package assembly
 
 import (
 	"agile-proxy/helper/tls"
@@ -53,4 +53,13 @@ func (t *Tls) Handshake(ctx context.Context, rawConn net.Conn, config *sysTls.Co
 		return
 	}
 	return
+}
+
+func CreateTls(crtPath, keyPath, caPath, serverName string) Tls {
+	return Tls{
+		CrtPath:    crtPath,
+		KeyPath:    keyPath,
+		CaPath:     caPath,
+		ServerName: serverName,
+	}
 }

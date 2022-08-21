@@ -4,10 +4,10 @@ import (
 	"agile-proxy/helper/Go"
 	"agile-proxy/helper/common"
 	"agile-proxy/helper/log"
+	"agile-proxy/modules/assembly"
 	"agile-proxy/modules/client/base"
-	"agile-proxy/modules/dialer"
-	"agile-proxy/modules/plugin"
 	pkgSsh "agile-proxy/pkg/ssh"
+	"context"
 	"encoding/json"
 	"github.com/pkg/errors"
 	"net"
@@ -62,6 +62,24 @@ func (s *Ssh) DialTimeout(network string, host, port []byte, timeout time.Durati
 	return
 }
 
+func (s *Ssh) Run() (err error) {
+	s.Client.Init()
+	err = s.createRoundTripper()
+
+	// 添加初始化的令牌，只有一个请求会进入SSH初始化逻辑
+	s.initWorkerCh <- 1
+	// 初始化ssh客户端
+	s.client = pkgSsh.New(s.Host, s.Port, pkgSsh.SetUsername(s.Username), pkgSsh.SetPassword(s.Password), pkgSsh.SetPublicKeyPath(s.keyPath), pkgSsh.SetDialFunc(func(network string, host, port string, timeout time.Duration) (conn net.Conn, err error) {
+		if s.Dialer != nil {
+			conn, err = s.Dialer.DialTimeout(network, host, port, timeout)
+		} else {
+			err = errors.New("s.Dialer is nil")
+		}
+		return
+	}))
+	return
+}
+
 func (s *Ssh) Close() (err error) {
 	common.CloseChan(s.doneCh)
 	if s.client != nil {
@@ -87,7 +105,8 @@ func (s *Ssh) controlCenter() (err error) {
 func (s *Ssh) connect() (err error) {
 	err = s.client.Connect()
 	if err != nil {
-		common.CloseChan(s.initFailedCh) // 快速失败
+		// 初始化ssh失败，重新添加初始化的令牌，
+		common.ReliableChanSend(s.initWorkerCh, 1)
 		return
 	}
 
@@ -95,6 +114,13 @@ func (s *Ssh) connect() (err error) {
 	common.CloseChan(s.initSuccessfulCh)
 	Go.Go(func() {
 		s.keepAlive()
+	})
+	return
+}
+
+func (s *Ssh) createRoundTripper() (err error) {
+	s.RoundTripper, err = s.CreateRoundTripper("", func(ctx context.Context, network, addr string) (net.Conn, error) {
+		return s.client.Dial(network, addr)
 	})
 	return
 }
@@ -139,20 +165,12 @@ func New(jsonConfig json.RawMessage) (obj *Ssh, err error) {
 
 	obj = &Ssh{
 		Client: base.Client{
-			Net: plugin.Net{
-				Host:     _config.Ip,
-				Port:     _config.Port,
-				Username: _config.Username,
-				Password: _config.Password,
-			},
-			Identity: plugin.Identity{
-				ModuleName: _config.Name,
-				ModuleType: _config.Type,
-			},
-			OutMsg: plugin.PipelineOutput{
-				Ch: plugin.PipelineOutputCh,
-			},
-			Mode: _config.Mode,
+			Net:           assembly.CreateNet(_config.Ip, _config.Port, _config.Username, _config.Password),
+			Identity:      assembly.CreateIdentity(_config.Name, _config.Type),
+			Pipeline:      assembly.CreatePipeline(),
+			PipelineInfos: _config.PipelineInfos,
+			Mode:          _config.Mode,
+			DialerName:    _config.DialerName,
 		},
 		keyPath:          _config.KeyPath,
 		initSuccessfulCh: make(chan struct{}),
@@ -160,15 +178,6 @@ func New(jsonConfig json.RawMessage) (obj *Ssh, err error) {
 		doneCh:           make(chan struct{}),
 		initWorkerCh:     make(chan uint8, 1),
 	}
-	// 添加初始化的令牌，只有一个请求会进入SSH初始化逻辑
-	obj.initWorkerCh <- 1
-	if _config.DialerName != "" {
-		obj.Client.Dialer = dialer.GetDialer(_config.DialerName)
-	}
-	// 初始化ssh客户端
-	obj.client = pkgSsh.New(_config.Ip, _config.Port, pkgSsh.SetUsername(_config.Username), pkgSsh.SetPassword(_config.Password), pkgSsh.SetPublicKeyPath(_config.KeyPath), pkgSsh.SetDialFunc(func(network string, host, port string, timeout time.Duration) (conn net.Conn, err error) {
-		return obj.Dialer.DialTimeout(network, host, port, timeout)
-	}))
 
 	return
 }

@@ -1,9 +1,8 @@
 package socks5
 
 import (
+	"agile-proxy/modules/assembly"
 	"agile-proxy/modules/client/base"
-	"agile-proxy/modules/dialer"
-	"agile-proxy/modules/plugin"
 	"agile-proxy/pkg/socks5"
 	"encoding/json"
 	"github.com/pkg/errors"
@@ -43,8 +42,18 @@ func (s *Socks5) DialTimeout(network string, host, port []byte, timeout time.Dur
 	return
 }
 
+func (s *Socks5) Run() (err error) {
+	s.init()
+	return
+}
+
 func (s *Socks5) Close() (err error) {
 	return
+}
+
+func (s *Socks5) init() {
+	s.Client.Init()
+	s.socks5Client = socks5.NewClient(socks5.SetClientAuth(s.authMode), socks5.SetClientUsername(s.Username), socks5.SetClientPassword(s.Password))
 }
 
 func New(jsonConfig json.RawMessage) (obj *Socks5, err error) {
@@ -57,28 +66,15 @@ func New(jsonConfig json.RawMessage) (obj *Socks5, err error) {
 
 	obj = &Socks5{
 		Client: base.Client{
-			Net: plugin.Net{
-				Host:     config.Ip,
-				Port:     config.Port,
-				Username: config.Username,
-				Password: config.Password,
-			},
-			Identity: plugin.Identity{
-				ModuleName: config.Name,
-				ModuleType: config.Type,
-			},
-			OutMsg: plugin.PipelineOutput{
-				Ch: plugin.PipelineOutputCh,
-			},
-			Mode: config.Mode,
+			Net:           assembly.CreateNet(config.Ip, config.Port, config.Username, config.Password),
+			Identity:      assembly.CreateIdentity(config.Name, config.Type),
+			Pipeline:      assembly.CreatePipeline(),
+			PipelineInfos: config.PipelineInfos,
+			Mode:          config.Mode,
+			DialerName:    config.DialerName,
 		},
 		authMode: config.AuthMode,
 	}
-
-	if config.DialerName != "" {
-		obj.Client.Dialer = dialer.GetDialer(config.DialerName)
-	}
-	obj.socks5Client = socks5.NewClient(socks5.SetClientAuth(obj.authMode), socks5.SetClientUsername(obj.Username), socks5.SetClientPassword(obj.Password))
 
 	return
 }

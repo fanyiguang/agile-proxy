@@ -1,7 +1,11 @@
 package direct
 
+import "agile-proxy/model"
+
 type Config struct {
-	Type      string `json:"type"`
-	Name      string `json:"name"`
+	model.Base
+	model.Net
+	model.Identity
+	model.PipelineInfos
 	Interface string `json:"interface"`
 }

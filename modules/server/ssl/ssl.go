@@ -4,9 +4,8 @@ import (
 	"agile-proxy/helper/Go"
 	"agile-proxy/helper/common"
 	"agile-proxy/helper/log"
-	"agile-proxy/modules/plugin"
+	"agile-proxy/modules/assembly"
 	"agile-proxy/modules/server/base"
-	"agile-proxy/modules/transport"
 	"agile-proxy/pkg/socks5"
 	sysTls "crypto/tls"
 	"encoding/json"
@@ -16,7 +15,7 @@ import (
 
 type ssl struct {
 	base.Server
-	plugin.Tls
+	assembly.Tls
 	socks5Server *socks5.Server
 	authMode     int
 }
@@ -111,6 +110,7 @@ func (s *ssl) transport(conn net.Conn, desHost, desPort []byte) (err error) {
 }
 
 func (s *ssl) init() {
+	s.Server.Init()
 	s.socks5Server = socks5.NewServer(socks5.SetServerAuth(s.authMode), socks5.SetServerUsername(s.Username), socks5.SetServerPassword(s.Password))
 }
 
@@ -124,30 +124,15 @@ func New(jsonConfig json.RawMessage) (obj *ssl, err error) {
 
 	obj = &ssl{
 		Server: base.Server{
-			Net: plugin.Net{
-				Host:     config.Ip,
-				Port:     config.Port,
-				Username: config.Username,
-				Password: config.Password,
-			},
-			Identity: plugin.Identity{
-				ModuleName: config.Name,
-				ModuleType: config.Type,
-			},
-			OutMsg: plugin.PipelineOutput{
-				Ch: plugin.PipelineOutputCh,
-			},
-			DoneCh: make(chan struct{}),
+			Net:           assembly.CreateNet(config.Ip, config.Port, config.Username, config.Password),
+			Identity:      assembly.CreateIdentity(config.Name, config.Type),
+			Pipeline:      assembly.CreatePipeline(),
+			DoneCh:        make(chan struct{}),
+			TransportName: config.TransportName,
+			PipelineInfos: config.PipelineInfos,
 		},
-		Tls: plugin.Tls{
-			CrtPath: config.CrtPath,
-			KeyPath: config.KeyPath,
-		},
+		Tls:      assembly.CreateTls(config.CrtPath, config.KeyPath, "", ""),
 		authMode: config.AuthMode,
-	}
-
-	if len(config.TransportName) > 0 {
-		obj.Transmitter = transport.GetTransport(config.TransportName)
 	}
 
 	return

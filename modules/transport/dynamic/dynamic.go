@@ -2,8 +2,8 @@ package dynamic
 
 import (
 	"agile-proxy/helper/common"
+	"agile-proxy/modules/assembly"
 	"agile-proxy/modules/client"
-	"agile-proxy/modules/plugin"
 	"agile-proxy/modules/transport/base"
 	"agile-proxy/modules/transport/dynamic/rule"
 	"encoding/json"
@@ -11,13 +11,14 @@ import (
 	"github.com/pkg/errors"
 	"net"
 	"strings"
-	"sync"
 )
 
 type dynamic struct {
 	baseTransport base.Transport
 	clients       []client.Client // 动态类型的传输器客户端可以为多个
 	rule          rule.Rule
+	randRule      string
+	clientNames   string
 	clientsLen    int
 }
 
@@ -35,11 +36,16 @@ func (d *dynamic) Transport(cConn net.Conn, host, port []byte) (err error) {
 		}
 
 		defer sConn.Close()
-		d.baseTransport.AsyncSendMsgToIpc(fmt.Sprintf("%v handshark success", common.BytesToStr(host)))
+		d.baseTransport.AsyncSendMsg(d.baseTransport.Name(), -1, fmt.Sprintf("%v handshark success", common.BytesToStr(host)))
 		d.baseTransport.Copy(sConn, cConn)
 	} else {
 		err = errors.New("Client is nil")
 	}
+	return
+}
+
+func (d *dynamic) Run() (err error) {
+	err = d.init()
 	return
 }
 
@@ -51,6 +57,31 @@ func (d *dynamic) getClientIndex() (idx int) {
 	return d.rule.Intn(d.clientsLen)
 }
 
+func (d *dynamic) init() (err error) {
+	d.baseTransport.Init()
+	if d.randRule == "" {
+		d.randRule = rule.Timestamp
+	}
+
+	d.rule, err = rule.Factory(d.randRule)
+	if err != nil {
+		return
+	}
+
+	if d.clientNames != "" {
+		clientNames := strings.Split(d.clientNames, ",")
+		for _, clientName := range clientNames {
+			_client := client.GetClient(clientName)
+			if _client != nil {
+				d.clients = append(d.clients, _client)
+			}
+		}
+	}
+
+	d.clientsLen = len(d.clients)
+	return
+}
+
 func New(jsonConfig json.RawMessage) (obj *dynamic, err error) {
 	var config Config
 	err = json.Unmarshal(jsonConfig, &config)
@@ -60,53 +91,17 @@ func New(jsonConfig json.RawMessage) (obj *dynamic, err error) {
 		return
 	}
 
-	if !strings.Contains(config.DnsInfo.Server, ":") {
-		config.DnsInfo.Server = net.JoinHostPort(config.DnsInfo.Server, "53")
-	}
-
 	obj = &dynamic{
 		baseTransport: base.Transport{
-			Identity: plugin.Identity{
-				ModuleName: config.Name,
-				ModuleType: config.Type,
-			},
-			OutMsg: plugin.PipelineOutput{
-				Ch: plugin.PipelineOutputCh,
-			},
-			Dns: plugin.Dns{
-				Server:   config.DnsInfo.Server,
-				LocalDns: config.DnsInfo.LocalDns,
-			},
-			BufferPool: sync.Pool{
-				New: func() any {
-					return make([]byte, 1024*32)
-				},
-			},
+			Identity:      assembly.CreateIdentity(config.Name, config.Type),
+			Pipeline:      assembly.CreatePipeline(),
+			Dns:           assembly.CreateDns(config.DnsInfo.Server, config.DnsInfo.LocalDns),
+			BufferPool:    common.CreateByteBufferSyncPool(1024 * 32),
+			PipelineInfos: config.PipelineInfos,
 		},
+		randRule:    config.RandRule,
+		clientNames: config.ClientNames,
 	}
-
-	if config.RandRule == "" {
-		config.RandRule = rule.Timestamp
-	}
-
-	rand, err := rule.Factory(config.RandRule)
-	if err != nil {
-		return nil, err
-	}
-
-	obj.rule = rand
-
-	if config.ClientNames != "" {
-		clientNames := strings.Split(config.ClientNames, ",")
-		for _, clientName := range clientNames {
-			_client := client.GetClient(clientName)
-			if _client != nil {
-				obj.clients = append(obj.clients, _client)
-			}
-		}
-	}
-
-	obj.clientsLen = len(obj.clients)
 
 	return
 }

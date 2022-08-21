@@ -14,6 +14,7 @@ import (
 )
 
 type Transport interface {
+	Run() (err error)
 	Transport(conn net.Conn, host, port []byte) (err error)
 	Close() (err error)
 }

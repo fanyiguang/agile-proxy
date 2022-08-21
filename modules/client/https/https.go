@@ -2,9 +2,8 @@ package https
 
 import (
 	"agile-proxy/helper/common"
+	"agile-proxy/modules/assembly"
 	"agile-proxy/modules/client/base"
-	"agile-proxy/modules/dialer"
-	"agile-proxy/modules/plugin"
 	"agile-proxy/pkg/https"
 	"context"
 	"encoding/json"
@@ -15,7 +14,7 @@ import (
 
 type Https struct {
 	base.Client
-	plugin.Tls
+	assembly.Tls
 	httpsClient *https.Client
 }
 
@@ -75,6 +74,16 @@ func (h *Https) Close() (err error) {
 	return
 }
 
+func (h *Https) Run() (err error) {
+	h.init()
+	return
+}
+
+func (h *Https) init() {
+	h.Client.Init()
+	h.httpsClient = https.New(h.Username, h.Password)
+}
+
 func New(jsonConfig json.RawMessage) (obj *Https, err error) {
 	var config Config
 	err = json.Unmarshal(jsonConfig, &config)
@@ -85,33 +94,15 @@ func New(jsonConfig json.RawMessage) (obj *Https, err error) {
 
 	obj = &Https{
 		Client: base.Client{
-			Net: plugin.Net{
-				Host:     config.Ip,
-				Port:     config.Port,
-				Username: config.Username,
-				Password: config.Password,
-			},
-			Identity: plugin.Identity{
-				ModuleName: config.Name,
-				ModuleType: config.Type,
-			},
-			OutMsg: plugin.PipelineOutput{
-				Ch: plugin.PipelineOutputCh,
-			},
-			Mode: config.Mode,
+			Net:           assembly.CreateNet(config.Ip, config.Port, config.Username, config.Password),
+			Identity:      assembly.CreateIdentity(config.Name, config.Type),
+			Pipeline:      assembly.CreatePipeline(),
+			PipelineInfos: config.PipelineInfos,
+			Mode:          config.Mode,
+			DialerName:    config.DialerName,
 		},
-		Tls: plugin.Tls{
-			ServerName: config.ServerName,
-			CrtPath:    config.CrtPath,
-			KeyPath:    config.KeyPath,
-			CaPath:     config.CaPath,
-		},
+		Tls: assembly.CreateTls(config.CrtPath, config.KeyPath, config.CaPath, config.ServerName),
 	}
-
-	if config.DialerName != "" {
-		obj.Client.Dialer = dialer.GetDialer(config.DialerName)
-	}
-	obj.httpsClient = https.New(config.Username, config.Password)
 
 	return
 }

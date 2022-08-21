@@ -1,4 +1,4 @@
-package plugin
+package assembly
 
 import (
 	"agile-proxy/helper/common"
@@ -45,4 +45,11 @@ func (d *Dns) GetHost(host []byte) (newHost []byte, err error) {
 
 	err = errors.Wrap(errors.New("ips len is 0"), "")
 	return
+}
+
+func CreateDns(server string, localDns bool) Dns {
+	return Dns{
+		Server:   server,
+		LocalDns: localDns,
+	}
 }

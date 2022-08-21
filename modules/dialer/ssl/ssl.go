@@ -3,8 +3,8 @@ package ssl
 import (
 	"agile-proxy/helper/common"
 	"agile-proxy/helper/log"
+	"agile-proxy/modules/assembly"
 	"agile-proxy/modules/dialer/base"
-	"agile-proxy/modules/plugin"
 	"agile-proxy/pkg/socks5"
 	"context"
 	"encoding/json"
@@ -15,8 +15,8 @@ import (
 
 type ssl struct {
 	base.Dialer
-	plugin.Tls
-	plugin.Net
+	assembly.Tls
+	assembly.Net
 	socks5Client *socks5.Client
 	authMode     int
 }
@@ -75,7 +75,17 @@ func (s *ssl) DialTimeout(network string, host, port string, timeout time.Durati
 	return
 }
 
+func (s *ssl) Run() (err error) {
+	err = s.init()
+	return
+}
+
 func (s *ssl) Close() (err error) {
+	return
+}
+
+func (s *ssl) init() (err error) {
+	s.socks5Client = socks5.NewClient(socks5.SetClientAuth(s.authMode), socks5.SetClientUsername(s.Username), socks5.SetClientPassword(s.Password))
 	return
 }
 
@@ -89,30 +99,15 @@ func New(jsonConfig json.RawMessage) (obj *ssl, err error) {
 
 	obj = &ssl{
 		Dialer: base.Dialer{
-			Identity: plugin.Identity{
-				ModuleName: config.Name,
-				ModuleType: config.Type,
-			},
-			OutMsg: plugin.PipelineOutput{
-				Ch: plugin.PipelineOutputCh,
-			},
+			Net:           assembly.CreateNet(config.Ip, config.Port, config.Username, config.Password),
+			Identity:      assembly.CreateIdentity(config.Name, config.Type),
+			Pipeline:      assembly.CreatePipeline(),
+			PipelineInfos: config.PipelineInfos,
+			IFace:         config.Interface,
 		},
-		Tls: plugin.Tls{
-			CrtPath:    config.CrtPath,
-			KeyPath:    config.KeyPath,
-			CaPath:     config.CaPath,
-			ServerName: config.ServerName,
-		},
-		Net: plugin.Net{
-			Host:     config.Ip,
-			Port:     config.Port,
-			Username: config.Username,
-			Password: config.Password,
-		},
+		Tls:      assembly.CreateTls(config.CrtPath, config.KeyPath, config.CaPath, config.ServerName),
 		authMode: config.AuthMode,
 	}
-
-	obj.socks5Client = socks5.NewClient(socks5.SetClientAuth(obj.authMode), socks5.SetClientUsername(obj.Username), socks5.SetClientPassword(obj.Password))
 
 	return
 }

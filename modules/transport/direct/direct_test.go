@@ -1,7 +1,7 @@
 package direct
 
 import (
-	"agile-proxy/modules/plugin"
+	"agile-proxy/modules/assembly"
 	"agile-proxy/modules/transport/base"
 	"fmt"
 	"testing"
@@ -26,7 +26,7 @@ func TestGetHost(t *testing.T) {
 	for _, meta := range metas {
 		direct := direct{
 			baseTransport: base.Transport{
-				Dns: plugin.Dns{
+				Dns: assembly.Dns{
 					Server:   meta.server,
 					LocalDns: meta.localDns,
 				},

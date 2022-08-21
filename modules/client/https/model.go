@@ -1,12 +1,12 @@
 package https
 
+import "agile-proxy/model"
+
 type Config struct {
-	Ip         string `json:"ip"`
-	Port       string `json:"port"`
-	Username   string `json:"username"`
-	Password   string `json:"password"`
-	Type       string `json:"type"`
-	Name       string `json:"name"`
+	model.Base
+	model.Net
+	model.Identity
+	model.PipelineInfos
 	DialerName string `json:"dialer_name"`
 	CrtPath    string `json:"crt_path"`
 	KeyPath    string `json:"key_path"`

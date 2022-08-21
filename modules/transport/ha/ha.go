@@ -4,21 +4,21 @@ import (
 	"agile-proxy/helper/Go"
 	"agile-proxy/helper/common"
 	"agile-proxy/helper/log"
+	"agile-proxy/modules/assembly"
 	"agile-proxy/modules/client"
-	"agile-proxy/modules/plugin"
 	"agile-proxy/modules/transport/base"
 	"encoding/json"
 	"fmt"
 	"github.com/pkg/errors"
 	"net"
 	"strings"
-	"sync"
 	"time"
 )
 
 type ha struct {
 	baseTransport base.Transport
 	clients       []client.Client
+	clientNames   string
 }
 
 func (h *ha) Transport(cConn net.Conn, host, port []byte) (err error) {
@@ -34,11 +34,16 @@ func (h *ha) Transport(cConn net.Conn, host, port []byte) (err error) {
 		}
 
 		defer sConn.Close()
-		h.baseTransport.AsyncSendMsgToIpc(fmt.Sprintf("%v handshark success", common.BytesToStr(host)))
+		h.baseTransport.AsyncSendMsg(h.baseTransport.Name(), -1, fmt.Sprintf("%v handshark success", common.BytesToStr(host)))
 		h.baseTransport.Copy(sConn, cConn)
 	} else {
 		err = errors.New("client is nil")
 	}
+	return
+}
+
+func (h *ha) Run() (err error) {
+	h.init()
 	return
 }
 
@@ -74,6 +79,19 @@ func (h *ha) getConn(host, port []byte) (conn net.Conn, err error) {
 	return
 }
 
+func (h *ha) init() {
+	h.baseTransport.Init()
+	if h.clientNames != "" {
+		clientNames := strings.Split(h.clientNames, ",")
+		for _, clientName := range clientNames {
+			_client := client.GetClient(clientName)
+			if _client != nil {
+				h.clients = append(h.clients, _client)
+			}
+		}
+	}
+}
+
 func New(jsonConfig json.RawMessage) (obj *ha, err error) {
 	var config Config
 	err = json.Unmarshal(jsonConfig, &config)
@@ -83,39 +101,15 @@ func New(jsonConfig json.RawMessage) (obj *ha, err error) {
 		return
 	}
 
-	if !strings.Contains(config.DnsInfo.Server, ":") {
-		config.DnsInfo.Server = net.JoinHostPort(config.DnsInfo.Server, "53")
-	}
-
 	obj = &ha{
 		baseTransport: base.Transport{
-			Identity: plugin.Identity{
-				ModuleName: config.Name,
-				ModuleType: config.Type,
-			},
-			OutMsg: plugin.PipelineOutput{
-				Ch: plugin.PipelineOutputCh,
-			},
-			Dns: plugin.Dns{
-				Server:   config.DnsInfo.Server,
-				LocalDns: config.DnsInfo.LocalDns,
-			},
-			BufferPool: sync.Pool{
-				New: func() any {
-					return make([]byte, 1024*32)
-				},
-			},
+			Identity:      assembly.CreateIdentity(config.Name, config.Type),
+			Pipeline:      assembly.CreatePipeline(),
+			Dns:           assembly.CreateDns(config.DnsInfo.Server, config.DnsInfo.LocalDns),
+			BufferPool:    common.CreateByteBufferSyncPool(1024 * 32),
+			PipelineInfos: config.PipelineInfos,
 		},
-	}
-
-	if config.ClientNames != "" {
-		clientNames := strings.Split(config.ClientNames, ",")
-		for _, clientName := range clientNames {
-			_client := client.GetClient(clientName)
-			if _client != nil {
-				obj.clients = append(obj.clients, _client)
-			}
-		}
+		clientNames: config.ClientNames,
 	}
 
 	return

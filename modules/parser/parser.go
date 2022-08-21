@@ -1,23 +1,22 @@
 package parser
 
 import (
-	"agile-proxy/modules/parser/json"
+	"agile-proxy/modules/parser/json_file"
 	"agile-proxy/modules/parser/model"
 )
 
-var mode = Json
+var mode = JsonFile
 
 type Parser interface {
 	Parser(config []byte) (proxyConfig model.ProxyConfig, err error)
 }
 
-func Config(config []byte) (proxyConfig model.ProxyConfig, err error) {
+func Config(config interface{}) (proxyConfig model.ProxyConfig, err error) {
 	switch mode {
-	case Json:
-		parser := new(json.Json)
-		return parser.Parser(config)
-	default: // default json
-		parser := new(json.Json)
+	case JsonFile:
+		fallthrough
+	default: // default jsonFile
+		parser := new(json_file.JsonFile)
 		return parser.Parser(config)
 	}
 }

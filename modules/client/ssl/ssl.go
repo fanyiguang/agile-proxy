@@ -1,9 +1,8 @@
 package ssl
 
 import (
+	"agile-proxy/modules/assembly"
 	"agile-proxy/modules/client/base"
-	"agile-proxy/modules/dialer"
-	"agile-proxy/modules/plugin"
 	"agile-proxy/pkg/socks5"
 	"context"
 	"encoding/json"
@@ -14,7 +13,7 @@ import (
 
 type Ssl struct {
 	base.Client
-	plugin.Tls
+	assembly.Tls
 	socks5Client *socks5.Client
 	authMode     int
 }
@@ -72,6 +71,12 @@ func (s *Ssl) DialTimeout(network string, host, port []byte, timeout time.Durati
 	return
 }
 
+func (s *Ssl) Run() (err error) {
+	s.Client.Init()
+	s.socks5Client = socks5.NewClient(socks5.SetClientAuth(s.authMode), socks5.SetClientUsername(s.Username), socks5.SetClientPassword(s.Password))
+	return
+}
+
 func (s *Ssl) Close() (err error) {
 	return
 }
@@ -86,33 +91,16 @@ func New(jsonConfig json.RawMessage) (obj *Ssl, err error) {
 
 	obj = &Ssl{
 		Client: base.Client{
-			Net: plugin.Net{
-				Host:     config.Ip,
-				Port:     config.Port,
-				Username: config.Username,
-				Password: config.Password,
-			},
-			Identity: plugin.Identity{
-				ModuleName: config.Name,
-				ModuleType: config.Type,
-			},
-			OutMsg: plugin.PipelineOutput{
-				Ch: plugin.PipelineOutputCh,
-			},
-			Mode: config.Mode,
+			Net:           assembly.CreateNet(config.Ip, config.Port, config.Username, config.Password),
+			Identity:      assembly.CreateIdentity(config.Name, config.Type),
+			Pipeline:      assembly.CreatePipeline(),
+			PipelineInfos: config.PipelineInfos,
+			Mode:          config.Mode,
+			DialerName:    config.DialerName,
 		},
-		Tls: plugin.Tls{
-			CrtPath: config.CrtPath,
-			KeyPath: config.KeyPath,
-			CaPath:  config.CaPath,
-		},
+		Tls:      assembly.CreateTls(config.CrtPath, config.KeyPath, config.CaPath, config.ServerName),
 		authMode: config.AuthMode,
 	}
-
-	if config.DialerName != "" {
-		obj.Client.Dialer = dialer.GetDialer(config.DialerName)
-	}
-	obj.socks5Client = socks5.NewClient(socks5.SetClientAuth(obj.authMode), socks5.SetClientUsername(obj.Username), socks5.SetClientPassword(obj.Password))
 
 	return
 }

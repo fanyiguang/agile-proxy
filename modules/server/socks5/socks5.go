@@ -4,9 +4,8 @@ import (
 	"agile-proxy/helper/Go"
 	"agile-proxy/helper/common"
 	"agile-proxy/helper/log"
-	"agile-proxy/modules/plugin"
+	"agile-proxy/modules/assembly"
 	"agile-proxy/modules/server/base"
-	"agile-proxy/modules/transport"
 	pkgSocks5 "agile-proxy/pkg/socks5"
 	"encoding/json"
 	"github.com/pkg/errors"
@@ -106,6 +105,7 @@ func (s *socks5) handler(conn net.Conn) (err error) {
 }
 
 func (s *socks5) init() {
+	s.Server.Init()
 	s.socks5Server = pkgSocks5.NewServer(pkgSocks5.SetServerAuth(s.authMode), pkgSocks5.SetServerUsername(s.Username), pkgSocks5.SetServerPassword(s.Password))
 }
 
@@ -119,26 +119,14 @@ func New(jsonConfig json.RawMessage) (obj *socks5, err error) {
 
 	obj = &socks5{
 		Server: base.Server{
-			Net: plugin.Net{
-				Host:     config.Ip,
-				Port:     config.Port,
-				Username: config.Username,
-				Password: config.Password,
-			},
-			Identity: plugin.Identity{
-				ModuleName: config.Name,
-				ModuleType: config.Type,
-			},
-			OutMsg: plugin.PipelineOutput{
-				Ch: plugin.PipelineOutputCh,
-			},
-			DoneCh: make(chan struct{}),
+			Net:           assembly.CreateNet(config.Ip, config.Port, config.Username, config.Password),
+			Identity:      assembly.CreateIdentity(config.Name, config.Type),
+			Pipeline:      assembly.CreatePipeline(),
+			DoneCh:        make(chan struct{}),
+			TransportName: config.TransportName,
+			PipelineInfos: config.PipelineInfos,
 		},
 		authMode: config.AuthMode,
-	}
-
-	if len(config.TransportName) > 0 {
-		obj.Transmitter = transport.GetTransport(config.TransportName)
 	}
 
 	return

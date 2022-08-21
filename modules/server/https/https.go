@@ -4,7 +4,7 @@ import (
 	"agile-proxy/helper/Go"
 	"agile-proxy/helper/common"
 	"agile-proxy/helper/log"
-	"agile-proxy/modules/plugin"
+	"agile-proxy/modules/assembly"
 	"agile-proxy/modules/server/base"
 	"agile-proxy/modules/transport"
 	"encoding/base64"
@@ -19,7 +19,7 @@ import (
 
 type https struct {
 	base.Server
-	plugin.Tls
+	assembly.Tls
 	basicToken string
 	//readTimeout  int
 	//writeTimeout int
@@ -178,6 +178,7 @@ func (h *https) GetHostAndPort(host string) (newHost, newPort []byte, err error)
 }
 
 func (h *https) init() {
+	h.Server.Init()
 	if h.Username != "" && h.Password != "" {
 		h.basicToken = fmt.Sprintf("Basic %v", base64.StdEncoding.EncodeToString([]byte(h.Username+":"+h.Password)))
 	}
@@ -193,25 +194,14 @@ func New(jsonConfig json.RawMessage) (obj *https, err error) {
 
 	obj = &https{
 		Server: base.Server{
-			Net: plugin.Net{
-				Host:     config.Ip,
-				Port:     config.Port,
-				Username: config.Username,
-				Password: config.Password,
-			},
-			Identity: plugin.Identity{
-				ModuleName: config.Name,
-				ModuleType: config.Type,
-			},
-			OutMsg: plugin.PipelineOutput{
-				Ch: plugin.PipelineOutputCh,
-			},
-			DoneCh: make(chan struct{}),
+			Net:           assembly.CreateNet(config.Ip, config.Port, config.Username, config.Password),
+			Identity:      assembly.CreateIdentity(config.Name, config.Type),
+			Pipeline:      assembly.CreatePipeline(),
+			DoneCh:        make(chan struct{}),
+			TransportName: config.TransportName,
+			PipelineInfos: config.PipelineInfos,
 		},
-		Tls: plugin.Tls{
-			CrtPath: config.CrtPath,
-			KeyPath: config.KeyPath,
-		},
+		Tls: assembly.CreateTls(config.CrtPath, config.KeyPath, "", ""),
 	}
 
 	if len(config.TransportName) > 0 {

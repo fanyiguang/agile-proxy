@@ -3,9 +3,8 @@ package direct
 import (
 	"agile-proxy/helper/common"
 	"agile-proxy/helper/log"
+	"agile-proxy/modules/assembly"
 	"agile-proxy/modules/client/base"
-	"agile-proxy/modules/dialer"
-	"agile-proxy/modules/plugin"
 	"encoding/json"
 	"github.com/pkg/errors"
 	"net"
@@ -54,6 +53,11 @@ func (d *Direct) DialTimeout(network string, host, port []byte, timeout time.Dur
 	return
 }
 
+func (d *Direct) Run() (err error) {
+	d.Client.Init()
+	return
+}
+
 func (d *Direct) Close() (err error) {
 	return
 }
@@ -68,19 +72,14 @@ func New(jsonConfig json.RawMessage) (obj *Direct, err error) {
 
 	obj = &Direct{
 		Client: base.Client{
-			Identity: plugin.Identity{
-				ModuleName: config.Name,
-				ModuleType: config.Type,
-			},
-			OutMsg: plugin.PipelineOutput{
-				Ch: plugin.PipelineOutputCh,
-			},
-			Mode: config.Mode,
+			Net:           assembly.CreateNet(config.Ip, config.Port, config.Username, config.Password),
+			Identity:      assembly.CreateIdentity(config.Name, config.Type),
+			Pipeline:      assembly.CreatePipeline(),
+			PipelineInfos: config.PipelineInfos,
+			Mode:          config.Mode,
+			DialerName:    config.DialerName,
 		},
 	}
 
-	if config.DialerName != "" {
-		obj.Client.Dialer = dialer.GetDialer(config.DialerName)
-	}
 	return
 }
