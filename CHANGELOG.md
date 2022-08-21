@@ -4,7 +4,9 @@
 3. http，https server支持普通代理模式
 4. 修复ssh第一次初始化失败后，将永远失败
 5. 修复http connect 握手问题
-6. 修改msg模式
+6. 重构pipeline组件
+7. 修改代码结构
+8. 修复以知bug
 
 ## v1.0.0
 1. 支持HTTP/HTTPS/SOCKS5/SSL/SSH代理协议 
