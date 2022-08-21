@@ -3,7 +3,7 @@ package ssl
 import (
 	"agile-proxy/modules/assembly"
 	"agile-proxy/modules/client/base"
-	"agile-proxy/pkg/socks5"
+	"agile-proxy/proxy/socks5"
 	"context"
 	"encoding/json"
 	"github.com/pkg/errors"

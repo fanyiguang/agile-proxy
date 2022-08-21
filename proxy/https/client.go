@@ -1,19 +1,23 @@
 package https
 
 import (
-	"bufio"
+	"agile-proxy/helper/common"
+	"agile-proxy/helper/log"
 	"encoding/base64"
 	"fmt"
 	"github.com/pkg/errors"
 	"net"
 	"net/http"
 	"net/url"
+	"strings"
+	"sync"
 )
 
 type Client struct {
 	username           string
 	password           string
 	ProxyAuthorization string
+	bufferPool         sync.Pool
 }
 
 func (c *Client) Handshake(conn net.Conn, target string) (err error) {
@@ -34,23 +38,26 @@ func (c *Client) Handshake(conn net.Conn, target string) (err error) {
 		return
 	}
 
-	resp, _err := http.ReadResponse(bufio.NewReader(conn), req)
-	if _err != nil {
-		err = errors.Wrap(_err, "req.ReadResponse")
-		return
+	buffer := c.bufferPool.Get().([]byte)
+	defer c.bufferPool.Put(buffer)
+	n, err := conn.Read(buffer)
+	if err != nil {
+		return err
 	}
-	//defer resp.Body.Close()
 
-	if resp.StatusCode != http.StatusOK {
-		err = errors.New(fmt.Sprintf("proxy server response code not 200: %v, %v", resp.StatusCode, resp.Status))
+	log.DebugF("https resp %v", string(buffer[:n]))
+	if !strings.Contains(string(buffer[:n]), "200") && !strings.Contains(strings.ToLower(string(buffer[:n])), "connection established") {
+		errMsgs := strings.Split(string(buffer[:n]), "\r\n")
+		err = errors.New("failed to link to target site. msg:" + errMsgs[0])
 	}
 	return
 }
 
 func New(username, password string) *Client {
 	client := &Client{
-		username: username,
-		password: password,
+		username:   username,
+		password:   password,
+		bufferPool: common.CreateByteBufferSyncPool(1024 * 32),
 	}
 
 	if username != "" && password != "" {

@@ -4,7 +4,7 @@ import (
 	"agile-proxy/helper/common"
 	"agile-proxy/modules/assembly"
 	"agile-proxy/modules/client/base"
-	"agile-proxy/pkg/https"
+	"agile-proxy/proxy/https"
 	"context"
 	"encoding/json"
 	"github.com/pkg/errors"

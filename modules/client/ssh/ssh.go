@@ -6,7 +6,7 @@ import (
 	"agile-proxy/helper/log"
 	"agile-proxy/modules/assembly"
 	"agile-proxy/modules/client/base"
-	pkgSsh "agile-proxy/pkg/ssh"
+	pkgSsh "agile-proxy/proxy/ssh"
 	"context"
 	"encoding/json"
 	"github.com/pkg/errors"

@@ -6,7 +6,7 @@ import (
 	"agile-proxy/helper/log"
 	"agile-proxy/modules/assembly"
 	"agile-proxy/modules/server/base"
-	pkgSocks5 "agile-proxy/pkg/socks5"
+	pkgSocks5 "agile-proxy/proxy/socks5"
 	"encoding/json"
 	"github.com/pkg/errors"
 	"net"

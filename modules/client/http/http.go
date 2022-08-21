@@ -3,7 +3,7 @@ package http
 import (
 	"agile-proxy/modules/assembly"
 	"agile-proxy/modules/client/base"
-	"agile-proxy/pkg/https"
+	"agile-proxy/proxy/https"
 	"encoding/json"
 	"github.com/pkg/errors"
 	"net"
