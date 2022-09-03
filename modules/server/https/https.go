@@ -5,8 +5,8 @@ import (
 	"agile-proxy/helper/common"
 	"agile-proxy/helper/log"
 	"agile-proxy/modules/assembly"
+	"agile-proxy/modules/route"
 	"agile-proxy/modules/server/base"
-	"agile-proxy/modules/transport"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
@@ -126,10 +126,10 @@ func (h *https) handleConnect(w http.ResponseWriter, r *http.Request) (err error
 }
 
 func (h *https) transport(conn net.Conn, desHost, desPort []byte) (err error) {
-	if h.Transmitter != nil {
-		err = h.Transmitter.Transport(conn, desHost, desPort)
+	if h.Route != nil {
+		err = h.Route.Transport(conn, desHost, desPort)
 	} else {
-		err = errors.New("Transmitter is nil")
+		err = errors.New("Route is nil")
 	}
 	return
 }
@@ -205,7 +205,7 @@ func New(jsonConfig json.RawMessage) (obj *https, err error) {
 	}
 
 	if len(config.TransportName) > 0 {
-		obj.Transmitter = transport.GetTransport(config.TransportName)
+		obj.Route = route.GetRoute(config.TransportName)
 	}
 
 	return

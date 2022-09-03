@@ -6,7 +6,7 @@ import (
 	"agile-proxy/helper/log"
 	"agile-proxy/modules/assembly"
 	"agile-proxy/modules/client"
-	"agile-proxy/modules/transport/base"
+	"agile-proxy/modules/route/base"
 	"encoding/json"
 	"fmt"
 	"github.com/pkg/errors"

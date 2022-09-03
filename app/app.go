@@ -8,8 +8,8 @@ import (
 	"agile-proxy/modules/dialer"
 	"agile-proxy/modules/msg"
 	"agile-proxy/modules/parser"
+	"agile-proxy/modules/route"
 	"agile-proxy/modules/server"
-	"agile-proxy/modules/transport"
 	"fmt"
 	"net/http"
 	_ "net/http/pprof"
@@ -39,7 +39,7 @@ func App(configPath string, version bool, pprof int) (err error) {
 	msg.Factory(proxyConfig.MsgConfig)
 	dialer.Factory(proxyConfig.DialerConfig)
 	client.Factory(proxyConfig.ClientConfig)
-	transport.Factory(proxyConfig.TransportConfig)
+	route.Factory(proxyConfig.TransportConfig)
 	servers := server.Factory(proxyConfig.ServerConfig)
 	for _, s := range servers {
 		_s := s
@@ -76,7 +76,7 @@ func wait() {
 
 func closeResources() {
 	server.CloseAllServers()
-	transport.CloseAllTransports()
+	route.CloseAllRoutes()
 	client.CloseAllClients()
 	dialer.CloseAllDialer()
 }

@@ -1,11 +1,11 @@
-package transport
+package route
 
 import (
 	pubConfig "agile-proxy/config"
 	"agile-proxy/helper/log"
-	"agile-proxy/modules/transport/direct"
-	"agile-proxy/modules/transport/dynamic"
-	"agile-proxy/modules/transport/ha"
+	"agile-proxy/modules/route/direct"
+	"agile-proxy/modules/route/dynamic"
+	"agile-proxy/modules/route/ha"
 	sysJson "encoding/json"
 	"errors"
 	"fmt"
@@ -13,7 +13,7 @@ import (
 	"strings"
 )
 
-type Transport interface {
+type Route interface {
 	Run() (err error)
 	Transport(conn net.Conn, host, port []byte) (err error)
 	Close() (err error)
@@ -22,7 +22,7 @@ type Transport interface {
 func Factory(configs []sysJson.RawMessage) {
 	for _, config := range configs {
 		var err error
-		var transport Transport
+		var transport Route
 		switch strings.ToLower(json.Get(config, "type").ToString()) {
 		case pubConfig.Direct:
 			transport, err = direct.New(config)
@@ -40,7 +40,7 @@ func Factory(configs []sysJson.RawMessage) {
 
 		transportName := json.Get(config, "name").ToString()
 		if transportName != "" {
-			transports[transportName] = transport
+			route[transportName] = transport
 		}
 	}
 }

@@ -2,7 +2,7 @@ package ha
 
 import (
 	"agile-proxy/model"
-	"agile-proxy/modules/transport/base"
+	"agile-proxy/modules/route/base"
 )
 
 type Config struct {

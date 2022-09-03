@@ -1,8 +1,8 @@
 package dynamic
 
 import (
-	"agile-proxy/modules/transport/base"
-	"agile-proxy/modules/transport/dynamic/rule"
+	"agile-proxy/modules/route/base"
+	"agile-proxy/modules/route/dynamic/rule"
 	"fmt"
 	"testing"
 )

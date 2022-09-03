@@ -116,10 +116,10 @@ func (h *http) handleConnect(w sysHttp.ResponseWriter, r *sysHttp.Request) (err 
 }
 
 func (h *http) transport(conn net.Conn, desHost, desPort []byte) (err error) {
-	if h.Transmitter != nil {
-		err = h.Transmitter.Transport(conn, desHost, desPort)
+	if h.Route != nil {
+		err = h.Route.Transport(conn, desHost, desPort)
 	} else {
-		err = errors.New("Transmitter is nil")
+		err = errors.New("Route is nil")
 	}
 	return
 }

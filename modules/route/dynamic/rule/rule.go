@@ -1,7 +1,7 @@
 package rule
 
 import (
-	"agile-proxy/modules/transport/dynamic/rule/timestamp"
+	"agile-proxy/modules/route/dynamic/rule/timestamp"
 	"fmt"
 	"github.com/pkg/errors"
 )

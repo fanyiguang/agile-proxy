@@ -2,7 +2,7 @@ package direct
 
 import (
 	"agile-proxy/modules/assembly"
-	"agile-proxy/modules/transport/base"
+	"agile-proxy/modules/route/base"
 	"fmt"
 	"testing"
 )

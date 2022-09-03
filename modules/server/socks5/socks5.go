@@ -55,10 +55,10 @@ func (s *socks5) accept() {
 }
 
 func (s *socks5) transport(conn net.Conn, desHost, desPort []byte) (err error) {
-	if s.Transmitter != nil {
-		err = s.Transmitter.Transport(conn, desHost, desPort)
+	if s.Route != nil {
+		err = s.Route.Transport(conn, desHost, desPort)
 	} else {
-		err = errors.New("Transmitter is nil")
+		err = errors.New("Route is nil")
 	}
 	return
 }

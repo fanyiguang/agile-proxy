@@ -5,7 +5,7 @@ import (
 	"agile-proxy/model"
 	"agile-proxy/modules/assembly"
 	"agile-proxy/modules/msg"
-	"agile-proxy/modules/transport"
+	"agile-proxy/modules/route"
 	"net"
 )
 
@@ -16,13 +16,13 @@ type Server struct {
 	model.PipelineInfos
 	DoneCh        chan struct{}
 	Listen        net.Listener
-	Transmitter   transport.Transport
+	Route         route.Route
 	TransportName string
 }
 
 func (s *Server) Init() {
 	if len(s.TransportName) > 0 {
-		s.Transmitter = transport.GetTransport(s.TransportName)
+		s.Route = route.GetRoute(s.TransportName)
 	}
 
 	for _, pipelineInfo := range s.PipelineInfo {

@@ -6,7 +6,7 @@
 5. 修复http connect 握手问题
 6. 重构pipeline组件
 7. 修改代码结构
-8. 修复以知bug
+8. 修复以知v1.0.0 bug
 
 ## v1.0.0
 1. 支持HTTP/HTTPS/SOCKS5/SSL/SSH代理协议 
