@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"github.com/pkg/errors"
 	"net"
+	"net/http"
 	"strings"
 )
 
@@ -39,7 +40,30 @@ func (d *dynamic) Transport(cConn net.Conn, host, port []byte) (err error) {
 		d.baseTransport.AsyncSendMsg(d.baseTransport.Name(), -1, fmt.Sprintf("%v handshark success", common.BytesToStr(host)))
 		d.baseTransport.Copy(sConn, cConn)
 	} else {
-		err = errors.New("Client is nil")
+		err = errors.New("client is nil")
+	}
+	return
+}
+
+func (d *dynamic) HttpTransport(w http.ResponseWriter, r *http.Request) (err error) {
+	if d.clients != nil {
+		var newHost []byte
+		newHost, err = d.baseTransport.Dns.GetHost(common.StrToBytes(r.Host))
+		if err != nil {
+			return
+		}
+
+		r.Host = common.BytesToStr(newHost)
+		var resp *http.Response
+		resp, err = d.clients[d.getClientIndex()].GetRoundTripper().RoundTrip(r)
+		if err != nil {
+			return
+		}
+
+		defer resp.Body.Close()
+		d.baseTransport.HttpCopy(w, resp)
+	} else {
+		err = errors.New("client is nil")
 	}
 	return
 }

@@ -13,6 +13,7 @@ import (
 	"fmt"
 	"github.com/pkg/errors"
 	"net"
+	sysHttp "net/http"
 	"strings"
 	"time"
 )
@@ -22,6 +23,7 @@ type Client interface {
 	Name() string
 	Dial(network string, host, port []byte) (conn net.Conn, err error)
 	DialTimeout(network string, host, port []byte, timeout time.Duration) (conn net.Conn, err error)
+	GetRoundTripper() sysHttp.RoundTripper
 	Close() (err error)
 }
 

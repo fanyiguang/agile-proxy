@@ -2,11 +2,13 @@ package base
 
 import (
 	"agile-proxy/helper/log"
+	helperNet "agile-proxy/helper/net"
 	"agile-proxy/model"
 	"agile-proxy/modules/assembly"
 	"agile-proxy/modules/msg"
 	"io"
 	"net"
+	"net/http"
 	"strings"
 	"sync"
 )
@@ -26,10 +28,17 @@ func (t *Transport) Copy(sConn net.Conn, cConn net.Conn) {
 	t.wait(errCh)
 }
 
-func (t *Transport) copyBuffer(det net.Conn, src net.Conn, errCh chan error) {
+func (t *Transport) HttpCopy(w http.ResponseWriter, resp *http.Response) {
+	helperNet.CopyHeader(w.Header(), resp.Header)
+	w.WriteHeader(resp.StatusCode)
+	errCh := make(chan error, 1)
+	t.copyBuffer(w, resp.Body, errCh)
+}
+
+func (t *Transport) copyBuffer(dst io.Writer, src io.Reader, errCh chan error) {
 	buffer := t.BufferPool.Get().([]byte)
 	defer t.BufferPool.Put(buffer)
-	_, err := io.CopyBuffer(det, src, buffer)
+	_, err := io.CopyBuffer(dst, src, buffer)
 	errCh <- err
 }
 

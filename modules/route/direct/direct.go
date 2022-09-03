@@ -9,11 +9,12 @@ import (
 	"fmt"
 	"github.com/pkg/errors"
 	"net"
+	"net/http"
 )
 
 type direct struct {
 	baseTransport base.Transport
-	Client        client.Client // 传输器可以使用的客户端
+	client        client.Client // 传输器可以使用的客户端
 	clientName    string
 }
 
@@ -27,14 +28,14 @@ func (d *direct) Close() (err error) {
 }
 
 func (d *direct) Transport(cConn net.Conn, host, port []byte) (err error) {
-	if d.Client != nil {
+	if d.client != nil {
 		host, err = d.baseTransport.Dns.GetHost(host)
 		if err != nil {
 			return
 		}
 
 		var sConn net.Conn
-		sConn, err = d.Client.Dial("tcp", host, port)
+		sConn, err = d.client.Dial("tcp", host, port)
 		if err != nil {
 			return
 		}
@@ -43,7 +44,30 @@ func (d *direct) Transport(cConn net.Conn, host, port []byte) (err error) {
 		d.baseTransport.AsyncSendMsg(d.baseTransport.Name(), -1, fmt.Sprintf("%v handshark success", common.BytesToStr(host)))
 		d.baseTransport.Copy(sConn, cConn)
 	} else {
-		err = errors.New("Client is nil")
+		err = errors.New("client is nil")
+	}
+	return
+}
+
+func (d *direct) HttpTransport(w http.ResponseWriter, r *http.Request) (err error) {
+	if d.client != nil {
+		var newHost []byte
+		newHost, err = d.baseTransport.Dns.GetHost(common.StrToBytes(r.Host))
+		if err != nil {
+			return
+		}
+
+		r.Host = common.BytesToStr(newHost)
+		var resp *http.Response
+		resp, err = d.client.GetRoundTripper().RoundTrip(r)
+		if err != nil {
+			return
+		}
+
+		defer resp.Body.Close()
+		d.baseTransport.HttpCopy(w, resp)
+	} else {
+		err = errors.New("client is nil")
 	}
 	return
 }
@@ -51,7 +75,7 @@ func (d *direct) Transport(cConn net.Conn, host, port []byte) (err error) {
 func (d *direct) init() {
 	d.baseTransport.Init()
 	if d.clientName != "" {
-		d.Client = client.GetClient(d.clientName)
+		d.client = client.GetClient(d.clientName)
 	}
 }
 

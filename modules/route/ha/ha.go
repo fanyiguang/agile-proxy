@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"github.com/pkg/errors"
 	"net"
+	"net/http"
 	"strings"
 	"time"
 )
@@ -39,6 +40,24 @@ func (h *ha) Transport(cConn net.Conn, host, port []byte) (err error) {
 	} else {
 		err = errors.New("client is nil")
 	}
+	return
+}
+
+func (h *ha) HttpTransport(w http.ResponseWriter, r *http.Request) (err error) {
+	var newHost []byte
+	newHost, err = h.baseTransport.Dns.GetHost(common.StrToBytes(r.Host))
+	if err != nil {
+		return
+	}
+
+	r.Host = common.BytesToStr(newHost)
+	resp, err := h.getResp(r)
+	if err != nil {
+		return err
+	}
+
+	defer resp.Body.Close()
+	h.baseTransport.HttpCopy(w, resp)
 	return
 }
 
@@ -75,6 +94,34 @@ func (h *ha) getConn(host, port []byte) (conn net.Conn, err error) {
 	case conn = <-connCh:
 	case <-time.After(time.Second * 15):
 		err = errors.New("get conn timeout")
+	}
+	return
+}
+
+func (h *ha) getResp(r *http.Request) (resp *http.Response, err error) {
+	respCh := make(chan *http.Response)
+	for _, c := range h.clients {
+		_client := c
+		Go.Go(func() {
+			var _resp *http.Response
+			_resp, err = _client.GetRoundTripper().RoundTrip(r)
+			if err != nil {
+				log.DebugF("ha client roundTrip failed: %v %v %v", err, r.Host, _client.Name())
+				return
+			}
+
+			select {
+			case respCh <- _resp:
+			default:
+				_ = _resp.Body.Close()
+			}
+		})
+	}
+
+	select {
+	case resp = <-respCh:
+	case <-time.After(time.Second * 15):
+		err = errors.New("get resp timeout")
 	}
 	return
 }

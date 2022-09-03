@@ -10,12 +10,14 @@ import (
 	"errors"
 	"fmt"
 	"net"
+	"net/http"
 	"strings"
 )
 
 type Route interface {
 	Run() (err error)
 	Transport(conn net.Conn, host, port []byte) (err error)
+	HttpTransport(w http.ResponseWriter, r *http.Request) (err error)
 	Close() (err error)
 }
 

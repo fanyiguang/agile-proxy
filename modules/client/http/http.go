@@ -4,9 +4,12 @@ import (
 	"agile-proxy/modules/assembly"
 	"agile-proxy/modules/client/base"
 	"agile-proxy/proxy/https"
+	"context"
 	"encoding/json"
+	"fmt"
 	"github.com/pkg/errors"
 	"net"
+	"net/http"
 	"time"
 )
 
@@ -16,7 +19,7 @@ type Http struct {
 }
 
 func (h *Http) Dial(network string, host, port []byte) (conn net.Conn, err error) {
-	conn, err = h.Client.Dial(network)
+	conn, err = h.Client.Dial(network, h.Host, h.Port)
 	if err != nil {
 		return
 	}
@@ -29,7 +32,7 @@ func (h *Http) Dial(network string, host, port []byte) (conn net.Conn, err error
 }
 
 func (h *Http) DialTimeout(network string, host, port []byte, timeout time.Duration) (conn net.Conn, err error) {
-	conn, err = h.Client.DialTimeout(network, timeout)
+	conn, err = h.Client.DialTimeout(network, h.Host, h.Port, timeout)
 	if err != nil {
 		return
 	}
@@ -41,18 +44,39 @@ func (h *Http) DialTimeout(network string, host, port []byte, timeout time.Durat
 	return
 }
 
+func (h *Http) createRoundTripper() (err error) {
+	proxyURL := fmt.Sprintf("http://%s:%s@%s:%s", h.Username, h.Password, h.Host, h.Port)
+	h.RoundTripper, err = h.CreateRoundTripper(proxyURL, func(ctx context.Context, network, addr string) (conn net.Conn, err error) {
+		deadline, ok := ctx.Deadline()
+		host, port, err := net.SplitHostPort(addr)
+		if err != nil {
+			return conn, err
+		}
+
+		if ok {
+			now := time.Now()
+			if deadline.After(now) {
+				conn, err = h.Client.DialTimeout(network, host, port, deadline.Sub(now))
+			} else {
+				err = http.ErrHandlerTimeout
+			}
+		} else {
+			conn, err = h.Client.Dial(network, host, port)
+		}
+		return
+	})
+	return
+}
+
 func (h *Http) Close() (err error) {
 	return
 }
 
 func (h *Http) Run() (err error) {
-	h.init()
-	return
-}
-
-func (h *Http) init() {
 	h.Client.Init()
 	h.httpsClient = https.New(h.Username, h.Password)
+	err = h.createRoundTripper()
+	return
 }
 
 func New(jsonConfig json.RawMessage) (obj *Http, err error) {

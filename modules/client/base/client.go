@@ -26,9 +26,9 @@ type Client struct {
 	Mode         int // 0-降级模式（如果有配置连接器且连接器无法使用会走默认网络，默认为降级模式） 1-严格模式（如果有配置连接器且连接器无法使用则直接返回失败）
 }
 
-func (s *Client) Dial(network string) (conn net.Conn, err error) {
+func (s *Client) Dial(network, host, port string) (conn net.Conn, err error) {
 	if s.Dialer != nil {
-		conn, err = s.Dialer.Dial(network, s.Host, s.Port)
+		conn, err = s.Dialer.Dial(network, host, port)
 		if err == nil || s.Mode == 1 { // mode=1 严格模式
 			return
 		}
@@ -45,9 +45,9 @@ func (s *Client) Dial(network string) (conn net.Conn, err error) {
 	return
 }
 
-func (s *Client) DialTimeout(network string, timeout time.Duration) (conn net.Conn, err error) {
+func (s *Client) DialTimeout(network, host, port string, timeout time.Duration) (conn net.Conn, err error) {
 	if s.Dialer != nil {
-		conn, err = s.Dialer.DialTimeout(network, s.Host, s.Port, timeout)
+		conn, err = s.Dialer.DialTimeout(network, host, port, timeout)
 		if err == nil || s.Mode == 1 { // mode=1 严格模式
 			return
 		}
@@ -57,7 +57,7 @@ func (s *Client) DialTimeout(network string, timeout time.Duration) (conn net.Co
 		}
 	}
 
-	conn, err = net.Dial(network, net.JoinHostPort(s.Host, s.Port))
+	conn, err = net.DialTimeout(network, net.JoinHostPort(host, port), timeout)
 	if err != nil {
 		err = errors.Wrap(err, "socks5 Dial")
 	}
@@ -66,6 +66,10 @@ func (s *Client) DialTimeout(network string, timeout time.Duration) (conn net.Co
 
 func (s *Client) GetStrPort(bPort []byte) string {
 	return common.BytesToStr(bPort)
+}
+
+func (s *Client) GetRoundTripper() http.RoundTripper {
+	return s.RoundTripper
 }
 
 func (s *Client) Init() {

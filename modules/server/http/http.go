@@ -145,8 +145,31 @@ func (h *http) authentication(r *sysHttp.Request) (err error) {
 }
 
 func (h *http) handleNormal(w sysHttp.ResponseWriter, r *sysHttp.Request) (err error) {
-	sysHttp.Error(w, "normal proxy not supported", sysHttp.StatusServiceUnavailable)
-	log.Warn("normal proxy not supported")
+	err = h.authentication(r)
+	if err != nil {
+		sysHttp.Error(w, err.Error(), sysHttp.StatusUnauthorized)
+		return
+	}
+
+	if connection := r.Header.Get("Proxy-Connection"); connection != "" {
+		r.Header.Set("Connection", connection)
+		r.Header.Del("Proxy-Connection")
+	}
+	r.Header.Del("Proxy-Authorization")
+
+	err = h.normalTransport(w, r)
+	if err != nil {
+		sysHttp.Error(w, "system failed", sysHttp.StatusInternalServerError)
+	}
+	return
+}
+
+func (h *http) normalTransport(w sysHttp.ResponseWriter, r *sysHttp.Request) (err error) {
+	if h.Route != nil {
+		err = h.Route.HttpTransport(w, r)
+	} else {
+		err = errors.New("Transmitter is nil")
+	}
 	return
 }
 

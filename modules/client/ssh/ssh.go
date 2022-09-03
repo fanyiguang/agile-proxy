@@ -11,6 +11,7 @@ import (
 	"encoding/json"
 	"github.com/pkg/errors"
 	"net"
+	"net/http"
 	"time"
 )
 
@@ -69,14 +70,7 @@ func (s *Ssh) Run() (err error) {
 	// 添加初始化的令牌，只有一个请求会进入SSH初始化逻辑
 	s.initWorkerCh <- 1
 	// 初始化ssh客户端
-	s.client = pkgSsh.New(s.Host, s.Port, pkgSsh.SetUsername(s.Username), pkgSsh.SetPassword(s.Password), pkgSsh.SetPublicKeyPath(s.keyPath), pkgSsh.SetDialFunc(func(network string, host, port string, timeout time.Duration) (conn net.Conn, err error) {
-		if s.Dialer != nil {
-			conn, err = s.Dialer.DialTimeout(network, host, port, timeout)
-		} else {
-			err = errors.New("s.Dialer is nil")
-		}
-		return
-	}))
+	s.client = pkgSsh.New(s.Host, s.Port, pkgSsh.SetUsername(s.Username), pkgSsh.SetPassword(s.Password), pkgSsh.SetPublicKeyPath(s.keyPath), pkgSsh.SetDialFunc(s.Client.DialTimeout))
 	return
 }
 
@@ -119,8 +113,24 @@ func (s *Ssh) connect() (err error) {
 }
 
 func (s *Ssh) createRoundTripper() (err error) {
-	s.RoundTripper, err = s.CreateRoundTripper("", func(ctx context.Context, network, addr string) (net.Conn, error) {
-		return s.client.Dial(network, addr)
+	s.RoundTripper, err = s.CreateRoundTripper("", func(ctx context.Context, network, addr string) (conn net.Conn, err error) {
+		deadline, ok := ctx.Deadline()
+		host, port, err := net.SplitHostPort(addr)
+		if err != nil {
+			return conn, err
+		}
+
+		if ok {
+			now := time.Now()
+			if deadline.After(now) {
+				conn, err = s.DialTimeout(network, common.StrToBytes(host), common.StrToBytes(port), deadline.Sub(now))
+			} else {
+				err = http.ErrHandlerTimeout
+			}
+		} else {
+			conn, err = s.Dial(network, common.StrToBytes(host), common.StrToBytes(port))
+		}
+		return
 	})
 	return
 }
