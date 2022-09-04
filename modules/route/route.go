@@ -22,16 +22,17 @@ type Route interface {
 }
 
 func Factory(configs []sysJson.RawMessage) {
+	var err error
+	var routeName string
+	var route Route
 	for _, config := range configs {
-		var err error
-		var transport Route
 		switch strings.ToLower(json.Get(config, "type").ToString()) {
 		case pubConfig.Direct:
-			transport, err = direct.New(config)
+			route, err = direct.New(config)
 		case pubConfig.Dynamic:
-			transport, err = dynamic.New(config)
+			route, err = dynamic.New(config)
 		case pubConfig.Ha:
-			transport, err = ha.New(config)
+			route, err = ha.New(config)
 		default:
 			err = errors.New(fmt.Sprintf("type is invalid %v", json.Get(config, "type").ToString()))
 		}
@@ -40,9 +41,11 @@ func Factory(configs []sysJson.RawMessage) {
 			continue
 		}
 
-		transportName := json.Get(config, "name").ToString()
-		if transportName != "" {
-			route[transportName] = transport
+		routeName = json.Get(config, "name").ToString()
+		if err = route.Run(); err == nil {
+			routes[routeName] = route
+		} else {
+			log.WarnF("%v route run failed: %v", routeName, err)
 		}
 	}
 }

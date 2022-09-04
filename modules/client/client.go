@@ -28,9 +28,10 @@ type Client interface {
 }
 
 func Factory(configs []sysJson.RawMessage) {
+	var err error
+	var clientName string
+	var client Client
 	for _, config := range configs {
-		var err error
-		var client Client
 		switch strings.ToLower(json.Get(config, "type").ToString()) {
 		case globalConfig.Socks5:
 			client, err = socks5.New(config)
@@ -52,9 +53,11 @@ func Factory(configs []sysJson.RawMessage) {
 			continue
 		}
 
-		clientName := json.Get(config, "name").ToString()
-		if clientName != "" {
+		clientName = json.Get(config, "name").ToString()
+		if err = client.Run(); err == nil {
 			clients[clientName] = client
+		} else {
+			log.WarnF("%v client run failed: %v", clientName, err)
 		}
 	}
 	return

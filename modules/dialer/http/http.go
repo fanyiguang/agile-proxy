@@ -50,11 +50,6 @@ func (h *http) Close() (err error) {
 }
 
 func (h *http) Run() (err error) {
-	err = h.init()
-	return
-}
-
-func (h *http) init() (err error) {
 	h.httpsClient = https.New(h.Username, h.Password)
 	return
 }

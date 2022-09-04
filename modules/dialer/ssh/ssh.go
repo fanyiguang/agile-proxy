@@ -67,7 +67,8 @@ func (s *ssh) DialTimeout(network string, host, port string, timeout time.Durati
 }
 
 func (s *ssh) Run() (err error) {
-	s.init()
+	s.initWorkerCh <- 1
+	s.client = pkgSsh.New(s.Host, s.Port, pkgSsh.SetUsername(s.Username), pkgSsh.SetPassword(s.Password), pkgSsh.SetPublicKeyPath(s.keyPath), pkgSsh.SetDialFunc(s.Dialer.BaseDialTimeout))
 	return
 }
 
@@ -157,14 +158,6 @@ func (s *ssh) heartBeat() (err error) {
 func (s *ssh) reconnect() (err error) {
 	err = s.client.Connect()
 	return
-}
-
-func (s *ssh) init() {
-	s.initWorkerCh <- 1
-
-	s.client = pkgSsh.New(s.Host, s.Port, pkgSsh.SetUsername(s.Username), pkgSsh.SetPassword(s.Password), pkgSsh.SetPublicKeyPath(s.keyPath), pkgSsh.SetDialFunc(func(network string, host, port string, timeout time.Duration) (conn net.Conn, err error) {
-		return s.DialByIFace(network, host, port)
-	}))
 }
 
 func New(jsonConfig json.RawMessage) (obj *ssh, err error) {

@@ -1,6 +1,5 @@
 ## v1.1.0
 1. parser模块进一步解耦
-2. 接口和实现之间增加代码约束
 3. http，https server支持普通代理模式
 4. 修复ssh第一次初始化失败后，将永远失败
 5. 修复http connect 握手问题

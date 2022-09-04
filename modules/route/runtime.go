@@ -3,20 +3,20 @@ package route
 import jsoniter "github.com/json-iterator/go"
 
 var (
-	route = make(map[string]Route)
-	json  = jsoniter.ConfigCompatibleWithStandardLibrary
+	routes = make(map[string]Route)
+	json   = jsoniter.ConfigCompatibleWithStandardLibrary
 )
 
 func GetRoute(name string) (t Route) {
-	return route[name]
+	return routes[name]
 }
 
 func GetAllRoute() map[string]Route {
-	return route
+	return routes
 }
 
 func CloseAllRoutes() {
-	for _, _route := range route {
+	for _, _route := range routes {
 		if _route != nil {
 			_ = _route.Close()
 		}

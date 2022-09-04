@@ -73,16 +73,11 @@ func (h *https) DialTimeout(network string, host, port string, timeout time.Dura
 }
 
 func (h *https) Run() (err error) {
-	err = h.init()
+	h.httpsClient = pkgHttps.New(h.Username, h.Password)
 	return
 }
 
 func (h *https) Close() (err error) {
-	return
-}
-
-func (h *https) init() (err error) {
-	h.httpsClient = pkgHttps.New(h.Username, h.Password)
 	return
 }
 

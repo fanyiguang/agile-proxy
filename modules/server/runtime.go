@@ -1,8 +1,12 @@
 package server
 
-var servers []Server
+var servers = make(map[string]Server)
 
-func GetAllServer() []Server {
+func GetServer(name string) Server {
+	return servers[name]
+}
+
+func GetAllServer() map[string]Server {
 	return servers
 }
 
