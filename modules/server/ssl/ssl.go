@@ -128,7 +128,7 @@ func New(jsonConfig json.RawMessage) (obj *ssl, err error) {
 			Identity:      assembly.CreateIdentity(config.Name, config.Type),
 			Pipeline:      assembly.CreatePipeline(),
 			DoneCh:        make(chan struct{}),
-			TransportName: config.TransportName,
+			RouteName:     config.RouteName,
 			PipelineInfos: config.PipelineInfos,
 		},
 		Tls:      assembly.CreateTls(config.CrtPath, config.KeyPath, "", ""),

@@ -15,6 +15,6 @@ type Config struct {
 	model.Net
 	model.Identity
 	model.PipelineInfos
-	TransportName string `json:"transport_name"`
-	KeyPath       string `json:"key_path"`
+	RouteName string `json:"route_name"`
+	KeyPath   string `json:"key_path"`
 }

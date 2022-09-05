@@ -14,15 +14,15 @@ type Server struct {
 	assembly.Identity
 	assembly.Pipeline
 	model.PipelineInfos
-	DoneCh        chan struct{}
-	Listen        net.Listener
-	Route         route.Route
-	TransportName string
+	DoneCh    chan struct{}
+	Listen    net.Listener
+	Route     route.Route
+	RouteName string
 }
 
 func (s *Server) Init() {
-	if len(s.TransportName) > 0 {
-		s.Route = route.GetRoute(s.TransportName)
+	if len(s.RouteName) > 0 {
+		s.Route = route.GetRoute(s.RouteName)
 	}
 
 	for _, pipelineInfo := range s.PipelineInfo {

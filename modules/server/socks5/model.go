@@ -7,6 +7,6 @@ type Config struct {
 	model.Net
 	model.Identity
 	model.PipelineInfos
-	TransportName string `json:"transport_name"`
-	AuthMode      int    `json:"auth_mode"` // 认证模式 0-不允许匿名模式 1-允许匿名模式
+	RouteName string `json:"route_name"`
+	AuthMode  int    `json:"auth_mode"` // 认证模式 0-不允许匿名模式 1-允许匿名模式
 }

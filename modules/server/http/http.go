@@ -210,7 +210,7 @@ func New(jsonConfig json.RawMessage) (obj *http, err error) {
 			Identity:      assembly.CreateIdentity(config.Name, config.Type),
 			Pipeline:      assembly.CreatePipeline(),
 			DoneCh:        make(chan struct{}),
-			TransportName: config.TransportName,
+			RouteName:     config.RouteName,
 			PipelineInfos: config.PipelineInfos,
 		},
 	}

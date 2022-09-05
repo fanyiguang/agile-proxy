@@ -43,7 +43,7 @@ func App(configPath string, version bool, pprof int) (err error) {
 	msg.Factory(proxyConfig.MsgConfig)
 	dialer.Factory(proxyConfig.DialerConfig)
 	client.Factory(proxyConfig.ClientConfig)
-	route.Factory(proxyConfig.TransportConfig)
+	route.Factory(proxyConfig.RouteConfig)
 	server.Factory(proxyConfig.ServerConfig)
 
 	wait()

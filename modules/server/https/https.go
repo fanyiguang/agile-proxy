@@ -5,7 +5,6 @@ import (
 	"agile-proxy/helper/common"
 	"agile-proxy/helper/log"
 	"agile-proxy/modules/assembly"
-	"agile-proxy/modules/route"
 	"agile-proxy/modules/server/base"
 	"encoding/base64"
 	"encoding/json"
@@ -198,14 +197,10 @@ func New(jsonConfig json.RawMessage) (obj *https, err error) {
 			Identity:      assembly.CreateIdentity(config.Name, config.Type),
 			Pipeline:      assembly.CreatePipeline(),
 			DoneCh:        make(chan struct{}),
-			TransportName: config.TransportName,
+			RouteName:     config.RouteName,
 			PipelineInfos: config.PipelineInfos,
 		},
 		Tls: assembly.CreateTls(config.CrtPath, config.KeyPath, "", ""),
-	}
-
-	if len(config.TransportName) > 0 {
-		obj.Route = route.GetRoute(config.TransportName)
 	}
 
 	return
