@@ -11,10 +11,10 @@
       "key_path": "",
       "ca_path": "",
       "auth_mode": 1,
-      "transport_name": "direct-transport"
+      "router_name": "direct-transport"
     }
   ],
-  "transport": [
+  "router": [
     {
       "type": "direct",
       "name": "direct-transport",
@@ -40,9 +40,12 @@
       "interface": ""
     }
   ],
-  "msg": {
-    "type": "log"
-  },
+  "msg": [
+    {
+      "type": "log",
+      "name": "log"
+    }
+  ],
   "log_path": "./agile-proxy.log",
   "log_level": "debug"
 }

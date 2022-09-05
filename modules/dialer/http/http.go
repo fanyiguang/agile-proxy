@@ -13,7 +13,6 @@ import (
 
 type http struct {
 	base.Dialer
-	assembly.Net
 	httpsClient *https.Client
 }
 

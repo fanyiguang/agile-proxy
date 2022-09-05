@@ -34,11 +34,11 @@ func (s *Client) Dial(network, host, port string) (conn net.Conn, err error) {
 		}
 
 		if err != nil {
-			log.WarnF("s.dialer.Dial failed: %v", err)
+			log.WarnF("s.dialer.Dial failed: %+v", err)
 		}
 	}
 
-	conn, err = net.Dial(network, net.JoinHostPort(s.Host, s.Port))
+	conn, err = net.Dial(network, net.JoinHostPort(host, port))
 	if err != nil {
 		err = errors.Wrap(err, "socks5 Dial")
 	}

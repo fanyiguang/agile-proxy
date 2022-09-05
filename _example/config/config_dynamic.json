@@ -11,7 +11,7 @@
       "transport_name": "dynamic"
     }
   ],
-  "transport": [
+  "router": [
     {
       "type": "dynamic",
       "name": "dynamic",

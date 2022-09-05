@@ -5,10 +5,10 @@
       "port": "7890",
       "username": "admin",
       "password": "123",
-      "type": "socks5",
-      "name": "socks5-server",
+      "type": "ssh",
+      "name": "ssh-server",
       "auth_mode": 1,
-      "transport_name": "ssh-transport"
+      "router_name": "ssh-transport"
     },
     {
       "ip": "127.0.0.1",
@@ -17,7 +17,7 @@
       "password": "123",
       "type": "ssh",
       "name": "ssh-server-1",
-      "transport_name": "direct-transport"
+      "router_name": "direct-transport"
     },
     {
       "ip": "127.0.0.1",
@@ -26,10 +26,10 @@
       "password": "123",
       "type": "ssh",
       "name": "ssh-server-2",
-      "transport_name": "direct-transport"
+      "router_name": "direct-transport"
     }
   ],
-  "transport": [
+  "router": [
     {
       "type": "direct",
       "name": "ssh-transport",
@@ -82,9 +82,12 @@
       "name": "ssh-dialer"
     }
   ],
-  "msg": {
-    "type": "log"
-  },
+  "msg": [
+    {
+      "type": "log",
+      "name": "log"
+    }
+  ],
   "log_path": "./agile-proxy.log",
   "log_level": "debug"
 }

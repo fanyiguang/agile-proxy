@@ -4,7 +4,6 @@ import "agile-proxy/model"
 
 type Config struct {
 	model.Base
-	model.Net
 	model.Identity
 	model.PipelineInfos
 	DialerName string `json:"dialer_name"`

@@ -1,6 +1,7 @@
 package direct
 
 import (
+	"agile-proxy/helper/common"
 	"agile-proxy/modules/assembly"
 	"agile-proxy/modules/client/base"
 	"context"
@@ -16,12 +17,11 @@ type Direct struct {
 }
 
 func (d *Direct) Dial(network string, host, port []byte) (conn net.Conn, err error) {
-	// 因为是直连所以不用管上层传进来的地址
-	return d.Client.Dial(network, d.Host, d.Port)
+	return d.Client.Dial(network, common.BytesToStr(host), common.BytesToStr(port))
 }
 
 func (d *Direct) DialTimeout(network string, host, port []byte, timeout time.Duration) (conn net.Conn, err error) {
-	return d.Client.DialTimeout(network, d.Host, d.Port, timeout)
+	return d.Client.DialTimeout(network, common.BytesToStr(host), common.BytesToStr(port), timeout)
 }
 
 func (d *Direct) createRoundTripper() (err error) {
@@ -67,7 +67,6 @@ func New(jsonConfig json.RawMessage) (obj *Direct, err error) {
 
 	obj = &Direct{
 		Client: base.Client{
-			Net:           assembly.CreateNet(config.Ip, config.Port, config.Username, config.Password),
 			Identity:      assembly.CreateIdentity(config.Name, config.Type),
 			Pipeline:      assembly.CreatePipeline(),
 			PipelineInfos: config.PipelineInfos,

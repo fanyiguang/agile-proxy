@@ -16,7 +16,6 @@ import (
 type ssl struct {
 	base.Dialer
 	assembly.Tls
-	assembly.Net
 	socks5Client *socks5.Client
 	authMode     int
 }

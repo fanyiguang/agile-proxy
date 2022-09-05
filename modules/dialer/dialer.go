@@ -26,8 +26,8 @@ type Dialer interface {
 func Factory(configs []sysJson.RawMessage) {
 	var err error
 	var dialerName string
-	var dialer Dialer
 	for _, config := range configs {
+		var dialer Dialer
 		switch strings.ToLower(json.Get(config, "type").ToString()) {
 		case pConfig.Socks5:
 			dialer, err = socks5.New(config)

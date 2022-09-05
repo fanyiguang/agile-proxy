@@ -5,23 +5,17 @@
       "port": "7890",
       "username": "admin",
       "password": "123",
-      "type": "socks5",
-      "name": "socks5-server",
+      "type": "ssl",
+      "name": "ssl-server",
       "auth_mode": 1,
-      "router_name": "direct",
-      "msg": [
-        {
-          "name": "log",
-          "level": "real-time"
-        }
-      ]
+      "router_name": "direct-transport-1"
     }
   ],
   "router": [
     {
       "type": "direct",
-      "name": "direct",
-      "client_name": "direct-client",
+      "name": "direct-transport-1",
+      "client_name": "ssl-client",
       "dns": {
         "local_dns": false,
         "server": "114.114.114.114"
@@ -30,8 +24,13 @@
   ],
   "client": [
     {
-      "type": "direct",
-      "name": "direct-client",
+      "ip": "127.0.0.1",
+      "port": "8888",
+      "username": "admin",
+      "password": "123",
+      "type": "ssl",
+      "name": "ssl-client",
+      "auth_mode": 1,
       "mode": 0
     }
   ],

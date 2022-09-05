@@ -26,8 +26,8 @@ type Server interface {
 
 func Factory(configs []sysJson.RawMessage) {
 	var err error
-	var server Server
 	for _, config := range configs {
+		var server Server
 		switch strings.ToLower(json.Get(config, "type").ToString()) {
 		case pConfig.Socks5:
 			server, err = socks5.New(config)

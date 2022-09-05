@@ -28,8 +28,8 @@ type Msg interface {
 func Factory(configs []sysJson.RawMessage) {
 	var err error
 	var msgName string
-	var message Msg
 	for _, config := range configs {
+		var message Msg
 		switch strings.ToLower(json.Get(config, "type").ToString()) {
 		case globalConfig.OutputLog:
 			message, err = log.New(config)
@@ -42,7 +42,7 @@ func Factory(configs []sysJson.RawMessage) {
 		}
 
 		msgName = json.Get(config, "name").ToString()
-		if err = message.Run(); err != nil {
+		if err = message.Run(); err == nil {
 			messages[msgName] = message
 		} else {
 			fileLog.WarnF("%v msg run failed: %v", msgName, err)

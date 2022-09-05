@@ -30,8 +30,8 @@ type Client interface {
 func Factory(configs []sysJson.RawMessage) {
 	var err error
 	var clientName string
-	var client Client
 	for _, config := range configs {
+		var client Client
 		switch strings.ToLower(json.Get(config, "type").ToString()) {
 		case globalConfig.Socks5:
 			client, err = socks5.New(config)

@@ -16,7 +16,7 @@ type Identity struct {
 }
 
 type PipelineInfos struct {
-	PipelineInfo []PipelineInfo
+	PipelineInfo []PipelineInfo `json:"msg"`
 }
 
 type PipelineInfo struct {

@@ -17,7 +17,6 @@ import (
 
 type ssh struct {
 	base.Dialer
-	assembly.Net
 	client           *pkgSsh.Client
 	initSuccessfulCh chan struct{}
 	initFailedCh     chan struct{}

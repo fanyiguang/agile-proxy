@@ -24,8 +24,8 @@ type Route interface {
 func Factory(configs []sysJson.RawMessage) {
 	var err error
 	var routeName string
-	var route Route
 	for _, config := range configs {
+		var route Route
 		switch strings.ToLower(json.Get(config, "type").ToString()) {
 		case pubConfig.Direct:
 			route, err = direct.New(config)
