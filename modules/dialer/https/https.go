@@ -91,11 +91,11 @@ func New(jsonConfig json.RawMessage) (obj *https, err error) {
 
 	obj = &https{
 		Dialer: base.Dialer{
-			Net:           assembly.CreateNet(config.Ip, config.Port, config.Username, config.Password),
-			Identity:      assembly.CreateIdentity(config.Name, config.Type),
-			Pipeline:      assembly.CreatePipeline(),
-			PipelineInfos: config.PipelineInfos,
-			IFace:         config.Interface,
+			Net:        assembly.CreateNet(config.Ip, config.Port, config.Username, config.Password),
+			Identity:   assembly.CreateIdentity(config.Name, config.Type),
+			Pipeline:   assembly.CreatePipeline(),
+			Satellites: config.Satellites,
+			IFace:      config.Interface,
 		},
 		Tls: assembly.CreateTls(config.CrtPath, config.KeyPath, config.CaPath, config.ServerName),
 	}

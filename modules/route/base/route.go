@@ -5,7 +5,7 @@ import (
 	helperNet "agile-proxy/helper/net"
 	"agile-proxy/model"
 	"agile-proxy/modules/assembly"
-	"agile-proxy/modules/msg"
+	"agile-proxy/modules/satellite"
 	"io"
 	"net"
 	"net/http"
@@ -17,7 +17,7 @@ type Transport struct {
 	assembly.Dns
 	assembly.Identity
 	assembly.Pipeline
-	model.PipelineInfos
+	model.Satellites
 	BufferPool sync.Pool
 }
 
@@ -47,13 +47,13 @@ func (t *Transport) Init() {
 		t.Dns.Server = net.JoinHostPort(t.Dns.Server, "53")
 	}
 
-	for _, pipelineInfo := range t.PipelineInfo {
-		_msg := msg.GetMsg(pipelineInfo.Name)
+	for _, _satellite := range t.Satellites.Satellites {
+		_msg := satellite.GetSatellite(_satellite.Name)
 		if _msg != nil {
-			msgPipeline, level := _msg.Subscribe(t.Name(), t.Pipeline.PipeCh, pipelineInfo.Level)
-			t.Subscribe(pipelineInfo.Name, msgPipeline, level)
+			msgPipeline, level := _msg.Subscribe(t.Name(), t.Pipeline.PipeCh, _satellite.Level)
+			t.Subscribe(_satellite.Name, msgPipeline, level)
 		} else {
-			log.WarnF("%v transport get msg failed pipeline name: %v", t.Name(), pipelineInfo.Name)
+			log.WarnF("%v transport get msg failed pipeline name: %v", t.Name(), _satellite.Name)
 		}
 	}
 }

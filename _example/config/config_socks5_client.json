@@ -8,7 +8,7 @@
       "type": "socks5",
       "name": "socks5-1",
       "auth_mode": 1,
-      "msg": [
+      "satellite": [
         {
           "name": "log",
           "level": "real-time"
@@ -40,7 +40,7 @@
       "mode": 0
     }
   ],
-  "msg": [
+  "satellite": [
     {
     "type": "log",
     "name": "log"

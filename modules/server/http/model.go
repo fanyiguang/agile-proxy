@@ -6,6 +6,6 @@ type Config struct {
 	model.Base
 	model.Net
 	model.Identity
-	model.PipelineInfos
+	model.Satellites
 	RouteName string `json:"router_name"`
 }

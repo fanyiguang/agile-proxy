@@ -82,7 +82,7 @@
       "name": "ssh-dialer"
     }
   ],
-  "msg": [
+  "satellite": [
     {
       "type": "log",
       "name": "log"

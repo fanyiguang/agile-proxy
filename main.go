@@ -14,7 +14,6 @@ var (
 
 func main() {
 	flag.Parse()
-	*configPath = `D:\study\go-objects\my\src\agile-proxy\_example\config\config_ssh_server.json`
 	err := app.App(*configPath, *version, *pprof)
 	if err != nil {
 		log.Printf("app.App failed: %#v", err)

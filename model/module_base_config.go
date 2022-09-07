@@ -15,11 +15,11 @@ type Identity struct {
 	Name string `json:"name"`
 }
 
-type PipelineInfos struct {
-	PipelineInfo []PipelineInfo `json:"msg"`
+type Satellites struct {
+	Satellites []Satellite `json:"satellite"`
 }
 
-type PipelineInfo struct {
+type Satellite struct {
 	Name  string `json:"name"`
 	Level string `json:"level"`
 }

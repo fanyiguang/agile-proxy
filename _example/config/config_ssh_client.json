@@ -20,7 +20,7 @@
         "local_dns": false,
         "server": "114.114.114.114"
       },
-      "msg": [
+      "satellite": [
         {
           "name": "log"
         }
@@ -38,7 +38,7 @@
       "mode": 0
     }
   ],
-  "msg": [
+  "satellite": [
     {
       "type": "log",
       "name": "log"

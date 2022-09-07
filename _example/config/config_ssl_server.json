@@ -40,7 +40,7 @@
       "interface": ""
     }
   ],
-  "msg": [
+  "satellite": [
     {
       "type": "log",
       "name": "log"

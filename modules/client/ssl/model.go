@@ -6,7 +6,7 @@ type Config struct {
 	model.Base
 	model.Net
 	model.Identity
-	model.PipelineInfos
+	model.Satellites
 	DialerName string `json:"dialer_name"`
 	CrtPath    string `json:"crt_path"`
 	KeyPath    string `json:"key_path"`

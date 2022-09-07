@@ -6,7 +6,7 @@ import (
 	"agile-proxy/model"
 	"agile-proxy/modules/assembly"
 	"agile-proxy/modules/dialer"
-	"agile-proxy/modules/msg"
+	"agile-proxy/modules/satellite"
 	"context"
 	"github.com/pkg/errors"
 	"net"
@@ -19,7 +19,7 @@ type Client struct {
 	assembly.Net
 	assembly.Identity
 	assembly.Pipeline
-	model.PipelineInfos
+	model.Satellites
 	Dialer       dialer.Dialer
 	RoundTripper http.RoundTripper
 	DialerName   string
@@ -77,13 +77,13 @@ func (s *Client) Init() {
 		s.Dialer = dialer.GetDialer(s.DialerName)
 	}
 
-	for _, pipelineInfo := range s.PipelineInfo {
-		_msg := msg.GetMsg(pipelineInfo.Name)
+	for _, _satellite := range s.Satellites.Satellites {
+		_msg := satellite.GetSatellite(_satellite.Name)
 		if _msg != nil {
-			msgPipeline, level := _msg.Subscribe(s.Name(), s.Pipeline.PipeCh, pipelineInfo.Level)
-			s.Subscribe(pipelineInfo.Name, msgPipeline, level)
+			msgPipeline, level := _msg.Subscribe(s.Name(), s.Pipeline.PipeCh, _satellite.Level)
+			s.Subscribe(_satellite.Name, msgPipeline, level)
 		} else {
-			log.WarnF("%v client get msg failed pipeline name: %v", s.Name(), pipelineInfo.Name)
+			log.WarnF("%v client get Satellites failed pipeline name: %v", s.Name(), _satellite.Name)
 		}
 	}
 }

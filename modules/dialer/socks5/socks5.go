@@ -64,11 +64,11 @@ func New(jsonConfig json.RawMessage) (obj *socks5, err error) {
 
 	obj = &socks5{
 		Dialer: base.Dialer{
-			Net:           assembly.CreateNet(config.Ip, config.Port, config.Username, config.Password),
-			Identity:      assembly.CreateIdentity(config.Name, config.Type),
-			Pipeline:      assembly.CreatePipeline(),
-			PipelineInfos: config.PipelineInfos,
-			IFace:         config.Interface,
+			Net:        assembly.CreateNet(config.Ip, config.Port, config.Username, config.Password),
+			Identity:   assembly.CreateIdentity(config.Name, config.Type),
+			Pipeline:   assembly.CreatePipeline(),
+			Satellites: config.Satellites,
+			IFace:      config.Interface,
 		},
 		authMode: config.AuthMode,
 	}

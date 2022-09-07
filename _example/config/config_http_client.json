@@ -5,17 +5,17 @@
       "port": "7890",
       "username": "admin",
       "password": "123",
-      "type": "socks5",
-      "name": "socks5-server",
+      "type": "http",
+      "name": "http-server",
       "auth_mode": 1,
-      "router_name": "ha"
+      "router_name": "http-transport"
     }
   ],
   "router": [
     {
-      "type": "ha",
-      "name": "ha",
-      "client_names": "socks5-client-1,socks5-client-2,test",
+      "type": "direct",
+      "name": "http-transport",
+      "client_name": "http-client",
       "dns": {
         "local_dns": false,
         "server": "114.114.114.114"
@@ -29,32 +29,20 @@
   ],
   "client": [
     {
-      "ip": "127.0.0.2",
-      "port": "6380",
+      "ip": "127.0.0.1",
+      "port": "9999",
       "username": "admin",
       "password": "123",
-      "type": "socks5",
-      "name": "socks5-client-1",
-      "auth_mode": 1,
-      "dialer_name": "direct",
-      "mode": 0
-    },
-    {
-      "ip": "127.0.0.3",
-      "port": "7890",
-      "username": "admin",
-      "password": "123",
-      "type": "socks5",
-      "name": "socks5-client-2",
-      "auth_mode": 1,
-      "dialer_name": "direct",
+      "type": "http",
+      "name": "http-client",
+      "dialer_name": "http-dialer",
       "mode": 0
     }
   ],
   "dialer": [
     {
       "type": "direct",
-      "name": "direct",
+      "name": "direct-dialer",
       "interface": ""
     }
   ],

@@ -8,7 +8,7 @@ import (
 type Config struct {
 	model.Base
 	model.Identity
-	model.PipelineInfos
+	model.Satellites
 	ClientName string       `json:"client_name"`
 	DnsInfo    base.DnsInfo `json:"dns_info"`
 }

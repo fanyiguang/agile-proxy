@@ -150,11 +150,11 @@ func New(jsonConfig json.RawMessage) (obj *ha, err error) {
 
 	obj = &ha{
 		baseTransport: base.Transport{
-			Identity:      assembly.CreateIdentity(config.Name, config.Type),
-			Pipeline:      assembly.CreatePipeline(),
-			Dns:           assembly.CreateDns(config.DnsInfo.Server, config.DnsInfo.LocalDns),
-			BufferPool:    common.CreateByteBufferSyncPool(1024 * 32),
-			PipelineInfos: config.PipelineInfos,
+			Identity:   assembly.CreateIdentity(config.Name, config.Type),
+			Pipeline:   assembly.CreatePipeline(),
+			Dns:        assembly.CreateDns(config.DnsInfo.Server, config.DnsInfo.LocalDns),
+			BufferPool: common.CreateByteBufferSyncPool(1024 * 32),
+			Satellites: config.Satellites,
 		},
 		clientNames: config.ClientNames,
 	}

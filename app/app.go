@@ -8,9 +8,9 @@ import (
 	"agile-proxy/helper/process"
 	"agile-proxy/modules/client"
 	"agile-proxy/modules/dialer"
-	"agile-proxy/modules/msg"
 	"agile-proxy/modules/parser"
 	"agile-proxy/modules/route"
+	"agile-proxy/modules/satellite"
 	"agile-proxy/modules/server"
 	"fmt"
 	"net/http"
@@ -39,8 +39,8 @@ func App(configPath string, version bool, pprof int) (err error) {
 	log.New(proxyConfig.LogPath, proxyConfig.LogLevel)
 
 	// 固定初始化顺序无法改变
-	// 依赖关系：msg -> server -> route -> client -> dialer
-	msg.Factory(proxyConfig.MsgConfig)
+	// 依赖关系：satellite -> server -> route -> client -> dialer
+	satellite.Factory(proxyConfig.SatelliteConfig)
 	dialer.Factory(proxyConfig.DialerConfig)
 	client.Factory(proxyConfig.ClientConfig)
 	route.Factory(proxyConfig.RouteConfig)
@@ -91,7 +91,7 @@ func parentProcessDone() chan struct{} {
 }
 
 func closeResources() {
-	msg.CloseAllMsg()
+	satellite.CloseAllSatellite()
 	server.CloseAllServers()
 	route.CloseAllRoutes()
 	client.CloseAllClients()

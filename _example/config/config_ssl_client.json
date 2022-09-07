@@ -34,7 +34,7 @@
       "mode": 0
     }
   ],
-  "msg": [
+  "satellite": [
     {
       "type": "log",
       "name": "log"

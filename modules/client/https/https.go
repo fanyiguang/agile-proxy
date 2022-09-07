@@ -124,12 +124,12 @@ func New(jsonConfig json.RawMessage) (obj *Https, err error) {
 
 	obj = &Https{
 		Client: base.Client{
-			Net:           assembly.CreateNet(config.Ip, config.Port, config.Username, config.Password),
-			Identity:      assembly.CreateIdentity(config.Name, config.Type),
-			Pipeline:      assembly.CreatePipeline(),
-			PipelineInfos: config.PipelineInfos,
-			Mode:          config.Mode,
-			DialerName:    config.DialerName,
+			Net:        assembly.CreateNet(config.Ip, config.Port, config.Username, config.Password),
+			Identity:   assembly.CreateIdentity(config.Name, config.Type),
+			Pipeline:   assembly.CreatePipeline(),
+			Satellites: config.Satellites,
+			Mode:       config.Mode,
+			DialerName: config.DialerName,
 		},
 		Tls: assembly.CreateTls(config.CrtPath, config.KeyPath, config.CaPath, config.ServerName),
 	}

@@ -7,12 +7,12 @@
       "password": "123",
       "type": "https",
       "name": "https-server",
-      "transport_name": "direct-transport",
+      "router_name": "direct-transport",
       "crt_path": "",
       "key_path": ""
     }
   ],
-  "transport": [
+  "router": [
     {
       "type": "direct",
       "name": "direct-transport",
@@ -38,9 +38,12 @@
       "interface": ""
     }
   ],
-  "msg": {
-    "type": "log"
-  },
+  "satellite": [
+    {
+      "type": "log",
+      "name": "log"
+    }
+  ],
   "log_path": "./agile-proxy.log",
   "log_level": "debug"
 }

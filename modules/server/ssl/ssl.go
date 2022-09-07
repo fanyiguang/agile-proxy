@@ -124,12 +124,12 @@ func New(jsonConfig json.RawMessage) (obj *ssl, err error) {
 
 	obj = &ssl{
 		Server: base.Server{
-			Net:           assembly.CreateNet(config.Ip, config.Port, config.Username, config.Password),
-			Identity:      assembly.CreateIdentity(config.Name, config.Type),
-			Pipeline:      assembly.CreatePipeline(),
-			DoneCh:        make(chan struct{}),
-			RouteName:     config.RouteName,
-			PipelineInfos: config.PipelineInfos,
+			Net:        assembly.CreateNet(config.Ip, config.Port, config.Username, config.Password),
+			Identity:   assembly.CreateIdentity(config.Name, config.Type),
+			Pipeline:   assembly.CreatePipeline(),
+			DoneCh:     make(chan struct{}),
+			RouteName:  config.RouteName,
+			Satellites: config.Satellites,
 		},
 		Tls:      assembly.CreateTls(config.CrtPath, config.KeyPath, "", ""),
 		authMode: config.AuthMode,

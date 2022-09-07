@@ -9,7 +9,7 @@
       "name": "socks5-server",
       "auth_mode": 1,
       "router_name": "direct",
-      "msg": [
+      "satellite": [
         {
           "name": "log",
           "level": "real-time"
@@ -35,7 +35,7 @@
       "mode": 0
     }
   ],
-  "msg": [
+  "satellite": [
     {
       "type": "log",
       "name": "log"

@@ -169,11 +169,11 @@ func New(jsonConfig json.RawMessage) (obj *ssh, err error) {
 
 	obj = &ssh{
 		Dialer: base.Dialer{
-			Net:           assembly.CreateNet(_config.Ip, _config.Port, _config.Username, _config.Password),
-			Identity:      assembly.CreateIdentity(_config.Name, _config.Type),
-			Pipeline:      assembly.CreatePipeline(),
-			PipelineInfos: _config.PipelineInfos,
-			IFace:         _config.Interface,
+			Net:        assembly.CreateNet(_config.Ip, _config.Port, _config.Username, _config.Password),
+			Identity:   assembly.CreateIdentity(_config.Name, _config.Type),
+			Pipeline:   assembly.CreatePipeline(),
+			Satellites: _config.Satellites,
+			IFace:      _config.Interface,
 		},
 		keyPath:          _config.KeyPath,
 		initSuccessfulCh: make(chan struct{}),

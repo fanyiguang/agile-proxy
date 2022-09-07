@@ -1,9 +1,9 @@
-package msg
+package satellite
 
 import (
 	globalConfig "agile-proxy/config"
 	"agile-proxy/model"
-	"agile-proxy/modules/msg/log"
+	"agile-proxy/modules/satellite/log"
 	sysJson "encoding/json"
 	"errors"
 	"fmt"
@@ -18,18 +18,17 @@ var (
 	json = jsoniter.ConfigCompatibleWithStandardLibrary
 )
 
-type Msg interface {
+type Satellite interface {
 	Run() (err error)
 	Close() (err error)
 	Subscribe(name string, writeCh chan model.ModuleMessage, level string) (chan model.ModuleMessage, string)
-	ImplementMsg()
 }
 
 func Factory(configs []sysJson.RawMessage) {
 	var err error
 	var msgName string
 	for _, config := range configs {
-		var message Msg
+		var message Satellite
 		switch strings.ToLower(json.Get(config, "type").ToString()) {
 		case globalConfig.OutputLog:
 			message, err = log.New(config)
@@ -43,7 +42,7 @@ func Factory(configs []sysJson.RawMessage) {
 
 		msgName = json.Get(config, "name").ToString()
 		if err = message.Run(); err == nil {
-			messages[msgName] = message
+			satellites[msgName] = message
 		} else {
 			fileLog.WarnF("%v msg run failed: %v", msgName, err)
 		}

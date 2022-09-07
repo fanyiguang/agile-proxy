@@ -67,11 +67,11 @@ func New(jsonConfig json.RawMessage) (obj *Direct, err error) {
 
 	obj = &Direct{
 		Client: base.Client{
-			Identity:      assembly.CreateIdentity(config.Name, config.Type),
-			Pipeline:      assembly.CreatePipeline(),
-			PipelineInfos: config.PipelineInfos,
-			Mode:          config.Mode,
-			DialerName:    config.DialerName,
+			Identity:   assembly.CreateIdentity(config.Name, config.Type),
+			Pipeline:   assembly.CreatePipeline(),
+			Satellites: config.Satellites,
+			Mode:       config.Mode,
+			DialerName: config.DialerName,
 		},
 	}
 

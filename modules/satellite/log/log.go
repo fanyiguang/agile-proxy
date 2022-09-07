@@ -6,14 +6,14 @@ import (
 	"agile-proxy/helper/log"
 	"agile-proxy/model"
 	"agile-proxy/modules/assembly"
-	"agile-proxy/modules/msg/base"
+	"agile-proxy/modules/satellite/base"
 	"encoding/json"
 
 	"github.com/pkg/errors"
 )
 
 type outputLog struct {
-	base.Msg
+	base.Satellite
 	doneCh chan struct{}
 }
 
@@ -53,7 +53,7 @@ func New(jsonConfig json.RawMessage) (obj *outputLog, err error) {
 	}
 
 	obj = &outputLog{
-		Msg: base.Msg{
+		Satellite: base.Satellite{
 			Identity: assembly.Identity{
 				ModuleName: config.Name,
 				ModuleType: config.Type,
