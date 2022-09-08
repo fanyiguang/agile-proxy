@@ -4,7 +4,7 @@ agile-proxy
 
 ### 下载
 ***
-https://github.com/fanyiguang/agile-proxy/releases/tag/v1.0.0
+https://github.com/fanyiguang/agile-proxy/releases
 
 ### 功能
 ***
