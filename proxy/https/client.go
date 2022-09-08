@@ -2,7 +2,6 @@ package https
 
 import (
 	"agile-proxy/helper/common"
-	"agile-proxy/helper/log"
 	"encoding/base64"
 	"fmt"
 	"github.com/pkg/errors"
@@ -45,7 +44,6 @@ func (c *Client) Handshake(conn net.Conn, target string) (err error) {
 		return err
 	}
 
-	log.DebugF("https resp %v", string(buffer[:n]))
 	if !strings.Contains(string(buffer[:n]), "200") && !strings.Contains(strings.ToLower(string(buffer[:n])), "connection established") {
 		errMsgs := strings.Split(string(buffer[:n]), "\r\n")
 		err = errors.New("failed to link to target site. msg:" + errMsgs[0])

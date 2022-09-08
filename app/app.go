@@ -3,24 +3,28 @@ package app
 import (
 	"agile-proxy/config"
 	"agile-proxy/helper/Go"
+	"agile-proxy/helper/common"
 	"agile-proxy/helper/log"
+	"agile-proxy/helper/process"
 	"agile-proxy/modules/client"
 	"agile-proxy/modules/dialer"
-	"agile-proxy/modules/msg"
 	"agile-proxy/modules/parser"
+	"agile-proxy/modules/route"
+	"agile-proxy/modules/satellite"
 	"agile-proxy/modules/server"
-	"agile-proxy/modules/transport"
 	"fmt"
 	"net/http"
 	_ "net/http/pprof"
 	"os"
 	"os/signal"
+	"runtime"
 	"syscall"
+	"time"
 )
 
 func App(configPath string, version bool, pprof int) (err error) {
 	if version {
-		fmt.Printf("agile-proxy v%v\n", config.Version())
+		fmt.Printf("agile-proxy %v/%v v%v\n", runtime.GOOS, runtime.GOARCH, config.Version())
 		return
 	}
 
@@ -35,22 +39,12 @@ func App(configPath string, version bool, pprof int) (err error) {
 	log.New(proxyConfig.LogPath, proxyConfig.LogLevel)
 
 	// 固定初始化顺序无法改变
-	// 依赖关系：msg -> server -> transport -> client -> dialer
-	msg.Factory(proxyConfig.MsgConfig)
+	// 依赖关系：satellite -> server -> route -> client -> dialer
+	satellite.Factory(proxyConfig.SatelliteConfig)
 	dialer.Factory(proxyConfig.DialerConfig)
 	client.Factory(proxyConfig.ClientConfig)
-	transport.Factory(proxyConfig.TransportConfig)
-	servers := server.Factory(proxyConfig.ServerConfig)
-	for _, s := range servers {
-		_s := s
-		Go.Go(func() {
-			err := _s.Run()
-			if err != nil {
-				log.WarnF("%v(%v) run failed: %v", _s.Name(), _s.Type(), err)
-			}
-		})
-
-	}
+	route.Factory(proxyConfig.RouteConfig)
+	server.Factory(proxyConfig.ServerConfig)
 
 	wait()
 	closeResources()
@@ -69,14 +63,37 @@ func wait() {
 	doneCh := make(chan os.Signal, 1)
 	signal.Notify(doneCh, syscall.SIGTERM, syscall.SIGQUIT, syscall.SIGINT)
 	select {
-	case <-doneCh:
-		log.InfoF("")
+	case s := <-doneCh:
+		log.InfoF("signal done %v", s.String())
+	case <-parentProcessDone():
+		log.Info("parent done")
 	}
 }
 
+func parentProcessDone() chan struct{} {
+	doneCh := make(chan struct{})
+	Go.Go(func() {
+		getPpid := os.Getppid()
+		ticker := time.NewTicker(time.Second * 15)
+		for {
+			select {
+			case <-ticker.C:
+				isRun, err := process.IsRunning(getPpid)
+				if err != nil || !isRun {
+					log.ErrorF("parent program done: %v %v", isRun, err)
+					common.CloseChan(doneCh)
+					return
+				}
+			}
+		}
+	})
+	return doneCh
+}
+
 func closeResources() {
+	satellite.CloseAllSatellite()
 	server.CloseAllServers()
-	transport.CloseAllTransports()
+	route.CloseAllRoutes()
 	client.CloseAllClients()
 	dialer.CloseAllDialer()
 }

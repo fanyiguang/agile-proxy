@@ -4,6 +4,7 @@ import (
 	"agile-proxy/helper/common"
 	"agile-proxy/helper/dns"
 	"agile-proxy/helper/log"
+	helperNet "agile-proxy/helper/net"
 	"github.com/pkg/errors"
 	"net"
 )
@@ -22,11 +23,16 @@ func (d *Dns) GetHost(host []byte) (newHost []byte, err error) {
 		return
 	}
 
-	strHost := common.BytesToStr(host)
+	var strHost, port string
+	strHost, port, err = helperNet.SplitHostAndPort(common.BytesToStr(host))
+	if err != nil {
+		return
+	}
+
 	if d.Server != "" { // 配置文件的dns服务器不为空
 		lookupHost, err := dns.LookupHost(strHost, d.Server)
 		if err == nil {
-			return common.StrToBytes(lookupHost[0]), nil
+			return common.StrToBytes(helperNet.JoinHostAndPort(lookupHost[0], port)), nil
 		}
 
 		log.WarnF("dns.LookupHost failed: %v, host: %v, dns_server: %v", err, strHost, d.Server)
@@ -40,7 +46,7 @@ func (d *Dns) GetHost(host []byte) (newHost []byte, err error) {
 		return
 	}
 	for _, ip := range ips {
-		return common.StrToBytes(ip.String()), nil
+		return common.StrToBytes(helperNet.JoinHostAndPort(ip.String(), port)), nil
 	}
 
 	err = errors.Wrap(errors.New("ips len is 0"), "")

@@ -6,7 +6,7 @@ type Config struct {
 	model.Base
 	model.Net
 	model.Identity
-	model.PipelineInfos
+	model.Satellites
 	AuthMode  int    `json:"auth_mode"`
 	Interface string `json:"interface"`
 }

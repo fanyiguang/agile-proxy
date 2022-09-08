@@ -69,7 +69,7 @@ func (p *Pipeline) AsyncSendMsg(moduleName string, action int, content string) {
 	// 对外保持0信任原则，设置超时时间如果
 	// 外部阻塞也不会导致协程泄漏。
 	for msgName, subObj := range p.SubObjs {
-		_subObj := subObj
+		_subObj, _msgName := subObj, msgName
 		go func() {
 			select {
 			case _subObj <- model.ModuleMessage{
@@ -80,7 +80,7 @@ func (p *Pipeline) AsyncSendMsg(moduleName string, action int, content string) {
 				Name: moduleName,
 			}:
 			case <-time.After(time.Second * 3):
-				log.InfoF("pipeline message lock: %v %v %v", content, moduleName, msgName)
+				log.InfoF("pipeline message lock: %v %v %v", content, moduleName, _msgName)
 			}
 		}()
 	}

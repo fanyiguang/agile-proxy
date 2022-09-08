@@ -1,0 +1,51 @@
+{
+  "server": [
+    {
+      "ip": "127.0.0.1",
+      "port": "7890",
+      "username": "admin",
+      "password": "123",
+      "type": "socks5",
+      "name": "socks5-1",
+      "auth_mode": 1,
+      "satellite": [
+        {
+          "name": "log",
+          "level": "real-time"
+        }
+      ],
+      "router_name": "direct"
+    }
+  ],
+  "router": [
+    {
+      "type": "direct",
+      "name": "direct",
+      "client_name": "socks5",
+      "dns": {
+        "local_dns": false,
+        "server": "114.114.114.114"
+      }
+    }
+  ],
+  "client": [
+    {
+      "ip": "127.0.0.1",
+      "port": "8888",
+      "username": "admin",
+      "password": "123",
+      "type": "socks5",
+      "name": "socks5",
+      "auth_mode": 1,
+      "mode": 0
+    }
+  ],
+  "satellite": [
+    {
+    "type": "log",
+    "name": "log"
+  }
+  ],
+  "log_path": "./agile-proxy.log",
+  "log_level": "debug"
+}

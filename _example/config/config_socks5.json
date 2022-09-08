@@ -8,14 +8,13 @@
       "type": "socks5",
       "name": "socks5-1",
       "auth_mode": 1,
-      "msg": [
+      "satellite": [
         {
           "name": "log",
-          "type": "log",
           "level": "real-time"
         }
       ],
-      "transport_name": "direct"
+      "router_name": "direct"
     },
     {
       "ip": "127.0.0.1",
@@ -25,7 +24,7 @@
       "type": "socks5",
       "name": "socks5-2",
       "auth_mode": 1,
-      "transport_name": "direct-1"
+      "router_name": "direct-1"
     },
     {
       "ip": "127.0.0.1",
@@ -35,10 +34,10 @@
       "type": "socks5",
       "name": "socks5-3",
       "auth_mode": 1,
-      "transport_name": "direct-2"
+      "router_name": "direct-2"
     }
   ],
-  "transport": [
+  "router": [
     {
       "type": "direct",
       "name": "direct",
@@ -102,9 +101,12 @@
       "auth_mode": 1
     }
   ],
-  "msg": {
-    "type": "log"
-  },
+  "satellite": [
+    {
+    "type": "log",
+    "name": "log"
+  }
+  ],
   "log_path": "./agile-proxy.log",
   "log_level": "debug"
 }

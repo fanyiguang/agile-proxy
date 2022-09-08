@@ -13,7 +13,6 @@ import (
 
 type http struct {
 	base.Dialer
-	assembly.Net
 	httpsClient *https.Client
 }
 
@@ -50,11 +49,6 @@ func (h *http) Close() (err error) {
 }
 
 func (h *http) Run() (err error) {
-	err = h.init()
-	return
-}
-
-func (h *http) init() (err error) {
 	h.httpsClient = https.New(h.Username, h.Password)
 	return
 }
@@ -69,11 +63,11 @@ func New(jsonConfig json.RawMessage) (obj *http, err error) {
 
 	obj = &http{
 		Dialer: base.Dialer{
-			Net:           assembly.CreateNet(config.Ip, config.Port, config.Username, config.Password),
-			Identity:      assembly.CreateIdentity(config.Name, config.Type),
-			Pipeline:      assembly.CreatePipeline(),
-			PipelineInfos: config.PipelineInfos,
-			IFace:         config.Interface,
+			Net:        assembly.CreateNet(config.Ip, config.Port, config.Username, config.Password),
+			Identity:   assembly.CreateIdentity(config.Name, config.Type),
+			Pipeline:   assembly.CreatePipeline(),
+			Satellites: config.Satellites,
+			IFace:      config.Interface,
 		},
 	}
 

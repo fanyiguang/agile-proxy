@@ -6,8 +6,8 @@ type ProxyConfig struct {
 	ClientConfig    []json.RawMessage `json:"client"`
 	ServerConfig    []json.RawMessage `json:"server"`
 	DialerConfig    []json.RawMessage `json:"dialer"`
-	TransportConfig []json.RawMessage `json:"transport"`
-	MsgConfig       []json.RawMessage `json:"msg"`
+	RouteConfig     []json.RawMessage `json:"router"`
+	SatelliteConfig []json.RawMessage `json:"satellite"`
 	LogPath         string            `json:"log_path"`
 	LogLevel        string            `json:"log_level"`
 }

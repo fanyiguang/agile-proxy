@@ -13,6 +13,7 @@ import (
 	"fmt"
 	"github.com/pkg/errors"
 	"net"
+	sysHttp "net/http"
 	"strings"
 	"time"
 )
@@ -22,12 +23,14 @@ type Client interface {
 	Name() string
 	Dial(network string, host, port []byte) (conn net.Conn, err error)
 	DialTimeout(network string, host, port []byte, timeout time.Duration) (conn net.Conn, err error)
+	GetRoundTripper() sysHttp.RoundTripper
 	Close() (err error)
 }
 
 func Factory(configs []sysJson.RawMessage) {
+	var err error
+	var clientName string
 	for _, config := range configs {
-		var err error
 		var client Client
 		switch strings.ToLower(json.Get(config, "type").ToString()) {
 		case globalConfig.Socks5:
@@ -50,9 +53,11 @@ func Factory(configs []sysJson.RawMessage) {
 			continue
 		}
 
-		clientName := json.Get(config, "name").ToString()
-		if clientName != "" {
+		clientName = json.Get(config, "name").ToString()
+		if err = client.Run(); err == nil {
 			clients[clientName] = client
+		} else {
+			log.WarnF("%v client run failed: %v", clientName, err)
 		}
 	}
 	return

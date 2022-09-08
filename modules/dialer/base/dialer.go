@@ -13,7 +13,7 @@ type Dialer struct {
 	assembly.Net
 	assembly.Identity
 	assembly.Pipeline
-	model.PipelineInfos
+	model.Satellites
 	IFace string
 }
 

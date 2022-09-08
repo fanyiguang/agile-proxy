@@ -5,10 +5,10 @@
       "port": "7890",
       "username": "admin",
       "password": "123",
-      "type": "socks5",
-      "name": "socks5-server",
+      "type": "http",
+      "name": "http-server",
       "auth_mode": 1,
-      "transport_name": "http-transport"
+      "router_name": "http-transport"
     },
     {
       "ip": "127.0.0.1",
@@ -17,7 +17,7 @@
       "password": "123",
       "type": "http",
       "name": "http-server-1",
-      "transport_name": "direct-transport"
+      "router_name": "direct-transport"
     },
     {
       "ip": "127.0.0.1",
@@ -26,10 +26,10 @@
       "password": "123",
       "type": "http",
       "name": "http-server-2",
-      "transport_name": "direct-transport"
+      "router_name": "direct-transport"
     }
   ],
-  "transport": [
+  "router": [
     {
       "type": "direct",
       "name": "direct-transport",
@@ -46,7 +46,12 @@
       "dns": {
         "local_dns": false,
         "server": "114.114.114.114"
-      }
+      },
+      "satellite": [
+        {
+          "name": "log"
+        }
+      ]
     }
   ],
   "client": [
@@ -82,9 +87,12 @@
       "name": "http-dialer"
     }
   ],
-  "msg": {
-    "type": "log"
-  },
+  "satellite": [
+    {
+      "type": "log",
+      "name": "log"
+    }
+  ],
   "log_path": "./agile-proxy.log",
   "log_level": "debug"
 }

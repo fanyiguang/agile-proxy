@@ -29,7 +29,7 @@ package logs
 //
 // 	err = l.WriteMsg(&LogMsg{
 // 		Level: 7,
-// 		Msg: `{ "abs"`,
+// 		Satellite: `{ "abs"`,
 // 		When: time.Now(),
 // 		FilePath: "main.go",
 // 		LineNumber: 100,

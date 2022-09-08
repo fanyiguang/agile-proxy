@@ -73,16 +73,11 @@ func (h *https) DialTimeout(network string, host, port string, timeout time.Dura
 }
 
 func (h *https) Run() (err error) {
-	err = h.init()
+	h.httpsClient = pkgHttps.New(h.Username, h.Password)
 	return
 }
 
 func (h *https) Close() (err error) {
-	return
-}
-
-func (h *https) init() (err error) {
-	h.httpsClient = pkgHttps.New(h.Username, h.Password)
 	return
 }
 
@@ -96,11 +91,11 @@ func New(jsonConfig json.RawMessage) (obj *https, err error) {
 
 	obj = &https{
 		Dialer: base.Dialer{
-			Net:           assembly.CreateNet(config.Ip, config.Port, config.Username, config.Password),
-			Identity:      assembly.CreateIdentity(config.Name, config.Type),
-			Pipeline:      assembly.CreatePipeline(),
-			PipelineInfos: config.PipelineInfos,
-			IFace:         config.Interface,
+			Net:        assembly.CreateNet(config.Ip, config.Port, config.Username, config.Password),
+			Identity:   assembly.CreateIdentity(config.Name, config.Type),
+			Pipeline:   assembly.CreatePipeline(),
+			Satellites: config.Satellites,
+			IFace:      config.Interface,
 		},
 		Tls: assembly.CreateTls(config.CrtPath, config.KeyPath, config.CaPath, config.ServerName),
 	}

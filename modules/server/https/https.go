@@ -6,7 +6,6 @@ import (
 	"agile-proxy/helper/log"
 	"agile-proxy/modules/assembly"
 	"agile-proxy/modules/server/base"
-	"agile-proxy/modules/transport"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
@@ -126,10 +125,10 @@ func (h *https) handleConnect(w http.ResponseWriter, r *http.Request) (err error
 }
 
 func (h *https) transport(conn net.Conn, desHost, desPort []byte) (err error) {
-	if h.Transmitter != nil {
-		err = h.Transmitter.Transport(conn, desHost, desPort)
+	if h.Route != nil {
+		err = h.Route.Transport(conn, desHost, desPort)
 	} else {
-		err = errors.New("Transmitter is nil")
+		err = errors.New("Route is nil")
 	}
 	return
 }
@@ -155,9 +154,31 @@ func (h *https) authentication(r *http.Request) (err error) {
 }
 
 func (h *https) handleNormal(w http.ResponseWriter, r *http.Request) (err error) {
-	// TODO 兼容http模式的代理
-	http.Error(w, "normal proxy not supported", http.StatusServiceUnavailable)
-	log.Warn("normal proxy not supported")
+	err = h.authentication(r)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusUnauthorized)
+		return
+	}
+
+	if connection := r.Header.Get("Proxy-Connection"); connection != "" {
+		r.Header.Set("Connection", connection)
+		r.Header.Del("Proxy-Connection")
+	}
+	r.Header.Del("Proxy-Authorization")
+
+	err = h.normalTransport(w, r)
+	if err != nil {
+		http.Error(w, "system failed", http.StatusInternalServerError)
+	}
+	return
+}
+
+func (h *https) normalTransport(w http.ResponseWriter, r *http.Request) (err error) {
+	if h.Route != nil {
+		err = h.Route.HttpTransport(w, r)
+	} else {
+		err = errors.New("Transmitter is nil")
+	}
 	return
 }
 
@@ -194,18 +215,14 @@ func New(jsonConfig json.RawMessage) (obj *https, err error) {
 
 	obj = &https{
 		Server: base.Server{
-			Net:           assembly.CreateNet(config.Ip, config.Port, config.Username, config.Password),
-			Identity:      assembly.CreateIdentity(config.Name, config.Type),
-			Pipeline:      assembly.CreatePipeline(),
-			DoneCh:        make(chan struct{}),
-			TransportName: config.TransportName,
-			PipelineInfos: config.PipelineInfos,
+			Net:        assembly.CreateNet(config.Ip, config.Port, config.Username, config.Password),
+			Identity:   assembly.CreateIdentity(config.Name, config.Type),
+			Pipeline:   assembly.CreatePipeline(),
+			DoneCh:     make(chan struct{}),
+			RouteName:  config.RouteName,
+			Satellites: config.Satellites,
 		},
 		Tls: assembly.CreateTls(config.CrtPath, config.KeyPath, "", ""),
-	}
-
-	if len(config.TransportName) > 0 {
-		obj.Transmitter = transport.GetTransport(config.TransportName)
 	}
 
 	return

@@ -8,13 +8,19 @@
       "type": "socks5",
       "name": "socks5-server",
       "auth_mode": 1,
-      "transport_name": "direct-transport"
+      "router_name": "direct",
+      "satellite": [
+        {
+          "name": "log",
+          "level": "real-time"
+        }
+      ]
     }
   ],
-  "transport": [
+  "router": [
     {
       "type": "direct",
-      "name": "direct-transport",
+      "name": "direct",
       "client_name": "direct-client",
       "dns": {
         "local_dns": false,
@@ -26,20 +32,15 @@
     {
       "type": "direct",
       "name": "direct-client",
-      "dialer_name": "direct-dialer",
       "mode": 0
     }
   ],
-  "dialer": [
+  "satellite": [
     {
-      "type": "direct",
-      "name": "direct-dialer",
-      "interface": ""
+      "type": "log",
+      "name": "log"
     }
   ],
-  "msg": {
-    "type": "log"
-  },
   "log_path": "./agile-proxy.log",
   "log_level": "debug"
 }

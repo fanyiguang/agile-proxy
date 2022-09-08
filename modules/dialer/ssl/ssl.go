@@ -16,7 +16,6 @@ import (
 type ssl struct {
 	base.Dialer
 	assembly.Tls
-	assembly.Net
 	socks5Client *socks5.Client
 	authMode     int
 }
@@ -99,11 +98,11 @@ func New(jsonConfig json.RawMessage) (obj *ssl, err error) {
 
 	obj = &ssl{
 		Dialer: base.Dialer{
-			Net:           assembly.CreateNet(config.Ip, config.Port, config.Username, config.Password),
-			Identity:      assembly.CreateIdentity(config.Name, config.Type),
-			Pipeline:      assembly.CreatePipeline(),
-			PipelineInfos: config.PipelineInfos,
-			IFace:         config.Interface,
+			Net:        assembly.CreateNet(config.Ip, config.Port, config.Username, config.Password),
+			Identity:   assembly.CreateIdentity(config.Name, config.Type),
+			Pipeline:   assembly.CreatePipeline(),
+			Satellites: config.Satellites,
+			IFace:      config.Interface,
 		},
 		Tls:      assembly.CreateTls(config.CrtPath, config.KeyPath, config.CaPath, config.ServerName),
 		authMode: config.AuthMode,

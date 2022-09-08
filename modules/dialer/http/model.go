@@ -6,6 +6,6 @@ type Config struct {
 	model.Base
 	model.Net
 	model.Identity
-	model.PipelineInfos
+	model.Satellites
 	Interface string `json:"interface"`
 }

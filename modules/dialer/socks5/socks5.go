@@ -46,16 +46,11 @@ func (s *socks5) DialTimeout(network string, host, port string, timeout time.Dur
 }
 
 func (s *socks5) Run() (err error) {
-	err = s.init()
+	s.socks5Client = pkgSocks5.NewClient(pkgSocks5.SetClientAuth(s.authMode), pkgSocks5.SetClientUsername(s.Username), pkgSocks5.SetClientPassword(s.Password))
 	return
 }
 
 func (s *socks5) Close() (err error) {
-	return
-}
-
-func (s *socks5) init() (err error) {
-	s.socks5Client = pkgSocks5.NewClient(pkgSocks5.SetClientAuth(s.authMode), pkgSocks5.SetClientUsername(s.Username), pkgSocks5.SetClientPassword(s.Password))
 	return
 }
 
@@ -69,11 +64,11 @@ func New(jsonConfig json.RawMessage) (obj *socks5, err error) {
 
 	obj = &socks5{
 		Dialer: base.Dialer{
-			Net:           assembly.CreateNet(config.Ip, config.Port, config.Username, config.Password),
-			Identity:      assembly.CreateIdentity(config.Name, config.Type),
-			Pipeline:      assembly.CreatePipeline(),
-			PipelineInfos: config.PipelineInfos,
-			IFace:         config.Interface,
+			Net:        assembly.CreateNet(config.Ip, config.Port, config.Username, config.Password),
+			Identity:   assembly.CreateIdentity(config.Name, config.Type),
+			Pipeline:   assembly.CreatePipeline(),
+			Satellites: config.Satellites,
+			IFace:      config.Interface,
 		},
 		authMode: config.AuthMode,
 	}

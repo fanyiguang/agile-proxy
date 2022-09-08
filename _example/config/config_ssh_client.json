@@ -1,0 +1,49 @@
+{
+  "server": [
+    {
+      "ip": "127.0.0.1",
+      "port": "7890",
+      "username": "admin",
+      "password": "123",
+      "type": "ssh",
+      "name": "ssh-server",
+      "auth_mode": 1,
+      "router_name": "ssh-transport"
+    }
+  ],
+  "router": [
+    {
+      "type": "direct",
+      "name": "ssh-transport",
+      "client_name": "ssh-client",
+      "dns": {
+        "local_dns": false,
+        "server": "114.114.114.114"
+      },
+      "satellite": [
+        {
+          "name": "log"
+        }
+      ]
+    }
+  ],
+  "client": [
+    {
+      "ip": "127.0.0.1",
+      "port": "22",
+      "username": "root",
+      "password": "231231",
+      "type": "ssh",
+      "name": "ssh-client",
+      "mode": 0
+    }
+  ],
+  "satellite": [
+    {
+      "type": "log",
+      "name": "log"
+    }
+  ],
+  "log_path": "./agile-proxy.log",
+  "log_level": "debug"
+}

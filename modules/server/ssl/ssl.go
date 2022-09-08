@@ -101,10 +101,10 @@ func (s *ssl) handler(conn net.Conn) (err error) {
 }
 
 func (s *ssl) transport(conn net.Conn, desHost, desPort []byte) (err error) {
-	if s.Transmitter != nil {
-		err = s.Transmitter.Transport(conn, desHost, desPort)
+	if s.Route != nil {
+		err = s.Route.Transport(conn, desHost, desPort)
 	} else {
-		err = errors.New("Transmitter is nil")
+		err = errors.New("Route is nil")
 	}
 	return
 }
@@ -124,12 +124,12 @@ func New(jsonConfig json.RawMessage) (obj *ssl, err error) {
 
 	obj = &ssl{
 		Server: base.Server{
-			Net:           assembly.CreateNet(config.Ip, config.Port, config.Username, config.Password),
-			Identity:      assembly.CreateIdentity(config.Name, config.Type),
-			Pipeline:      assembly.CreatePipeline(),
-			DoneCh:        make(chan struct{}),
-			TransportName: config.TransportName,
-			PipelineInfos: config.PipelineInfos,
+			Net:        assembly.CreateNet(config.Ip, config.Port, config.Username, config.Password),
+			Identity:   assembly.CreateIdentity(config.Name, config.Type),
+			Pipeline:   assembly.CreatePipeline(),
+			DoneCh:     make(chan struct{}),
+			RouteName:  config.RouteName,
+			Satellites: config.Satellites,
 		},
 		Tls:      assembly.CreateTls(config.CrtPath, config.KeyPath, "", ""),
 		authMode: config.AuthMode,

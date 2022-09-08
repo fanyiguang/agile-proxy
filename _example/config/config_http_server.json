@@ -7,10 +7,10 @@
       "password": "123",
       "type": "http",
       "name": "http-server",
-      "transport_name": "direct-transport"
+      "router_name": "direct-transport"
     }
   ],
-  "transport": [
+  "router": [
     {
       "type": "direct",
       "name": "direct-transport",
@@ -18,7 +18,12 @@
       "dns": {
         "local_dns": false,
         "server": "114.114.114.114"
-      }
+      },
+      "satellite": [
+        {
+          "name": "log"
+        }
+      ]
     }
   ],
   "client": [
@@ -36,9 +41,12 @@
       "interface": ""
     }
   ],
-  "msg": {
-    "type": "log"
-  },
+  "satellite": [
+    {
+      "type": "log",
+      "name": "log"
+    }
+  ],
   "log_path": "./agile-proxy.log",
   "log_level": "debug"
 }

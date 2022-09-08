@@ -2,12 +2,13 @@ package direct
 
 import (
 	"agile-proxy/helper/common"
-	"agile-proxy/helper/log"
 	"agile-proxy/modules/assembly"
 	"agile-proxy/modules/client/base"
+	"context"
 	"encoding/json"
 	"github.com/pkg/errors"
 	"net"
+	"net/http"
 	"time"
 )
 
@@ -16,45 +17,39 @@ type Direct struct {
 }
 
 func (d *Direct) Dial(network string, host, port []byte) (conn net.Conn, err error) {
-	if d.Dialer != nil {
-		conn, err = d.Dialer.Dial(network, common.BytesToStr(host), d.GetStrPort(port))
-		if err == nil || d.Mode == 1 { // mode=1 严格模式
-			return
-		}
-
-		if err != nil {
-			log.WarnF("d.dialer.Dial failed: %v", err)
-		}
-	}
-
-	conn, err = net.Dial(network, net.JoinHostPort(common.BytesToStr(host), d.GetStrPort(port)))
-	if err != nil {
-		err = errors.Wrap(err, "direct Dial")
-	}
-	return
+	return d.Client.Dial(network, common.BytesToStr(host), common.BytesToStr(port))
 }
 
 func (d *Direct) DialTimeout(network string, host, port []byte, timeout time.Duration) (conn net.Conn, err error) {
-	if d.Dialer != nil {
-		conn, err = d.Dialer.DialTimeout(network, common.BytesToStr(host), d.GetStrPort(port), timeout)
-		if err == nil || d.Mode == 1 { // mode=1 严格模式
-			return
-		}
+	return d.Client.DialTimeout(network, common.BytesToStr(host), common.BytesToStr(port), timeout)
+}
 
+func (d *Direct) createRoundTripper() (err error) {
+	d.RoundTripper, err = d.CreateRoundTripper("", func(ctx context.Context, network, addr string) (conn net.Conn, err error) {
+		deadline, ok := ctx.Deadline()
+		host, port, err := net.SplitHostPort(addr)
 		if err != nil {
-			log.WarnF("d.dialer.Dial failed: %v", err)
+			return conn, err
 		}
-	}
 
-	conn, err = net.Dial(network, net.JoinHostPort(common.BytesToStr(host), d.GetStrPort(port)))
-	if err != nil {
-		err = errors.Wrap(err, "direct Dial")
-	}
+		if ok {
+			now := time.Now()
+			if deadline.After(now) {
+				conn, err = d.Client.DialTimeout(network, host, port, deadline.Sub(now))
+			} else {
+				err = http.ErrHandlerTimeout
+			}
+		} else {
+			conn, err = d.Client.Dial(network, host, port)
+		}
+		return
+	})
 	return
 }
 
 func (d *Direct) Run() (err error) {
 	d.Client.Init()
+	err = d.createRoundTripper()
 	return
 }
 
@@ -72,12 +67,11 @@ func New(jsonConfig json.RawMessage) (obj *Direct, err error) {
 
 	obj = &Direct{
 		Client: base.Client{
-			Net:           assembly.CreateNet(config.Ip, config.Port, config.Username, config.Password),
-			Identity:      assembly.CreateIdentity(config.Name, config.Type),
-			Pipeline:      assembly.CreatePipeline(),
-			PipelineInfos: config.PipelineInfos,
-			Mode:          config.Mode,
-			DialerName:    config.DialerName,
+			Identity:   assembly.CreateIdentity(config.Name, config.Type),
+			Pipeline:   assembly.CreatePipeline(),
+			Satellites: config.Satellites,
+			Mode:       config.Mode,
+			DialerName: config.DialerName,
 		},
 	}
 

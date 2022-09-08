@@ -1,0 +1,45 @@
+{
+  "server": [
+    {
+      "ip": "127.0.0.1",
+      "port": "7890",
+      "username": "admin",
+      "password": "123",
+      "type": "ssl",
+      "name": "ssl-server",
+      "auth_mode": 1,
+      "router_name": "direct-transport-1"
+    }
+  ],
+  "router": [
+    {
+      "type": "direct",
+      "name": "direct-transport-1",
+      "client_name": "ssl-client",
+      "dns": {
+        "local_dns": false,
+        "server": "114.114.114.114"
+      }
+    }
+  ],
+  "client": [
+    {
+      "ip": "127.0.0.1",
+      "port": "8888",
+      "username": "admin",
+      "password": "123",
+      "type": "ssl",
+      "name": "ssl-client",
+      "auth_mode": 1,
+      "mode": 0
+    }
+  ],
+  "satellite": [
+    {
+      "type": "log",
+      "name": "log"
+    }
+  ],
+  "log_path": "./agile-proxy.log",
+  "log_level": "debug"
+}

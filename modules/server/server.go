@@ -2,6 +2,7 @@ package server
 
 import (
 	pConfig "agile-proxy/config"
+	"agile-proxy/helper/Go"
 	"agile-proxy/helper/log"
 	"agile-proxy/modules/server/http"
 	"agile-proxy/modules/server/https"
@@ -23,9 +24,9 @@ type Server interface {
 	Close() (err error)
 }
 
-func Factory(configs []sysJson.RawMessage) []Server {
+func Factory(configs []sysJson.RawMessage) {
+	var err error
 	for _, config := range configs {
-		var err error
 		var server Server
 		switch strings.ToLower(json.Get(config, "type").ToString()) {
 		case pConfig.Socks5:
@@ -46,7 +47,12 @@ func Factory(configs []sysJson.RawMessage) []Server {
 			continue
 		}
 
-		servers = append(servers, server)
+		servers[server.Name()] = server
+		Go.Go(func() {
+			err := server.Run()
+			if err != nil {
+				log.WarnF("%v(%v) run failed: %v", server.Name(), server.Type(), err)
+			}
+		})
 	}
-	return servers
 }

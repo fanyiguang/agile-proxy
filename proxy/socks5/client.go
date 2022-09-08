@@ -112,7 +112,7 @@ func (c *Client) handShake(conn net.Conn) (usedAuthMode uint8, err error) {
 }
 
 func (c *Client) authentication(conn net.Conn) (err error) {
-	reqBuffer := []byte{0x05} // 认证子协商版本（与SOCKS协议版本的0x05无关系，为其他值亦可）
+	reqBuffer := []byte{0x01} // 认证子协商版本（与SOCKS协议版本的0x05无关系，为其他值亦可）
 	reqBuffer = append(reqBuffer, byte(len(c.username)))
 	reqBuffer = append(reqBuffer, c.username...)
 	reqBuffer = append(reqBuffer, byte(len(c.password)))

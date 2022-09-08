@@ -8,10 +8,10 @@
       "type": "socks5",
       "name": "socks5-server",
       "auth_mode": 1,
-      "transport_name": "ha"
+      "router_name": "ha"
     }
   ],
-  "transport": [
+  "router": [
     {
       "type": "ha",
       "name": "ha",
@@ -19,7 +19,12 @@
       "dns": {
         "local_dns": false,
         "server": "114.114.114.114"
-      }
+      },
+      "satellite": [
+        {
+          "name": "log"
+        }
+      ]
     }
   ],
   "client": [
@@ -53,9 +58,12 @@
       "interface": ""
     }
   ],
-  "msg": {
-    "type": "log"
-  },
+  "satellite": [
+    {
+      "type": "log",
+      "name": "log"
+    }
+  ],
   "log_path": "./agile-proxy.log",
   "log_level": "debug"
 }
