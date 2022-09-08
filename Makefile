@@ -1,5 +1,5 @@
 NAME=agile-proxy
-VERSION=2.0.0
+VERSION=1.1.0
 GOBUILD=go build
 
 all: linux-amd64 windows-amd64

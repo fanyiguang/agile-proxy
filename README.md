@@ -10,7 +10,7 @@ https://github.com/fanyiguang/agile-proxy/releases/tag/v1.0.0
 ***
 * 支持HTTP/HTTPS/SOCKS5/SSL/SSH代理协议
 * 多种协议端口监听
-* 多协议代理链
+* 多协议前置代理
 * 模拟动态代理
 * 自定义配置代理链路
 * 高可用代理模式
@@ -116,7 +116,7 @@ https://github.com/fanyiguang/agile-proxy/tree/main/_example/config
 
 ### 定制自己的代理
 ***
-个人的力量是微不足道的，群众的力量才是无限的。agile-proxy设计之初的理念就是高扩展性，项目中几乎所有功能都是完全解耦的。您可以很容易的接入开发创造出属于自己的代理。
+agile-proxy设计之初的理念就是高扩展性，项目中几乎所有功能都是解耦的。可以很容易的接入开发创造出自己的代理。
 
 
 
