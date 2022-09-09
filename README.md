@@ -20,10 +20,10 @@ https://github.com/fanyiguang/agile-proxy/releases
 ### 快速上手
 ***
 ##### 逻辑结构
-![image](https://github.com/fanyiguang/agile-proxy/blob/main/_example/res/agile_proxy.png)
+![image](https://github.com/fanyiguang/agile-proxy/blob/main/_doc/agile_proxy.png)
 
 ##### 自定义链路 
-![image](https://github.com/fanyiguang/agile-proxy/blob/main/_example/res/muti_link.png)  
+![image](https://github.com/fanyiguang/agile-proxy/blob/main/_doc/muti_link.png)  
 每个模块下都有多种实现。它们像组件一般，您可以挑选合适的组件来拼装出属于自己的代理链路。
 
 ##### 配置SOCKS5服务端
